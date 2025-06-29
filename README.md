@@ -3,7 +3,7 @@
 Java libraries for Gaussian splats.
 
 <p align="center">
-<img src="screenshot/screenshot.png" />
+<img src="./screenshot/screenshot.png" />
 </p>
 
 
