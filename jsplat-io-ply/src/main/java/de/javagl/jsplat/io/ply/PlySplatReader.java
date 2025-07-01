@@ -80,10 +80,10 @@ public final class PlySplatReader implements SplatListReader
         h.withFloat("scale_0", MutableSplat::setScaleX);
         h.withFloat("scale_1", MutableSplat::setScaleY);
         h.withFloat("scale_2", MutableSplat::setScaleZ);
-        h.withFloat("rot_0", MutableSplat::setRotationX);
-        h.withFloat("rot_1", MutableSplat::setRotationY);
-        h.withFloat("rot_2", MutableSplat::setRotationZ);
-        h.withFloat("rot_3", MutableSplat::setRotationW);
+        h.withFloat("rot_0", MutableSplat::setRotationW);
+        h.withFloat("rot_1", MutableSplat::setRotationX);
+        h.withFloat("rot_2", MutableSplat::setRotationY);
+        h.withFloat("rot_3", MutableSplat::setRotationZ);
         for (int i = 0; i < shDimensions - 1; i++)
         {
             int indexX = i * 3 + 0;

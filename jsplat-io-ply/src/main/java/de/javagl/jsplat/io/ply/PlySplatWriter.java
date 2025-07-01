@@ -117,10 +117,10 @@ public final class PlySplatWriter implements SplatListWriter
         v.withFloat("scale_0", Splat::getScaleX);
         v.withFloat("scale_1", Splat::getScaleY);
         v.withFloat("scale_2", Splat::getScaleZ);
-        v.withFloat("rot_0", Splat::getRotationX);
-        v.withFloat("rot_1", Splat::getRotationY);
-        v.withFloat("rot_2", Splat::getRotationZ);
-        v.withFloat("rot_3", Splat::getRotationW);
+        v.withFloat("rot_0", Splat::getRotationW);
+        v.withFloat("rot_1", Splat::getRotationX);
+        v.withFloat("rot_2", Splat::getRotationY);
+        v.withFloat("rot_3", Splat::getRotationZ);
 
         if (plyFormat == PlyFormat.ASCII)
         {
