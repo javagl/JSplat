@@ -38,6 +38,7 @@ public class SplatGridExamples
         writeAll("rotations", SplatGrids.createRotations());
         writeAll("rotations2D", SplatGrids.createRotations2D());
         writeAll("shs1", SplatGrids.createShs1());
+        writeAll("shs3", SplatGrids.createShs3());
 
         List<MutableSplat> all = new ArrayList<MutableSplat>();
         all.addAll(SplatTransforms.translateList(SplatGrids.createScales(),

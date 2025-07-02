@@ -162,17 +162,55 @@ class SplatGrids
 
         g.register((s, x, y, z) ->
         {
-            s.setShX(1, Splats.colorToDirectCurrent(x));
-            s.setShX(2, Splats.colorToDirectCurrent(0.0f));
-            s.setShX(3, Splats.colorToDirectCurrent(1.0f - x));
+            s.setShX(1, x);
+            s.setShX(2, z);
+            s.setShX(3, -x);
 
-            s.setShY(1, Splats.colorToDirectCurrent(y));
-            s.setShY(2, Splats.colorToDirectCurrent(0.0f));
-            s.setShY(3, Splats.colorToDirectCurrent(1.0f - y));
+            s.setShY(1, y);
+            s.setShY(2, x);
+            s.setShY(3, -y);
 
-            s.setShZ(1, Splats.colorToDirectCurrent(z));
-            s.setShZ(2, Splats.colorToDirectCurrent(0.0f));
-            s.setShZ(3, Splats.colorToDirectCurrent(1.0f - z));
+            s.setShZ(1, z);
+            s.setShZ(2, y);
+            s.setShZ(3, -z);
+        });
+
+        return g.generate();
+    }
+
+    /**
+     * Create a splat data set with different spherical harmonics, degree 3
+     * 
+     * @return The data set
+     */
+    static List<MutableSplat> createShs3()
+    {
+        int shDegree = 3;
+        Supplier<MutableSplat> supplier = () ->
+        {
+            MutableSplat s = Splats.create(shDegree);
+            setDefaults(s);
+            return s;
+        };
+        SplatGridBuilder g = new SplatGridBuilder(5, 5, 5, supplier);
+
+        float maxPosition = 100.0f;
+        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+
+        g.register((s, x, y, z) ->
+        {
+            for (int d = 0; d < 16; d++)
+            {
+                int r = d % 3;
+                float fx = r == 0 ? 1.0f : 0.0f;
+                float fy = r == 1 ? 1.0f : 0.0f;
+                float fz = r == 2 ? 1.0f : 0.0f;
+                s.setShX(d, x * fx);
+                s.setShY(d, y * fy);
+                s.setShZ(d, z * fz);
+            }
         });
 
         return g.generate();
