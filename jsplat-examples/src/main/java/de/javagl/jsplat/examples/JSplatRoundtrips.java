@@ -48,11 +48,6 @@ public class JSplatRoundtrips
     private static final String BASE_DIRECTORY = "./data/roundtrip/";
     private static final String BASE_NAME = "unitCube";
 
-    enum Format
-    {
-        GSPLAT, PLY_ASCII, PLY_BINARY_LE, PLY_BINARY_BE, SPZ, SPZ_GLTF
-    }
-
     private static final int shDegree = 0;
 
     /**
@@ -69,10 +64,10 @@ public class JSplatRoundtrips
         // debugSingle(Format.SPZ);
     }
 
-    private static void debugSingle(Format sf) throws IOException
+    private static void debugSingle(SplatFormat sf) throws IOException
     {
         String baseFileName = createFileName(sf);
-        List<MutableSplat> splats = read(sf, baseFileName);
+        List<MutableSplat> splats = Utils.read(sf, baseFileName);
         List<Splat> baseSplats = UnitCubeSplats.create();
         System.out.println("Results:");
         for (int i = 0; i < splats.size(); i++)
@@ -89,124 +84,50 @@ public class JSplatRoundtrips
     {
         List<Splat> baseSplats = UnitCubeSplats.create();
 
-        for (Format sf : Format.values())
+        for (SplatFormat sf : SplatFormat.values())
         {
             String baseFileName = createFileName(sf);
-            write(baseSplats, sf, baseFileName);
+            Utils.write(baseSplats, sf, baseFileName);
         }
     }
 
     private static void roundtripAll() throws IOException
     {
-        for (Format sf : Format.values())
+        for (SplatFormat sf : SplatFormat.values())
         {
-            for (Format tf : Format.values())
+            for (SplatFormat tf : SplatFormat.values())
             {
                 convert(sf, tf);
             }
         }
     }
 
-    private static SplatListReader createReader(Format format)
+    private static String createFileName(SplatFormat sf)
     {
-        switch (format)
-        {
-            case GSPLAT:
-                return new GsplatSplatReader();
-            case PLY_ASCII:
-            case PLY_BINARY_LE:
-            case PLY_BINARY_BE:
-                return new PlySplatReader();
-            case SPZ:
-                return new SpzSplatReader();
-            case SPZ_GLTF:
-                return new SpzGltfSplatReader();
-        }
-        logger.severe("Unknown format: " + format);
-        return null;
+        return Utils.createFileName(BASE_DIRECTORY, BASE_NAME, sf);
     }
 
-    private static SplatListWriter createWriter(Format format)
+    private static String createFileName(SplatFormat sf, SplatFormat tf)
     {
-        switch (format)
-        {
-            case GSPLAT:
-                return new GsplatSplatWriter();
-            case PLY_ASCII:
-                return new PlySplatWriter(PlyFormat.ASCII);
-            case PLY_BINARY_LE:
-                return new PlySplatWriter(PlyFormat.BINARY_LITTLE_ENDIAN);
-            case PLY_BINARY_BE:
-                return new PlySplatWriter(PlyFormat.BINARY_BIG_ENDIAN);
-            case SPZ:
-                return new SpzSplatWriter();
-            case SPZ_GLTF:
-                return new SpzGltfSplatWriter();
-        }
-        logger.severe("Unknown format: " + format);
-        return null;
+        return createFileName(BASE_DIRECTORY, BASE_NAME, sf, tf);
     }
 
-    private static String createFileExtension(Format format)
+    private static String createFileName(String baseDirectory, String baseName,
+        SplatFormat sf, SplatFormat tf)
     {
-        switch (format)
-        {
-            case GSPLAT:
-                return "splat";
-            case PLY_ASCII:
-            case PLY_BINARY_LE:
-            case PLY_BINARY_BE:
-                return "ply";
-            case SPZ:
-                return "spz";
-            case SPZ_GLTF:
-                return "glb";
-        }
-        logger.severe("Unknown format: " + format);
-        return null;
+        String fileName = baseName + "_" + sf + "_to_" + tf + "."
+            + Utils.createFileExtension(tf);
+        return Paths.get(baseDirectory, fileName).toString();
     }
 
-    private static String createFileName(Format sf)
-    {
-        String baseFileName = BASE_DIRECTORY + BASE_NAME + "_" + sf + "."
-            + createFileExtension(sf);
-        return baseFileName;
-    }
-
-    private static String createFileName(Format sf, Format tf)
-    {
-        String resultFileName = BASE_DIRECTORY + BASE_NAME + "_" + sf + "_to_"
-            + tf + "." + createFileExtension(tf);
-        return resultFileName;
-    }
-
-    private static void convert(Format sf, Format tf) throws IOException
-    {
-        String baseFileName = createFileName(sf);
-        List<MutableSplat> splats = read(sf, baseFileName);
-        String resultFileName = createFileName(sf, tf);
-        logger.info("Write " + sf + " to " + tf);
-        write(splats, tf, resultFileName);
-    }
-
-    private static void write(List<? extends Splat> splats, Format format,
-        String fileName) throws IOException
-    {
-        BufferedOutputStream bos =
-            new BufferedOutputStream(new FileOutputStream(fileName));
-        SplatListWriter splatWriter = createWriter(format);
-        splatWriter.writeList(splats, bos);
-        bos.close();
-    }
-
-    private static List<MutableSplat> read(Format format, String fileName)
+    private static void convert(SplatFormat sf, SplatFormat tf)
         throws IOException
     {
-        BufferedInputStream bis =
-            new BufferedInputStream(new FileInputStream(fileName));
-        SplatListReader splatReader = createReader(format);
-        List<MutableSplat> splats = splatReader.readList(bis);
-        bis.close();
-        return splats;
+        String baseFileName = createFileName(sf);
+        List<MutableSplat> splats = Utils.read(sf, baseFileName);
+        String resultFileName = createFileName(sf, tf);
+        logger.info("Write " + sf + " to " + tf);
+        Utils.write(splats, tf, resultFileName);
     }
+
 }
