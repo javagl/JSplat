@@ -88,11 +88,19 @@ public class GaussianCloudSplats
             splat.setShY(0, colors.get(i * 3 + 1));
             splat.setShZ(0, colors.get(i * 3 + 2));
 
-            for (int d = 1; d < shDimensions; d++)
+            if (shDimensions >= 4)
             {
-                splat.setShX(d, sh.get(i * d * 3 + 0));
-                splat.setShY(d, sh.get(i * d * 3 + 1));
-                splat.setShZ(d, sh.get(i * d * 3 + 2));
+                // Convert the component order as required for SPZ
+                int index = (i * (shDimensions - 1)) * 3;
+                splat.setShX(1, sh.get(index + 0));
+                splat.setShX(2, sh.get(index + 1));
+                splat.setShX(3, sh.get(index + 2));
+                splat.setShY(1, sh.get(index + 3));
+                splat.setShY(2, sh.get(index + 4));
+                splat.setShY(3, sh.get(index + 5));
+                splat.setShZ(1, sh.get(index + 6));
+                splat.setShZ(2, sh.get(index + 7));
+                splat.setShZ(3, sh.get(index + 8));
             }
             splats.add(splat);
         }
@@ -142,11 +150,19 @@ public class GaussianCloudSplats
             colors.put(i * 3 + 1, splat.getShY(0));
             colors.put(i * 3 + 2, splat.getShZ(0));
 
-            for (int d = 0; d < shDimensions - 1; d++)
+            if (shDimensions >= 4)
             {
-                sh.put(i * d * 3 + 0, splat.getShX(d + 1));
-                sh.put(i * d * 3 + 1, splat.getShY(d + 1));
-                sh.put(i * d * 3 + 2, splat.getShZ(d + 1));
+                // Convert the component order as required for SPZ
+                int index = (i * (shDimensions - 1)) * 3;
+                sh.put(index + 0, splat.getShX(1));
+                sh.put(index + 1, splat.getShX(2));
+                sh.put(index + 2, splat.getShX(3));
+                sh.put(index + 3, splat.getShY(1));
+                sh.put(index + 4, splat.getShY(2));
+                sh.put(index + 5, splat.getShY(3));
+                sh.put(index + 6, splat.getShZ(1));
+                sh.put(index + 7, splat.getShZ(2));
+                sh.put(index + 8, splat.getShZ(3));
             }
         }
         return g;
