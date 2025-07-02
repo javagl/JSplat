@@ -119,7 +119,26 @@ public class Splats
                     + " to a splat with spherical harmonics degree "
                     + t.getShDegree());
         }
-
+        setAny(s, t);
+    }
+    
+    /**
+     * Set the values of the given {@link Splat} in the given
+     * {@link MutableSplat}. 
+     * 
+     * If the source has a higher number of dimensions than the target,
+     * then the dimensions that exceed that of the target will be
+     * omitted.
+     *
+     * If the target has a higher number of dimensions than the source,
+     * then the remaining spherical harmonics in the target will be
+     * set to 0.0. 
+     * 
+     * @param s The source {@link Splat}
+     * @param t The target {@link MutableSplat}
+     */
+    public static void setAny(Splat s, MutableSplat t)
+    {
         t.setPositionX(s.getPositionX());
         t.setPositionY(s.getPositionY());
         t.setPositionZ(s.getPositionZ());
@@ -135,14 +154,26 @@ public class Splats
 
         t.setOpacity(s.getOpacity());
 
-        int dimensions = s.getShDimensions();
+        int sDimensions = s.getShDimensions();
+        int tDimensions = t.getShDimensions();
+        int dimensions = Math.min(sDimensions, tDimensions);
         for (int i = 0; i < dimensions; i++)
         {
             t.setShX(i, s.getShX(i));
             t.setShY(i, s.getShY(i));
             t.setShZ(i, s.getShZ(i));
         }
+        if (tDimensions > sDimensions)
+        {
+            for (int i = sDimensions; i < tDimensions; i++)
+            {
+                t.setShX(i, 0.0f);
+                t.setShY(i, 0.0f);
+                t.setShZ(i, 0.0f);
+            }
+        }
     }
+    
 
     /**
      * Converts given the first-order spherical harmonics coefficient (usually
