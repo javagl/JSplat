@@ -90,10 +90,11 @@ public class SplatDatas
 
             for (int d = 0; d < shDimensions; d++)
             {
-                shs.put(i * (d * shDimensions) * 3 + 0, splat.getShX(d));
-                shs.put(i * (d * shDimensions) * 3 + 1, splat.getShY(d));
-                shs.put(i * (d * shDimensions) * 3 + 2, splat.getShZ(d));
+                shs.put(((i * shDimensions) + d) * 3 + 0, splat.getShX(d));
+                shs.put(((i * shDimensions) + d) * 3 + 1, splat.getShY(d));
+                shs.put(((i * shDimensions) + d) * 3 + 2, splat.getShZ(d));
             }
+            i++;
         }
         return splatData;
     }
@@ -137,9 +138,9 @@ public class SplatDatas
 
             for (int d = 0; d < shDimensions; d++)
             {
-                splat.setShX(d, shs.get(i * (d * shDimensions) * 3 + 0));
-                splat.setShY(d, shs.get(i * (d * shDimensions) * 3 + 1));
-                splat.setShZ(d, shs.get(i * (d * shDimensions) * 3 + 2));
+                splat.setShX(d, shs.get(((i * shDimensions) + d) * 3 + 0));
+                splat.setShY(d, shs.get(((i * shDimensions) + d) * 3 + 1));
+                splat.setShZ(d, shs.get(((i * shDimensions) + d) * 3 + 2));
             }
             splats.add(splat);
         }
