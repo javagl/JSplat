@@ -26,6 +26,8 @@
  */
 package de.javagl.jsplat;
 
+import java.util.List;
+
 /**
  * Methods related to splats
  */
@@ -93,7 +95,7 @@ public class Splats
             float shx = splat.getShX(d);
             float shy = splat.getShY(d);
             float shz = splat.getShZ(d);
-            String shs = "sh" + d + "=(" + shx + ", " + shy + " " + shz + ")";
+            String shs = "sh" + d + "=(" + shx + "," + shy + "," + shz + ")";
             sb.append(shs).append(separator);
         }
 
@@ -121,18 +123,16 @@ public class Splats
         }
         setAny(s, t);
     }
-    
+
     /**
      * Set the values of the given {@link Splat} in the given
-     * {@link MutableSplat}. 
+     * {@link MutableSplat}.
      * 
-     * If the source has a higher number of dimensions than the target,
-     * then the dimensions that exceed that of the target will be
-     * omitted.
+     * If the source has a higher number of dimensions than the target, then the
+     * dimensions that exceed that of the target will be omitted.
      *
-     * If the target has a higher number of dimensions than the source,
-     * then the remaining spherical harmonics in the target will be
-     * set to 0.0. 
+     * If the target has a higher number of dimensions than the source, then the
+     * remaining spherical harmonics in the target will be set to 0.0.
      * 
      * @param s The source {@link Splat}
      * @param t The target {@link MutableSplat}
@@ -173,7 +173,6 @@ public class Splats
             }
         }
     }
-    
 
     /**
      * Converts given the first-order spherical harmonics coefficient (usually
@@ -225,11 +224,15 @@ public class Splats
      */
     public static float alphaToOpacity(float a)
     {
+        // This is to avoid infinity, but pick a value that
+        // results in 255 or 0 during the inverse operation
         if (a == 1.0f)
         {
-            // This is to avoid infinity, but pick a value that
-            // results in 255 during the inverse operation
-            return 37.0f;
+            return 20.0f;
+        }
+        if (a == 0.0f)
+        {
+            return -20.0f;
         }
         float opacity = (float) -Math.log(1.0f / a - 1.0);
         return opacity;
@@ -264,6 +267,145 @@ public class Splats
     public static int dimensionsForDegree(int degree)
     {
         return (degree + 1) * (degree + 1);
+    }
+
+    /**
+     * Returns whether the given lists of splats are epsilon-equal
+     * 
+     * @param sas The first list
+     * @param sbs The second list
+     * @param epsilon The epsilon
+     * @return The result
+     */
+    public static boolean equalsEpsilon(List<? extends Splat> sas,
+        List<? extends Splat> sbs, float epsilon)
+    {
+        if (sas.size() != sbs.size())
+        {
+            return false;
+        }
+        if (sas.size() == 0)
+        {
+            return true;
+        }
+        for (int i = 0; i < sas.size(); i++)
+        {
+            Splat sa = sas.get(i);
+            Splat sb = sbs.get(i);
+            if (!equalsEpsilon(sa, sb, epsilon))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether the given splats are epsilon-equal
+     * 
+     * @param sa The first splat
+     * @param sb The second splat
+     * @param epsilon The epsilon
+     * @return The result
+     */
+    public static boolean equalsEpsilon(Splat sa, Splat sb, float epsilon)
+    {
+        int dimensionsA = sa.getShDimensions();
+        int dimensionsB = sb.getShDimensions();
+        if (dimensionsA != dimensionsB)
+        {
+            return false;
+        }
+
+        // Position
+        if (!equalsEpsilon(sa.getPositionX(), sb.getPositionX(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getPositionY(), sb.getPositionY(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getPositionZ(), sb.getPositionZ(), epsilon))
+        {
+            return false;
+        }
+
+        // Scale
+        if (!equalsEpsilon(sa.getScaleX(), sb.getScaleX(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getScaleY(), sb.getScaleY(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getScaleZ(), sb.getScaleZ(), epsilon))
+        {
+            return false;
+        }
+
+        // Rotation
+        if (!equalsEpsilon(sa.getRotationX(), sb.getRotationX(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getRotationY(), sb.getRotationY(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getRotationZ(), sb.getRotationZ(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getRotationW(), sb.getRotationW(), epsilon))
+        {
+            return false;
+        }
+
+        // Opacity
+        if (!equalsEpsilon(sa.getOpacity(), sb.getOpacity(), epsilon))
+        {
+            return false;
+        }
+
+        // Spherical harmonics
+        for (int d = 0; d < dimensionsA; d++)
+        {
+            if (!equalsEpsilon(sa.getShX(d), sb.getShX(d), epsilon))
+            {
+                return false;
+            }
+            if (!equalsEpsilon(sa.getShY(d), sb.getShY(d), epsilon))
+            {
+                return false;
+            }
+            if (!equalsEpsilon(sa.getShZ(d), sb.getShZ(d), epsilon))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether the given values are epsilon-equal
+     * 
+     * @param a The first value
+     * @param b The second value
+     * @param epsilon The relative epsilon
+     * @return Whether they are equal
+     */
+    private static boolean equalsEpsilon(float a, float b, float epsilon)
+    {
+        float d = Math.abs(a - b);
+        float aa = Math.abs(a);
+        float ab = Math.abs(b);
+        if (aa < ab)
+        {
+            return d <= ab * epsilon;
+        }
+        return d <= aa * epsilon;
     }
 
     /**
