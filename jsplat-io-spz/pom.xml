@@ -6,7 +6,7 @@
 	<artifactId>jsplat-io-spz</artifactId>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>An splat library for Java</description>
+	<description>A splat library for Java</description>
 	<url>https://github.com/javagl/JSplat</url>
 
 	<parent>

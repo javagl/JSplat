@@ -6,7 +6,7 @@
 	<artifactId>jsplat</artifactId>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>An splat library for Java</description>
+	<description>A splat library for Java</description>
 	<url>https://github.com/javagl/JSplat</url>
 
 	<parent>
@@ -15,5 +15,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 </project>
