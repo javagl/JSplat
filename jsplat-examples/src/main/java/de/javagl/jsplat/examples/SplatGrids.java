@@ -282,7 +282,7 @@ class SplatGrids
      */
     private static void setDefaults(MutableSplat s)
     {
-        s.setOpacity(50.0f);
+        s.setOpacity(20.0f);
         setColor(s, 1.0f, 1.0f, 1.0f);
         setRotation(s, 0.0f, 0.0f, 0.0f, 0.0f);
         setScale(s, 1.0f, 1.0f, 1.0f);
