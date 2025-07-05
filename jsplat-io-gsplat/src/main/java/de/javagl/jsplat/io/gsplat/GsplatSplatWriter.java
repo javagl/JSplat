@@ -98,8 +98,8 @@ public final class GsplatSplatWriter
     static void writeToBuffer(Splat splat, ByteBuffer buffer)
     {
         buffer.putFloat(0, splat.getPositionX());
-        buffer.putFloat(4, splat.getPositionY());
-        buffer.putFloat(8, splat.getPositionZ());
+        buffer.putFloat(4, -splat.getPositionY());
+        buffer.putFloat(8, -splat.getPositionZ());
         buffer.putFloat(12, (float) Math.exp(splat.getScaleX()));
         buffer.putFloat(16, (float) Math.exp(splat.getScaleY()));
         buffer.putFloat(20, (float) Math.exp(splat.getScaleZ()));

@@ -71,8 +71,8 @@ public final class PlySplatReader implements SplatListReader
         Handle<MutableSplat> h =
             plyTarget.register("vertex", () -> Splats.create(shDegree));
         h.withFloat("x", MutableSplat::setPositionX);
-        h.withFloat("y", MutableSplat::setPositionY);
-        h.withFloat("z", MutableSplat::setPositionZ);
+        h.withFloat("y", (s, y) -> s.setPositionY(-y));
+        h.withFloat("z", (s, z) -> s.setPositionZ(-z));
         h.withFloat("f_dc_0", (s, v) -> s.setShX(0, v));
         h.withFloat("f_dc_1", (s, v) -> s.setShY(0, v));
         h.withFloat("f_dc_2", (s, v) -> s.setShZ(0, v));

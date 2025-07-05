@@ -96,8 +96,8 @@ public final class PlySplatWriter implements SplatListWriter
 
         Handle<? extends Splat> v = plySource.register("vertex", splats);
         v.withFloat("x", Splat::getPositionX);
-        v.withFloat("y", Splat::getPositionY);
-        v.withFloat("z", Splat::getPositionZ);
+        v.withFloat("y", (s) -> -s.getPositionY());
+        v.withFloat("z", (s) -> -s.getPositionZ());
         v.withFloat("f_dc_0", (s) -> s.getShX(0));
         v.withFloat("f_dc_1", (s) -> s.getShY(0));
         v.withFloat("f_dc_2", (s) -> s.getShZ(0));

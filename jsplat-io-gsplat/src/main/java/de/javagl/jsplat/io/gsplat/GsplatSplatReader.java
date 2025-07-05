@@ -147,8 +147,8 @@ public final class GsplatSplatReader
     private static void readFromBuffer(ByteBuffer bb, MutableSplat splat)
     {
         splat.setPositionX(bb.getFloat(0));
-        splat.setPositionY(bb.getFloat(4));
-        splat.setPositionZ(bb.getFloat(8));
+        splat.setPositionY(-bb.getFloat(4));
+        splat.setPositionZ(-bb.getFloat(8));
 
         splat.setScaleX((float) Math.log(bb.getFloat(12)));
         splat.setScaleY((float) Math.log(bb.getFloat(16)));
