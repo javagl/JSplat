@@ -68,7 +68,7 @@ public class JSplatRoundtrips
     {
         String baseFileName = createFileName(sf);
         List<MutableSplat> splats = Utils.read(sf, baseFileName);
-        List<Splat> baseSplats = UnitCubeSplats.create();
+        List<MutableSplat> baseSplats = UnitCubeSplats.create();
         System.out.println("Results:");
         for (int i = 0; i < splats.size(); i++)
         {
@@ -82,7 +82,7 @@ public class JSplatRoundtrips
 
     private static void writeAll() throws IOException
     {
-        List<Splat> baseSplats = UnitCubeSplats.create();
+        List<MutableSplat> baseSplats = UnitCubeSplats.create();
 
         for (SplatFormat sf : SplatFormat.values())
         {

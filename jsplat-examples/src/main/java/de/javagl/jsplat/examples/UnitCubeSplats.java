@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.javagl.jsplat.MutableSplat;
-import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.Splats;
 
 /**
@@ -44,9 +43,9 @@ public class UnitCubeSplats
      * 
      * @return The splats
      */
-    public static List<Splat> create()
+    public static List<MutableSplat> create()
     {
-        List<Splat> splats = new ArrayList<Splat>();
+        List<MutableSplat> splats = new ArrayList<MutableSplat>();
 
         for (int c = 0; c < 8; c++)
         {
@@ -87,7 +86,7 @@ public class UnitCubeSplats
      * @param sy The scaling factor in y-direction
      * @param sz The scaling factor in z-direction
      */
-    private static void add(List<Splat> splats, float npx, float npy,
+    private static void add(List<MutableSplat> splats, float npx, float npy,
         float npz, float sx, float sy, float sz)
     {
         MutableSplat splat = Splats.create(0);
