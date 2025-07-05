@@ -35,20 +35,26 @@ public class SplatGridExamples
         writeAll("basic", SplatGrids.createBasic());
         writeAll("scales", SplatGrids.createScales());
         writeAll("colors", SplatGrids.createColors());
+        writeAll("opacities", SplatGrids.createOpacities());
         writeAll("rotations", SplatGrids.createRotations());
-        writeAll("rotations2D", SplatGrids.createRotations2D());
         writeAll("shs1", SplatGrids.createShs1());
         writeAll("shs3", SplatGrids.createShs3());
 
+        writeAll("rotations2D", SplatGrids.createRotations2D());
+        
         List<MutableSplat> all = new ArrayList<MutableSplat>();
         all.addAll(SplatTransforms.translateList(SplatGrids.createScales(),
-            -75.0f, -75.0f, 0.0f));
+            -125.0f, -75.0f, 0.0f));
+        all.addAll(SplatTransforms.translateList(SplatGrids.createOpacities(),
+            -125.0f, 75.0f, 0.0f));
         all.addAll(SplatTransforms.translateList(SplatGrids.createColors(),
-            75.0f, -75.0f, 0.0f));
+            0.0f, -75.0f, 0.0f));
         all.addAll(SplatTransforms.translateList(SplatGrids.createRotations(),
-            -75.0f, 75.0f, 0.0f));
-        all.addAll(SplatTransforms.translateList(SplatGrids.createShs1(), 75.0f,
-            75.0f, 0.0f));
+            0.0f, 75.0f, 0.0f));
+        all.addAll(SplatTransforms.translateList(SplatGrids.createShs1(), 
+            125.0f, -75.0f, 0.0f));
+        all.addAll(SplatTransforms.translateList(SplatGrids.createShs3(), 
+            125.0f, 75.0f, 0.0f));
         List<MutableSplat> combined = all.stream()
             .map(SplatTransforms.changedDegree(1)).collect(Collectors.toList());
         writeAll("combined", combined);

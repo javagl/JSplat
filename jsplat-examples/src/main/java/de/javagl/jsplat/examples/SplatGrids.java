@@ -43,6 +43,42 @@ class SplatGrids
     }
 
     /**
+     * Create a basic splat data set
+     * 
+     * @param minX The minimum x-position
+     * @param minY The minimum y-position
+     * @param minZ The minimum z-position
+     * @param maxX The maximum x-position
+     * @param maxY The maximum y-position
+     * @param maxZ The maximum z-position
+     * 
+     * @return The data set
+     */
+    static List<MutableSplat> createBox(float minX, float minY, float minZ,
+        float maxX, float maxY, float maxZ)
+    {
+        int shDegree = 0;
+        Supplier<MutableSplat> supplier = () ->
+        {
+            MutableSplat s = Splats.create(shDegree);
+            setDefaults(s);
+            setScale(s, 3.0f, 3.0f, 3.0f);
+            return s;
+        };
+        SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
+
+        g.registerX(minX, maxX, MutableSplat::setPositionX);
+        g.registerY(minY, maxY, MutableSplat::setPositionY);
+        g.registerZ(minZ, maxZ, MutableSplat::setPositionZ);
+        
+        g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
+        g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
+        g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
+
+        return g.generate();
+    }
+
+    /**
      * Create a splat data set with different scales
      * 
      * @return The data set
@@ -70,6 +106,47 @@ class SplatGrids
 
         return g.generate();
     }
+    
+    /**
+     * Create a splat data set with different opacity values
+     * 
+     * @return The data set
+     */
+    static List<MutableSplat> createOpacities()
+    {
+        int shDegree = 0;
+        Supplier<MutableSplat> supplier = () ->
+        {
+            MutableSplat s = Splats.create(shDegree);
+            setDefaults(s);
+            return s;
+        };
+        SplatGridBuilder g = new SplatGridBuilder(9, 9, 9, supplier);
+
+        float maxPosition = 100.0f;
+        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+
+        g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
+        g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
+        g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
+        
+        float minOpacity = -20.f;
+        float maxOpacity = 20.0f;
+        g.register((s, x, y, z) ->
+        {
+            float dx = 0.5f - x;
+            float dy = 0.5f - y;
+            float dz = 0.5f - z;
+            float d = 1.0f - (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
+            float opacity = minOpacity + d * (maxOpacity - minOpacity);
+            s.setOpacity(opacity);
+        });
+        
+        return g.generate();
+    }
+    
 
     /**
      * Create a splat data set with different colors
@@ -95,7 +172,7 @@ class SplatGrids
         g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
         g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
-
+        
         return g.generate();
     }
 
@@ -132,7 +209,7 @@ class SplatGrids
         g.register((s, x, y, z) ->
         {
             float max = Math.max(x, Math.max(y, z));
-            float angleRad = (float) (max * Math.PI);
+            float angleRad = (float) (max * Math.PI * 0.5);
             setRotation(s, x, y, z, angleRad);
         });
 
