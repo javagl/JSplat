@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>de.javagl</groupId>
+		<artifactId>jsplat-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>jsplat-viewer</artifactId>
+	<packaging>jar</packaging>
+
+	<repositories>
+		<repository>
+			<id>localMocalMepository</id>
+			<url>file://${basedir}/localMavenRepository</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.javagl</groupId>
+			<artifactId>jsplat</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>de.javagl</groupId>
+			<artifactId>rendering-core</artifactId>
+			<version>0.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>de.javagl</groupId>
+			<artifactId>rendering-interaction</artifactId>
+			<version>0.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.vecmath</groupId>
+			<artifactId>vecmath</artifactId>
+			<version>1.5.2</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+		</plugins>
+	</build>
+
+
+</project>
