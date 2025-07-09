@@ -487,10 +487,10 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
             gaussianData.put(j++, s.getPositionY());
             gaussianData.put(j++, s.getPositionZ());
 
+            gaussianData.put(j++, -s.getRotationW());
             gaussianData.put(j++, s.getRotationX());
             gaussianData.put(j++, s.getRotationY());
             gaussianData.put(j++, s.getRotationZ());
-            gaussianData.put(j++, s.getRotationW());
 
             gaussianData.put(j++, (float) Math.exp(s.getScaleX()));
             gaussianData.put(j++, (float) Math.exp(s.getScaleY()));
