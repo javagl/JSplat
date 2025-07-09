@@ -80,7 +80,7 @@ public class GaussianCloudSplats
             splat.setRotationX(rotations.get(i * 4 + 0));
             splat.setRotationY(rotations.get(i * 4 + 1));
             splat.setRotationZ(rotations.get(i * 4 + 2));
-            splat.setRotationW(rotations.get(i * 4 + 3));
+            splat.setRotationW(-rotations.get(i * 4 + 3));
 
             splat.setOpacity(alphas.get(i));
 
@@ -142,7 +142,7 @@ public class GaussianCloudSplats
             rotations.put(i * 4 + 0, splat.getRotationX());
             rotations.put(i * 4 + 1, splat.getRotationY());
             rotations.put(i * 4 + 2, splat.getRotationZ());
-            rotations.put(i * 4 + 3, splat.getRotationW());
+            rotations.put(i * 4 + 3, -splat.getRotationW());
 
             alphas.put(i, splat.getOpacity());
 
