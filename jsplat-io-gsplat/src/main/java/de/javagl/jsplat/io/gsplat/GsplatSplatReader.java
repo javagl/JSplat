@@ -146,6 +146,8 @@ public final class GsplatSplatReader
      */
     private static void readFromBuffer(ByteBuffer bb, MutableSplat splat)
     {
+        // Convert from right-down-front to right-up-front by 
+        // negating the y- and z-component
         splat.setPositionX(bb.getFloat(0));
         splat.setPositionY(-bb.getFloat(4));
         splat.setPositionZ(-bb.getFloat(8));
@@ -165,17 +167,20 @@ public final class GsplatSplatReader
 
         splat.setOpacity(Splats.alphaToOpacity(fa));
 
-        float rx = (Byte.toUnsignedInt(bb.get(28)) - 128.0f) / 128.0f;
-        float ry = (Byte.toUnsignedInt(bb.get(29)) - 128.0f) / 128.0f;
-        float rz = (Byte.toUnsignedInt(bb.get(30)) - 128.0f) / 128.0f;
-        float rw = (Byte.toUnsignedInt(bb.get(31)) - 128.0f) / 128.0f;
+        // The GSPLAT format uses 'scalar first' quaternions
+        float rw = (Byte.toUnsignedInt(bb.get(28)) - 128.0f) / 128.0f;
+        float rx = (Byte.toUnsignedInt(bb.get(29)) - 128.0f) / 128.0f;
+        float ry = (Byte.toUnsignedInt(bb.get(30)) - 128.0f) / 128.0f;
+        float rz = (Byte.toUnsignedInt(bb.get(31)) - 128.0f) / 128.0f;
         
         float lenSquared = rx * rx + ry * ry + rz * rz + rw * rw;
         float len = (float) Math.sqrt(lenSquared);
         
+        // Convert from right-down-front to right-up-front by 
+        // negating the y- and z-component
         splat.setRotationX(rx * len);
-        splat.setRotationY(ry * len);
-        splat.setRotationZ(rz * len);
+        splat.setRotationY(-ry * len);
+        splat.setRotationZ(-rz * len);
         splat.setRotationW(rw * len);
     }
 
