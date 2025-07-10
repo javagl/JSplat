@@ -97,9 +97,12 @@ public final class GsplatSplatWriter
      */
     static void writeToBuffer(Splat splat, ByteBuffer buffer)
     {
+        // Convert from right-up-front to right-down-front by 
+        // negating the y- and z-component
         buffer.putFloat(0, splat.getPositionX());
         buffer.putFloat(4, -splat.getPositionY());
         buffer.putFloat(8, -splat.getPositionZ());
+        
         buffer.putFloat(12, (float) Math.exp(splat.getScaleX()));
         buffer.putFloat(16, (float) Math.exp(splat.getScaleY()));
         buffer.putFloat(20, (float) Math.exp(splat.getScaleZ()));
@@ -124,9 +127,11 @@ public final class GsplatSplatWriter
         buffer.put(26, b);
         buffer.put(27, a);
 
+        // Convert from right-up-front to right-down-front by 
+        // negating the y- and z-component
         float srx = splat.getRotationX();
-        float sry = splat.getRotationY();
-        float srz = splat.getRotationZ();
+        float sry = -splat.getRotationY();
+        float srz = -splat.getRotationZ();
         float srw = splat.getRotationW();
         
         float lenSquared = srx * srx + sry * sry + srz * srz + srw * srw;
@@ -136,10 +141,12 @@ public final class GsplatSplatWriter
         byte ry = (byte) ((sry * invLen) * 128.0 + 128.0);
         byte rz = (byte) ((srz * invLen) * 128.0 + 128.0);
         byte rw = (byte) ((srw * invLen) * 128.0 + 128.0);
-        buffer.put(28, rx);
-        buffer.put(29, ry);
-        buffer.put(30, rz);
-        buffer.put(31, rw);
+        
+        // The GSPLAT format uses 'scalar first' quaternions
+        buffer.put(28, rw);
+        buffer.put(29, rx);
+        buffer.put(30, ry);
+        buffer.put(31, rz);
 
     }
 

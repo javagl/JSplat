@@ -80,7 +80,7 @@ public class GaussianCloudSplats
             splat.setRotationX(rotations.get(i * 4 + 0));
             splat.setRotationY(rotations.get(i * 4 + 1));
             splat.setRotationZ(rotations.get(i * 4 + 2));
-            splat.setRotationW(-rotations.get(i * 4 + 3));
+            splat.setRotationW(rotations.get(i * 4 + 3));
 
             splat.setOpacity(alphas.get(i));
 
@@ -92,15 +92,16 @@ public class GaussianCloudSplats
             {
                 // Convert the component order as required for SPZ
                 int index = (i * (shDimensions - 1)) * 3;
-                splat.setShX(1, sh.get(index + 0));
-                splat.setShX(2, sh.get(index + 1));
-                splat.setShX(3, sh.get(index + 2));
-                splat.setShY(1, sh.get(index + 3));
-                splat.setShY(2, sh.get(index + 4));
-                splat.setShY(3, sh.get(index + 5));
-                splat.setShZ(1, sh.get(index + 6));
-                splat.setShZ(2, sh.get(index + 7));
-                splat.setShZ(3, sh.get(index + 8));
+                for (int d = 0; d < shDimensions - 1; d++)
+                {
+                    int ix = (index + d * 3) + 0;
+                    int iy = (index + d * 3) + 1;
+                    int iz = (index + d * 3) + 2;
+                    
+                    splat.setShX(d + 1, sh.get(ix));
+                    splat.setShY(d + 1, sh.get(iy));
+                    splat.setShZ(d + 1, sh.get(iz));
+                }
             }
             splats.add(splat);
         }
@@ -120,6 +121,7 @@ public class GaussianCloudSplats
         int shDimensions = splat0.getShDimensions();
 
         GaussianCloud g = GaussianClouds.create(splats.size(), shDegree);
+
         FloatBuffer positions = g.getPositions();
         FloatBuffer scales = g.getScales();
         FloatBuffer rotations = g.getRotations();
@@ -142,7 +144,7 @@ public class GaussianCloudSplats
             rotations.put(i * 4 + 0, splat.getRotationX());
             rotations.put(i * 4 + 1, splat.getRotationY());
             rotations.put(i * 4 + 2, splat.getRotationZ());
-            rotations.put(i * 4 + 3, -splat.getRotationW());
+            rotations.put(i * 4 + 3, splat.getRotationW());
 
             alphas.put(i, splat.getOpacity());
 
@@ -154,17 +156,19 @@ public class GaussianCloudSplats
             {
                 // Convert the component order as required for SPZ
                 int index = (i * (shDimensions - 1)) * 3;
-                sh.put(index + 0, splat.getShX(1));
-                sh.put(index + 1, splat.getShX(2));
-                sh.put(index + 2, splat.getShX(3));
-                sh.put(index + 3, splat.getShY(1));
-                sh.put(index + 4, splat.getShY(2));
-                sh.put(index + 5, splat.getShY(3));
-                sh.put(index + 6, splat.getShZ(1));
-                sh.put(index + 7, splat.getShZ(2));
-                sh.put(index + 8, splat.getShZ(3));
+                for (int d = 0; d < shDimensions - 1; d++)
+                {
+                    int ix = (index + d * 3) + 0;
+                    int iy = (index + d * 3) + 1;
+                    int iz = (index + d * 3) + 2;
+                    
+                    sh.put(ix, splat.getShX(d + 1));
+                    sh.put(iy, splat.getShY(d + 1));
+                    sh.put(iz, splat.getShZ(d + 1));
+                }
             }
         }
+        
         return g;
     }
 

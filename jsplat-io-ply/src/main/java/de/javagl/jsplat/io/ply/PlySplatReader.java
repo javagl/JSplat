@@ -70,29 +70,39 @@ public final class PlySplatReader implements SplatListReader
         ObjectPlyTarget plyTarget = new ObjectPlyTarget();
         Handle<MutableSplat> h =
             plyTarget.register("vertex", () -> Splats.create(shDegree));
+        
+        // Convert from right-down-front to right-up-front by 
+        // negating the y- and z-component
         h.withFloat("x", MutableSplat::setPositionX);
         h.withFloat("y", (s, y) -> s.setPositionY(-y));
         h.withFloat("z", (s, z) -> s.setPositionZ(-z));
+        
         h.withFloat("f_dc_0", (s, v) -> s.setShX(0, v));
         h.withFloat("f_dc_1", (s, v) -> s.setShY(0, v));
         h.withFloat("f_dc_2", (s, v) -> s.setShZ(0, v));
+        
         h.withFloat("opacity", MutableSplat::setOpacity);
         h.withFloat("scale_0", MutableSplat::setScaleX);
         h.withFloat("scale_1", MutableSplat::setScaleY);
         h.withFloat("scale_2", MutableSplat::setScaleZ);
+        
+        // Convert from right-down-front to right-up-front by 
+        // negating the y- and z-component
+        // PLY uses scalar-first quaternions
         h.withFloat("rot_0", MutableSplat::setRotationW);
         h.withFloat("rot_1", MutableSplat::setRotationX);
-        h.withFloat("rot_2", MutableSplat::setRotationY);
-        h.withFloat("rot_3", MutableSplat::setRotationZ);
-        for (int i = 0; i < shDimensions - 1; i++)
+        h.withFloat("rot_2", (s, y) -> s.setRotationY(-y));
+        h.withFloat("rot_3", (s, z) -> s.setRotationZ(-z));
+        
+        for (int d = 0; d < shDimensions - 1; d++)
         {
-            int d = i + 1;
-            int indexX = i * 3 + 0;
-            int indexY = i * 3 + 1;
-            int indexZ = i * 3 + 2;
-            h.withFloat("f_rest_" + indexX, (s, v) -> s.setShX(d, v));
-            h.withFloat("f_rest_" + indexY, (s, v) -> s.setShY(d, v));
-            h.withFloat("f_rest_" + indexZ, (s, v) -> s.setShZ(d, v));
+            int sd = d + 1;
+            int ix = d * 3 + 0;
+            int iy = d * 3 + 1;
+            int iz = d * 3 + 2;
+            h.withFloat("f_rest_" + ix, (s, v) -> s.setShX(sd, v));
+            h.withFloat("f_rest_" + iy, (s, v) -> s.setShY(sd, v));
+            h.withFloat("f_rest_" + iz, (s, v) -> s.setShZ(sd, v));
         }
         h.consume(splats::add);
 

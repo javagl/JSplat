@@ -301,7 +301,12 @@ public class Splats
     }
 
     /**
-     * Returns whether the given splats are epsilon-equal
+     * Returns whether the given splats are epsilon-equal.
+     * 
+     * This involves special treatment for the scalar (rotation) component
+     * of the quaternions: It will treat them as actual rotation angles,
+     * meaning that values like 1.0 and -1.0 will be considered to be
+     * equal.
      * 
      * @param sa The first splat
      * @param sb The second splat
@@ -309,6 +314,105 @@ public class Splats
      * @return The result
      */
     public static boolean equalsEpsilon(Splat sa, Splat sb, float epsilon)
+    {
+        int dimensionsA = sa.getShDimensions();
+        int dimensionsB = sb.getShDimensions();
+        if (dimensionsA != dimensionsB)
+        {
+            return false;
+        }
+
+        // Position
+        if (!equalsEpsilon(sa.getPositionX(), sb.getPositionX(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getPositionY(), sb.getPositionY(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getPositionZ(), sb.getPositionZ(), epsilon))
+        {
+            return false;
+        }
+
+        // Scale
+        if (!equalsEpsilon(sa.getScaleX(), sb.getScaleX(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getScaleY(), sb.getScaleY(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getScaleZ(), sb.getScaleZ(), epsilon))
+        {
+            return false;
+        }
+
+        // Rotation
+        if (!equalsEpsilon(sa.getRotationX(), sb.getRotationX(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getRotationY(), sb.getRotationY(), epsilon))
+        {
+            return false;
+        }
+        if (!equalsEpsilon(sa.getRotationZ(), sb.getRotationZ(), epsilon))
+        {
+            return false;
+        }
+
+        // Special treatment for rotation component: The difference
+        // modulo 1.0 is computed, and should be epsilon-equal to 0
+        float wa = sa.getRotationW();
+        float wb = sb.getRotationW(); 
+        float wd = 1.0f - Math.abs(Math.abs(wa - wb) - 1.0f);
+        if (!equalsEpsilon(wd, 0.0f, epsilon))
+        {
+            return false;
+        }
+
+        // Opacity
+        if (!equalsEpsilon(sa.getOpacity(), sb.getOpacity(), epsilon))
+        {
+            return false;
+        }
+
+        // Spherical harmonics
+        for (int d = 0; d < dimensionsA; d++)
+        {
+            if (!equalsEpsilon(sa.getShX(d), sb.getShX(d), epsilon))
+            {
+                return false;
+            }
+            if (!equalsEpsilon(sa.getShY(d), sb.getShY(d), epsilon))
+            {
+                return false;
+            }
+            if (!equalsEpsilon(sa.getShZ(d), sb.getShZ(d), epsilon))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Returns whether the given splats are strictly epsilon-equal.
+     * 
+     * This means that it will compare the actual values of the splats,
+     * regardless of their semantics. For rotation quaternions, a 
+     * scalar value of 1.0 and -1.0 describe the same rotation, and this
+     * will <b>not</b> be taken into account here. 
+     * 
+     * @param sa The first splat
+     * @param sb The second splat
+     * @param epsilon The epsilon
+     * @return The result
+     */
+    public static boolean strictEqualsEpsilon(Splat sa, Splat sb, float epsilon)
     {
         int dimensionsA = sa.getShDimensions();
         int dimensionsB = sb.getShDimensions();
@@ -387,6 +491,7 @@ public class Splats
         }
         return true;
     }
+    
 
     /**
      * Returns whether the given values are epsilon-equal
@@ -399,6 +504,10 @@ public class Splats
     private static boolean equalsEpsilon(float a, float b, float epsilon)
     {
         float d = Math.abs(a - b);
+        if (d < epsilon)
+        {
+            return true;
+        }
         float aa = Math.abs(a);
         float ab = Math.abs(b);
         if (aa < ab)

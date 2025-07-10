@@ -95,32 +95,42 @@ public final class PlySplatWriter implements SplatListWriter
         ObjectPlySource plySource = new ObjectPlySource(descriptor);
 
         Handle<? extends Splat> v = plySource.register("vertex", splats);
-        v.withFloat("x", Splat::getPositionX);
+        
+        // Convert from right-up-front to right-down-front by 
+        // negating the y- and z-component
+        v.withFloat("x", (s) -> s.getPositionX());
         v.withFloat("y", (s) -> -s.getPositionY());
         v.withFloat("z", (s) -> -s.getPositionZ());
+        
         v.withFloat("f_dc_0", (s) -> s.getShX(0));
         v.withFloat("f_dc_1", (s) -> s.getShY(0));
         v.withFloat("f_dc_2", (s) -> s.getShZ(0));
 
         int shDimensions = Splats.dimensionsForDegree(shDegree);
-        for (int i = 0; i < shDimensions - 1; i++)
+        for (int d = 0; d < shDimensions - 1; d++)
         {
-            int d = i + 1;
-            int indexX = i * 3 + 0;
-            int indexY = i * 3 + 1;
-            int indexZ = i * 3 + 2;
-            v.withFloat("f_rest_" + indexX, (s) -> s.getShX(d));
-            v.withFloat("f_rest_" + indexY, (s) -> s.getShY(d));
-            v.withFloat("f_rest_" + indexZ, (s) -> s.getShZ(d));
+            int sd = d + 1;
+            int ix = d * 3 + 0;
+            int iy = d * 3 + 1;
+            int iz = d * 3 + 2;
+            v.withFloat("f_rest_" + ix, (s) -> s.getShX(sd));
+            v.withFloat("f_rest_" + iy, (s) -> s.getShY(sd));
+            v.withFloat("f_rest_" + iz, (s) -> s.getShZ(sd));
         }
+        
         v.withFloat("opacity", Splat::getOpacity);
+        
         v.withFloat("scale_0", Splat::getScaleX);
         v.withFloat("scale_1", Splat::getScaleY);
         v.withFloat("scale_2", Splat::getScaleZ);
+        
+        // Convert from right-up-front to right-down-front by 
+        // negating the y- and z-component
+        // PLY uses scalar-first quaternions
         v.withFloat("rot_0", Splat::getRotationW);
         v.withFloat("rot_1", Splat::getRotationX);
-        v.withFloat("rot_2", Splat::getRotationY);
-        v.withFloat("rot_3", Splat::getRotationZ);
+        v.withFloat("rot_2", (s) -> -s.getRotationY());
+        v.withFloat("rot_3", (s) -> -s.getRotationZ());
 
         if (plyFormat == PlyFormat.ASCII)
         {
