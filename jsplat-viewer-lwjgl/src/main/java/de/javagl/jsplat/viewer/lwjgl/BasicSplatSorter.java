@@ -103,6 +103,7 @@ class BasicSplatSorter implements SplatSorter
             depthEntries[i] = depthEntry;
         }
         indices = new int[splats.size()];
+        Arrays.fill(previousViewMatrixRow, Float.NaN);
     }
 
     @Override
