@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.Objects;
 
@@ -154,8 +155,8 @@ class RenderingCamera
         floatBuffer16.put(1, eyePoint.y);
         floatBuffer16.put(2, eyePoint.z);
         FloatBuffer result = floatBuffer16.slice();
-        result.position(0);
-        result.limit(3);
+        ((Buffer)result).position(0);
+        ((Buffer)result).limit(3);
         return result;
     }
     
