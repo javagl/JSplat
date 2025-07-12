@@ -26,6 +26,7 @@
  */
 package de.javagl.jsplat.viewer;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -83,7 +84,7 @@ public class BufferUtils
     {
         IntBuffer b = createIntBuffer(a.length);
         b.put(a);
-        b.rewind();
+        ((Buffer)b).rewind();
         return b;
     }
 
@@ -97,7 +98,7 @@ public class BufferUtils
     {
         FloatBuffer b = createFloatBuffer(a.length);
         b.put(a);
-        b.rewind();
+        ((Buffer)b).rewind();
         return b;
     }
 
