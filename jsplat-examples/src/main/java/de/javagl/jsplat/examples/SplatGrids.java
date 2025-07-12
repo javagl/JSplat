@@ -16,14 +16,19 @@ import de.javagl.jsplat.Splats;
  * 
  * Most details of these methods are not specified.
  */
-class SplatGrids
+public class SplatGrids
 {
+    /**
+     * Epsilon for quaternion computations
+     */
+    private static final float EPSILON = 1e-6f;
+
     /**
      * Create a basic splat data set
      * 
      * @return The data set
      */
-    static List<MutableSplat> createBasic()
+    public static List<MutableSplat> createBasic()
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -54,8 +59,8 @@ class SplatGrids
      * 
      * @return The data set
      */
-    static List<MutableSplat> createBox(float minX, float minY, float minZ,
-        float maxX, float maxY, float maxZ)
+    public static List<MutableSplat> createBox(float minX, float minY,
+        float minZ, float maxX, float maxY, float maxZ)
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -70,7 +75,7 @@ class SplatGrids
         g.registerX(minX, maxX, MutableSplat::setPositionX);
         g.registerY(minY, maxY, MutableSplat::setPositionY);
         g.registerZ(minZ, maxZ, MutableSplat::setPositionZ);
-        
+
         g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
         g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
@@ -83,7 +88,7 @@ class SplatGrids
      * 
      * @return The data set
      */
-    static List<MutableSplat> createScales()
+    public static List<MutableSplat> createScales()
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -106,13 +111,13 @@ class SplatGrids
 
         return g.generate();
     }
-    
+
     /**
      * Create a splat data set with different opacity values
      * 
      * @return The data set
      */
-    static List<MutableSplat> createOpacities()
+    public static List<MutableSplat> createOpacities()
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -131,7 +136,7 @@ class SplatGrids
         g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
         g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
-        
+
         float minOpacity = -20.f;
         float maxOpacity = 20.0f;
         g.register((s, x, y, z) ->
@@ -139,21 +144,20 @@ class SplatGrids
             float dx = 0.5f - x;
             float dy = 0.5f - y;
             float dz = 0.5f - z;
-            float d = 1.0f - (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
+            float d = 1.0f - (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
             float opacity = minOpacity + d * (maxOpacity - minOpacity);
             s.setOpacity(opacity);
         });
-        
+
         return g.generate();
     }
-    
 
     /**
      * Create a splat data set with different colors
      * 
      * @return The data set
      */
-    static List<MutableSplat> createColors()
+    public static List<MutableSplat> createColors()
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -172,7 +176,7 @@ class SplatGrids
         g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
         g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
-        
+
         return g.generate();
     }
 
@@ -181,7 +185,7 @@ class SplatGrids
      * 
      * @return The data set
      */
-    static List<MutableSplat> createRotations()
+    public static List<MutableSplat> createRotations()
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -221,7 +225,7 @@ class SplatGrids
      * 
      * @return The data set
      */
-    static List<MutableSplat> createShs1()
+    public static List<MutableSplat> createShs1()
     {
         int shDegree = 1;
         Supplier<MutableSplat> supplier = () ->
@@ -230,7 +234,7 @@ class SplatGrids
             setDefaults(s);
             return s;
         };
-        SplatGridBuilder g = new SplatGridBuilder(5, 5, 5, supplier);
+        SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
 
         float maxPosition = 100.0f;
         g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
@@ -239,17 +243,54 @@ class SplatGrids
 
         g.register((s, x, y, z) ->
         {
-            s.setShX(1, x);
-            s.setShX(2, z);
-            s.setShX(3, -x);
+            for (int d = 0; d < 4; d++)
+            {
+                int r = d % 3;
+                float fx = r == 0 ? 1.0f : 0.0f;
+                float fy = r == 1 ? 1.0f : 0.0f;
+                float fz = r == 2 ? 1.0f : 0.0f;
+                s.setShX(d, x * fx);
+                s.setShY(d, y * fy);
+                s.setShZ(d, z * fz);
+            }
+        });
 
-            s.setShY(1, y);
-            s.setShY(2, x);
-            s.setShY(3, -y);
+        return g.generate();
+    }
 
-            s.setShZ(1, z);
-            s.setShZ(2, y);
-            s.setShZ(3, -z);
+    /**
+     * Create a splat data set with different spherical harmonics, degree 2
+     * 
+     * @return The data set
+     */
+    public static List<MutableSplat> createShs2()
+    {
+        int shDegree = 2;
+        Supplier<MutableSplat> supplier = () ->
+        {
+            MutableSplat s = Splats.create(shDegree);
+            setDefaults(s);
+            return s;
+        };
+        SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
+
+        float maxPosition = 100.0f;
+        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+
+        g.register((s, x, y, z) ->
+        {
+            for (int d = 0; d < 9; d++)
+            {
+                int r = d % 3;
+                float fx = r == 0 ? 1.0f : 0.0f;
+                float fy = r == 1 ? 1.0f : 0.0f;
+                float fz = r == 2 ? 1.0f : 0.0f;
+                s.setShX(d, x * fx);
+                s.setShY(d, y * fy);
+                s.setShZ(d, z * fz);
+            }
         });
 
         return g.generate();
@@ -260,7 +301,7 @@ class SplatGrids
      * 
      * @return The data set
      */
-    static List<MutableSplat> createShs3()
+    public static List<MutableSplat> createShs3()
     {
         int shDegree = 3;
         Supplier<MutableSplat> supplier = () ->
@@ -269,7 +310,7 @@ class SplatGrids
             setDefaults(s);
             return s;
         };
-        SplatGridBuilder g = new SplatGridBuilder(5, 5, 5, supplier);
+        SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
 
         float maxPosition = 100.0f;
         g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
@@ -298,7 +339,7 @@ class SplatGrids
      * 
      * @return The data set
      */
-    static List<MutableSplat> createRotations2D()
+    public static List<MutableSplat> createRotations2D()
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -307,7 +348,7 @@ class SplatGrids
             setDefaults(s);
             return s;
         };
-        SplatGridBuilder g = new SplatGridBuilder(4, 3, 1, supplier);
+        SplatGridBuilder g = new SplatGridBuilder(7, 3, 1, supplier);
 
         float maxPosition = 250.0f;
         g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
@@ -433,7 +474,7 @@ class SplatGrids
         float s = (float) Math.sin(halfAngleRad);
 
         float lenSquared = x * x + y * y + z * z;
-        if (lenSquared < 1e-6)
+        if (lenSquared < EPSILON)
         {
             return new float[]
             { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -448,6 +489,40 @@ class SplatGrids
         float q[] = new float[]
         { qx, qy, qz, qw };
         return q;
+    }
+
+    /**
+     * Create an array containing the axis and the angle in radians that is
+     * described by the given quaternion.
+     * 
+     * @param qx The x-element
+     * @param qy The y-element
+     * @param qz The z-element
+     * @param qw The w-element (scalar)
+     * @return The array
+     */
+    static float[] createAxisAngleRadFromScalarLastQuaternion(float qx,
+        float qy, float qz, float qw)
+    {
+        float x = 1.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float angleRad = 0.0f;
+        if (Math.abs(qw - 1.0) >= EPSILON && Math.abs(qw + 1.0) >= EPSILON)
+        {
+            float f = (float) (1.0 / Math.sqrt(1.0 - qw * qw));
+            x = qx * f;
+            y = qy * f;
+            z = qz * f;
+
+        }
+        if (Math.abs(qw - 1.0) >= EPSILON)
+        {
+            angleRad = (float) (2.0 * Math.acos(qw));
+        }
+        float a[] =
+        { x, y, z, angleRad };
+        return a;
     }
 
     /**

@@ -24,51 +24,40 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.viewer;
+package de.javagl.jsplat.viewer.lwjgl;
 
-import java.awt.Component;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.List;
 
 import de.javagl.jsplat.Splat;
 
 /**
- * Interface for a class that can render gaussian splats
+ * A thin, internal abstraction layer for classes that can sort splats for a
+ * GL-based viewer.
  */
-public interface SplatViewer
+interface SplatSorter
 {
     /**
-     * Set the splats that should be displayed.
+     * Initialize this sorter with the given splats
      * 
      * @param splats The splats
      */
-    void setSplats(List<? extends Splat> splats);
+    void init(List<? extends Splat> splats);
 
     /**
-     * Fit the camera to show the current splats.
-     */
-    void fitCamera();
-
-    /**
-     * Reset the camera to its initial configuration
-     */
-    void resetCamera();
-
-    /**
-     * Returns the main rendering component
+     * Perform the sort operation for the splats, based on the given view matrix.
      * 
-     * @return The rendering component
+     * @param viewMatrix The view matrix, as a 16-element buffer in column-major
+     *        order
      */
-    Component getRenderComponent();
+    void sort(FloatBuffer viewMatrix);
 
     /**
-     * Add a command to be executed before the next rendering pass, and trigger
-     * a rendering.
+     * Apply the current sort order to the given buffer, filling it with the
+     * indices of the splats in their sorted order
      * 
-     * For GL-based texture viewers, the given command will be be executed while
-     * the GL context is current.
-     * 
-     * @param command The command
+     * @param buffer The buffer
      */
-    void addPreRenderCommand(Runnable command);
-
+    void apply(IntBuffer buffer);
 }

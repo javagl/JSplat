@@ -94,6 +94,9 @@ public final class PlySplatReader implements SplatListReader
         h.withFloat("rot_2", (s, y) -> s.setRotationY(-y));
         h.withFloat("rot_3", (s, z) -> s.setRotationZ(-z));
         
+        // TODO The coordinate system conversion may have to affect
+        // the SHs, but nothing seems to be specified here in a 
+        // way that allows tools and viewers to agree on something.
         for (int d = 0; d < shDimensions - 1; d++)
         {
             int sd = d + 1;

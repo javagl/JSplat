@@ -84,6 +84,18 @@ public abstract class AbstractSplatViewer implements SplatViewer
     @Override
     public void fitCamera()
     {
+        addPreRenderCommand(() ->
+        {
+            fitCameraInternal();
+        });
+    }
+        
+    /**
+     * Internal version of {@link #fitCamera()}, to be called as a pre-render
+     * command
+     */
+    private void fitCameraInternal()
+    {
         List<? extends Splat> splats = getSplats();
         if (splats == null)
         {
@@ -106,6 +118,25 @@ public abstract class AbstractSplatViewer implements SplatViewer
         renderingCamera.fit(minMax);
     }
 
+    
+    @Override
+    public void resetCamera()
+    {
+        addPreRenderCommand(() ->
+        {
+            resetCameraInternal();
+        });
+    }
+        
+    /**
+     * Internal version of {@link #resetCamera()}, to be called as a pre-render
+     * command
+     */
+    private void resetCameraInternal()
+    {
+        renderingCamera.resetCamera();
+    }
+    
     @Override
     public final void addPreRenderCommand(Runnable command)
     {

@@ -106,6 +106,9 @@ public final class PlySplatWriter implements SplatListWriter
         v.withFloat("f_dc_1", (s) -> s.getShY(0));
         v.withFloat("f_dc_2", (s) -> s.getShZ(0));
 
+        // TODO The coordinate system conversion may have to affect
+        // the SHs, but nothing seems to be specified here in a 
+        // way that allows tools and viewers to agree on something.
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         for (int d = 0; d < shDimensions - 1; d++)
         {
