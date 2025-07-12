@@ -93,7 +93,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
@@ -226,9 +225,10 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     private int shDim;
 
     /**
-     * The entries for the splat sorting computations
+     * The sorter for the splats, which computes the {@link #gaussianOrderData}
+     * values
      */
-    private DepthEntry depthEntries[];
+    private SplatSorter splatSorter;
 
     /**
      * A buffer for the sorted indices, used for filling the gaussianOrderSSBO.
@@ -250,7 +250,12 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
      */
     SplatViewerLWJGL()
     {
+        splatSorter = new ThreadedSplatSorter(() ->
+        {
+            getRenderComponent().repaint();
+        });
         createCanvas();
+
     }
 
     /**
@@ -466,6 +471,20 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     @Override
     public void setSplats(List<? extends Splat> splats)
     {
+        addPreRenderCommand(() ->
+        {
+            setSplatsInternal(splats);
+        });
+    }
+
+    /**
+     * Private version of {@link #setSplats(List)}, to be called within a
+     * pre-render command
+     * 
+     * @param splats The splats
+     */
+    private void setSplatsInternal(List<? extends Splat> splats)
+    {
         this.splats = splats;
         if (splats == null)
         {
@@ -487,7 +506,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
             gaussianData.put(j++, s.getPositionY());
             gaussianData.put(j++, s.getPositionZ());
 
-            gaussianData.put(j++, -s.getRotationW());
+            gaussianData.put(j++, s.getRotationW());
             gaussianData.put(j++, s.getRotationX());
             gaussianData.put(j++, s.getRotationY());
             gaussianData.put(j++, s.getRotationZ());
@@ -593,41 +612,12 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     }
 
     /**
-     * An entry used for sorting the splats by their distance
-     */
-    private static class DepthEntry
-    {
-        /**
-         * The index of the splat
-         */
-        int index;
-
-        /**
-         * The depth of the splat
-         */
-        float depth;
-
-        @Override
-        public String toString()
-        {
-            return "(" + index + ", " + depth + ")";
-        }
-    }
-
-    /**
      * Initialize the data that is required for sorting the splats by their
      * distance from the viewer.
      */
     private void initGaussianOrderData()
     {
-        depthEntries = new DepthEntry[splats.size()];
-        for (int i = 0; i < splats.size(); i++)
-        {
-            DepthEntry depthEntry = new DepthEntry();
-            depthEntry.index = i;
-            depthEntry.depth = 0.0f;
-            depthEntries[i] = depthEntry;
-        }
+        splatSorter.init(splats);
         gaussianOrderData = BufferUtils.createIntBuffer(splats.size());
     }
 
@@ -637,41 +627,8 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
      */
     private void updateGaussianOrderData()
     {
-        FloatBuffer viewMat = obtainCurrentViewMatrixBuffer();
-        float mx = viewMat.get(0 * 4 + 2);
-        float my = viewMat.get(1 * 4 + 2);
-        float mz = viewMat.get(2 * 4 + 2);
-        float mw = viewMat.get(3 * 4 + 2);
-
-        int numSplats = splats.size();
-        for (int i = 0; i < numSplats; i++)
-        {
-            Splat s = splats.get(i);
-            float px = s.getPositionX();
-            float py = s.getPositionY();
-            float pz = s.getPositionZ();
-            float depth = mx * px + my * py + mz * pz + mw;
-            DepthEntry depthEntry = depthEntries[i];
-            depthEntry.index = i;
-            depthEntry.depth = depth;
-        }
-        Arrays.parallelSort(depthEntries, (e0, e1) ->
-        {
-            if (e0.depth < e1.depth)
-            {
-                return -1;
-            }
-            if (e0.depth > e1.depth)
-            {
-                return 1;
-            }
-            return 0;
-        });
-        for (int i = 0; i < numSplats; i++)
-        {
-            DepthEntry depthEntry = depthEntries[i];
-            gaussianOrderData.put(i, depthEntry.index);
-        }
+        FloatBuffer viewMatrix = obtainCurrentViewMatrixBuffer();
+        splatSorter.sort(viewMatrix);
     }
 
     /**
@@ -706,6 +663,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
 
         // Update the 'gaussian_order' data for the shader
         updateGaussianOrderData();
+        splatSorter.apply(gaussianOrderData);
         fillGaussianOrderSSBO(gaussianOrderData);
 
         // Bind the required arrays and buffers, and draw the splats
