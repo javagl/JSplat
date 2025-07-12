@@ -5,15 +5,12 @@
  */
 package de.javagl.jsplat.examples;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -22,18 +19,9 @@ import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.Splats;
-import de.javagl.jsplat.io.gsplat.GsplatSplatReader;
-import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
-import de.javagl.jsplat.io.ply.PlySplatReader;
-import de.javagl.jsplat.io.ply.PlySplatWriter;
-import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
-import de.javagl.jsplat.io.spz.SpzSplatReader;
-import de.javagl.jsplat.io.spz.SpzSplatWriter;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatReader;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatWriter;
 
 /**
- * An example/test for roundtripping between different splat representations
+ * Tests for roundtripping between different splat representations
  */
 @SuppressWarnings(
 { "javadoc", "unused" })
@@ -46,9 +34,8 @@ public class JSplatRoundtrips
         Logger.getLogger(JSplatRoundtrips.class.getName());
 
     private static final String BASE_DIRECTORY = "./data/roundtrip/";
-    private static final String BASE_NAME = "unitCube";
-
-    private static final int shDegree = 0;
+    private static List<SplatFormat> FORMATS =
+        Arrays.asList(SplatFormat.values());
 
     /**
      * The entry point
@@ -58,58 +45,89 @@ public class JSplatRoundtrips
      */
     public static void main(String[] args) throws IOException
     {
+        LoggerUtil.initLogging();
+        
         Files.createDirectories(Paths.get(BASE_DIRECTORY));
-        writeAll();
-        roundtripAll();
-        // debugSingle(Format.SPZ);
+
+        FORMATS = Arrays.asList(SplatFormat.GSPLAT, SplatFormat.PLY_BINARY_LE,
+            SplatFormat.PLY_ASCII, SplatFormat.SPZ);
+        
+        writeAll("rotations2D", SplatGrids.createRotations2D());
+        writeAll("rotations", SplatGrids.createRotations());
+        writeAll("shs1", SplatGrids.createShs1());
+        writeAll("shs2", SplatGrids.createShs2());
+        writeAll("shs3", SplatGrids.createShs3());
+        writeAll("unitCube", UnitCubeSplats.create());
+        
+        //roundtripAll("unitCube");
+
+        //float epsilon = 1e-6f;
+        //float epsilon = 0.02f;
+        //verifySingle(SplatGrids.createRotations(), SplatFormat.SPZ, epsilon);
     }
 
-    private static void debugSingle(SplatFormat sf) throws IOException
+    private static List<SplatFormat> createFormats()
     {
-        String baseFileName = createFileName(sf);
-        List<MutableSplat> splats = Utils.read(sf, baseFileName);
-        List<MutableSplat> baseSplats = UnitCubeSplats.create();
-        System.out.println("Results:");
-        for (int i = 0; i < splats.size(); i++)
+        return FORMATS;
+    }
+
+    private static void verifySingle(List<? extends Splat> splats,
+        SplatFormat sf, float epsilon) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SplatListWriter splatWriter = Utils.createWriter(sf);
+        splatWriter.writeList(splats, baos);
+
+        SplatListReader splatReader = Utils.createReader(sf);
+        ByteArrayInputStream bais =
+            new ByteArrayInputStream(baos.toByteArray());
+        List<MutableSplat> readSplats = splatReader.readList(bais);
+
+        for (int i = 0; i < readSplats.size(); i++)
         {
-            System.out.println("At " + i);
-            System.out.println("Original:");
-            System.out.println(Splats.createString(baseSplats.get(i)));
-            System.out.println("Read:");
-            System.out.println(Splats.createString(splats.get(i)));
+            Splat s0 = splats.get(i);
+            Splat s1 = readSplats.get(i);
+            String ss0 = Splats.createString(s0);
+            String ss1 = Splats.createString(s1);
+            boolean equal = Splats.equalsEpsilon(s0, s1, epsilon);
+            logger.info("At " + i + " original:\n" + ss0);
+            logger.info("At " + i + " read:\n" + ss1);
+            logger.info("At " + i + " equal? " + equal);
+        }
+        boolean allEqual = Splats.equalsEpsilon(splats, readSplats, epsilon);
+        logger.info("All equal? " + allEqual);
+    }
+
+    private static void writeAll(String baseName, List<? extends Splat> splats)
+        throws IOException
+    {
+        for (SplatFormat sf : createFormats())
+        {
+            String baseFileName = createFileName(baseName, sf);
+            Utils.write(splats, sf, baseFileName);
         }
     }
 
-    private static void writeAll() throws IOException
+    private static void roundtripAll(String baseName) throws IOException
     {
-        List<MutableSplat> baseSplats = UnitCubeSplats.create();
-
-        for (SplatFormat sf : SplatFormat.values())
+        for (SplatFormat sf : createFormats())
         {
-            String baseFileName = createFileName(sf);
-            Utils.write(baseSplats, sf, baseFileName);
-        }
-    }
-
-    private static void roundtripAll() throws IOException
-    {
-        for (SplatFormat sf : SplatFormat.values())
-        {
-            for (SplatFormat tf : SplatFormat.values())
+            for (SplatFormat tf : createFormats())
             {
-                convert(sf, tf);
+                convert(baseName, sf, tf);
             }
         }
     }
 
-    private static String createFileName(SplatFormat sf)
+    private static String createFileName(String baseName, SplatFormat sf)
     {
-        return Utils.createFileName(BASE_DIRECTORY, BASE_NAME, sf);
+        return Utils.createFileName(BASE_DIRECTORY, baseName, sf);
     }
 
-    private static String createFileName(SplatFormat sf, SplatFormat tf)
+    private static String createFileName(String baseName, SplatFormat sf,
+        SplatFormat tf)
     {
-        return createFileName(BASE_DIRECTORY, BASE_NAME, sf, tf);
+        return createFileName(BASE_DIRECTORY, baseName, sf, tf);
     }
 
     private static String createFileName(String baseDirectory, String baseName,
@@ -120,12 +138,12 @@ public class JSplatRoundtrips
         return Paths.get(baseDirectory, fileName).toString();
     }
 
-    private static void convert(SplatFormat sf, SplatFormat tf)
+    private static void convert(String baseName, SplatFormat sf, SplatFormat tf)
         throws IOException
     {
-        String baseFileName = createFileName(sf);
+        String baseFileName = createFileName(baseName, sf);
         List<MutableSplat> splats = Utils.read(sf, baseFileName);
-        String resultFileName = createFileName(sf, tf);
+        String resultFileName = createFileName(baseName, sf, tf);
         logger.info("Write " + sf + " to " + tf);
         Utils.write(splats, tf, resultFileName);
     }
