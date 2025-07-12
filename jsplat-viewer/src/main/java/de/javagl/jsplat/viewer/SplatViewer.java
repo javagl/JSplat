@@ -39,20 +39,19 @@ public interface SplatViewer
     /**
      * Set the splats that should be displayed.
      * 
-     * This may only be called as part of a
-     * {@link #addPreRenderCommand(Runnable)}.
-     * 
      * @param splats The splats
      */
     void setSplats(List<? extends Splat> splats);
 
     /**
      * Fit the camera to show the current splats.
-     * 
-     * This may only be called as part of a
-     * {@link #addPreRenderCommand(Runnable)}.
      */
     void fitCamera();
+
+    /**
+     * Reset the camera to its initial configuration
+     */
+    void resetCamera();
 
     /**
      * Returns the main rendering component

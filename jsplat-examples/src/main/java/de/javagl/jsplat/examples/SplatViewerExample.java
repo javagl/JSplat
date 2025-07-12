@@ -53,11 +53,8 @@ public class SplatViewerExample
         JButton showSplatsbutton = new JButton("Show splats");
         showSplatsbutton.addActionListener(e ->
         {
-            splatViewer.addPreRenderCommand(() ->
-            {
-                splatViewer.setSplats(UnitCubeSplats.create());
-                splatViewer.fitCamera();
-            });
+            splatViewer.setSplats(UnitCubeSplats.create());
+            splatViewer.fitCamera();
         });
         buttonsPanel.add(showSplatsbutton);
 
@@ -65,10 +62,7 @@ public class SplatViewerExample
         JButton fitCameraButton = new JButton("Fit camera");
         fitCameraButton.addActionListener(e ->
         {
-            splatViewer.addPreRenderCommand(() ->
-            {
-                splatViewer.fitCamera();
-            });
+            splatViewer.fitCamera();
         });
         buttonsPanel.add(fitCameraButton);
         f.getContentPane().add(buttonsPanel, BorderLayout.NORTH);
