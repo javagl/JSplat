@@ -16,6 +16,12 @@
 /jsplat/.settings
 /jsplat/.classpath
 
+/jsplat-app/target
+/jsplat-app/.project
+/jsplat-app/.settings
+/jsplat-app/.classpath
+/jsplat-app/*.properties
+
 /jsplat-io-gsplat/target
 /jsplat-io-gsplat/.project
 /jsplat-io-gsplat/.settings
