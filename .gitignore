@@ -2,10 +2,6 @@
 
 /jsplat-experiments
 
-# Maybe, one day...
-/jsplat-viewer
-/jsplat-viewer-lwjgl
-
 /jsplat-examples/target
 /jsplat-examples/.project
 /jsplat-examples/.settings
@@ -13,6 +9,7 @@
 
 /jsplat-examples/data/*
 !/jsplat-examples/data/unitCube-ascii.ply
+
 
 /jsplat/target
 /jsplat/.project
@@ -38,4 +35,15 @@
 /jsplat-io-spz-gltf/.project
 /jsplat-io-spz-gltf/.settings
 /jsplat-io-spz-gltf/.classpath
+
+/jsplat-viewer/target
+/jsplat-viewer/.project
+/jsplat-viewer/.settings
+/jsplat-viewer/.classpath
+
+/jsplat-viewer-lwjgl/target
+/jsplat-viewer-lwjgl/.project
+/jsplat-viewer-lwjgl/.settings
+/jsplat-viewer-lwjgl/.classpath
+/jsplat-viewer-lwjgl/.lwjgl
 
