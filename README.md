@@ -9,10 +9,6 @@ Java libraries for Gaussian splats.
 
 ## Overview
 
-No, there is no viewer (yet). I recommend [babylon.js](https://sandbox.babylonjs.com/) for
-viewing splat files. It supports most of the formats that are commonly used, and can
-conveniently display them via drag-and-drop.
-
 ### Libraries
 
 - [`jsplat`](./jsplat) - The core library, with interfaces for splats and readers and writers
@@ -22,6 +18,16 @@ conveniently display them via drag-and-drop.
   - [`jsplat-io-spz`](./jsplat-io-spz) - [SPZ](https://github.com/nianticlabs/spz) format
   - [`jsplat-io-spz-gltf`](./jsplat-io-spz-gltf) - glTF with [`KHR_spz_gaussian_splats_compression`](https://github.com/KhronosGroup/glTF/pull/2490)
 
+A basic viewer implementation can be found in [`jsplat-viewer`](./jsplat-viewer),
+with the actual implementation based on LWJGL in [`jsplat-viewer-lwjgl`](./jsplat-viewer-lwjgl).
+
+A basic application that brings together all JSplat libraries can be found
+in [`jsplat-app`](./jsplat-app).
+
+The viewer and application are experimental. In order to view existing splat
+files, I recommend [babylon.js](https://sandbox.babylonjs.com/): It supports 
+most of the formats that are commonly used, and can conveniently display them 
+via drag-and-drop.
 
 ### Examples
 
