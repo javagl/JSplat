@@ -188,7 +188,7 @@ public final class SpzGltfSplatWriter implements SplatListWriter
             int numCoeffs = numCoeffsPerDegree[d];
             for (int n = 0; n < numCoeffs; n++)
             {
-                String s = "_SH_DEGREE_" + (d + 1) + "_COEFF_" + n;
+                String s = "_SH_DEGREE_" + (d + 1) + "_COEF_" + n;
                 primitive.addAttributes(s, a++);
             }
         }
