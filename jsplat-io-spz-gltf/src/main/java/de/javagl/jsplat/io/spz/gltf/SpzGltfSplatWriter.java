@@ -55,27 +55,44 @@ import de.javagl.jspz.SpzWriter;
 import de.javagl.jspz.SpzWriters;
 
 /**
- * Implementation of a {@link SplatListWriter} that writes glTF data with the
- * <code>KHR_spz_gaussian_splats_compression</code> extension.
+ * Implementation of a {@link SplatListWriter} that writes glTF data with 
+ * SPZ-compressed Gaussian splats.
  * 
- * This will write the given data as a simple GLB file, with a single primitive
- * that contains the splat data.
+ * NOTE: This class is preliminary, and tries to track the development of
+ * https://github.com/KhronosGroup/glTF/pull/2490. Some details of this
+ * class depend on compile-time flags that may change in the future.
  */
 public final class SpzGltfSplatWriter implements SplatListWriter
 {
+    /**
+     * Preliminary configuration settings
+     */
+    private final SpzGltfConfig config;
+    
     /**
      * Creates a new instance
      */
     public SpzGltfSplatWriter()
     {
-        // Default constructor
+        this(false);
+    }
+
+    /**
+     * Creates a new instance
+     * 
+     * @param useBaseExtension Experimental
+     * @deprecated Experimental support for the base extension 
+     */
+    public SpzGltfSplatWriter(boolean useBaseExtension)
+    {
+        this.config = new SpzGltfConfig(useBaseExtension);
     }
 
     @Override
     public void writeList(List<? extends Splat> splats,
         OutputStream outputStream) throws IOException
     {
-        SpzWriter spzWriter = SpzWriters.createDefaultV2();
+        SpzWriter spzWriter = SpzWriters.createDefault();
         GaussianCloud gaussianCloud = GaussianCloudSplats.fromSplats(splats);
         ByteArrayOutputStream spzBaos = new ByteArrayOutputStream();
         spzWriter.write(gaussianCloud, spzBaos);
@@ -101,7 +118,7 @@ public final class SpzGltfSplatWriter implements SplatListWriter
      * @param spzBytes The SPZ data
      * @return The asset
      */
-    private static GltfAssetV2 createGltfAsset(int numPoints, int shDegree,
+    private GltfAssetV2 createGltfAsset(int numPoints, int shDegree,
         float boundingBox[], byte spzBytes[])
     {
         // Create the glTF
@@ -176,29 +193,43 @@ public final class SpzGltfSplatWriter implements SplatListWriter
         MeshPrimitive primitive = new MeshPrimitive();
         primitive.setMode(GltfConstants.GL_POINTS);
 
-        // Add all accessors to the mesh prmitive
+        // Add all accessors to the mesh primitive
         int a = 0;
         primitive.addAttributes("POSITION", a++);
         primitive.addAttributes("COLOR_0", a++);
-        primitive.addAttributes("_ROTATION", a++);
-        primitive.addAttributes("_SCALE", a++);
+        String ATTRIBUTE_PREFIX = config.ATTRIBUTE_PREFIX;
+        primitive.addAttributes(ATTRIBUTE_PREFIX + "ROTATION", a++);
+        primitive.addAttributes(ATTRIBUTE_PREFIX + "SCALE", a++);
 
         for (int d = 0; d < shDegree; d++)
         {
             int numCoeffs = numCoeffsPerDegree[d];
             for (int n = 0; n < numCoeffs; n++)
             {
-                String s = "_SH_DEGREE_" + (d + 1) + "_COEF_" + n;
-                primitive.addAttributes(s, a++);
+                String s = "SH_DEGREE_" + (d + 1) + "_COEF_" + n;
+                primitive.addAttributes(ATTRIBUTE_PREFIX + s, a++);
             }
         }
 
-        // Add the SPZ extension object to the primitive
-        Map<Object, Object> extension = new LinkedHashMap<Object, Object>();
-        extension.put("bufferView", 0);
-        primitive.addExtensions("KHR_spz_gaussian_splats_compression",
-            extension);
-
+        // Add the extension object to the primitive
+        Map<Object, Object> spzExtension = new LinkedHashMap<Object, Object>();
+        spzExtension.put("bufferView", 0);
+        if (config.USE_BASE_EXTENSION)
+        {
+            Map<Object, Object> baseExtension =
+                new LinkedHashMap<Object, Object>();
+            Map<Object, Object> innerExtensions =
+                new LinkedHashMap<Object, Object>();
+            innerExtensions.put(config.SPZ_EXTENSION_NAME, spzExtension);
+            baseExtension.put("extensions", innerExtensions);
+            primitive.addExtensions("KHR_gaussian_splatting",
+                baseExtension);
+        }
+        else
+        {
+            primitive.addExtensions(config.SPZ_EXTENSION_NAME, spzExtension);
+        }
+        
         // Add the mesh
         Mesh mesh = new Mesh();
         mesh.addPrimitives(primitive);
@@ -208,13 +239,34 @@ public final class SpzGltfSplatWriter implements SplatListWriter
         Node node = new Node();
         node.setMesh(0);
 
-        // The node needs a matrix, as this currently
-        // seems to be assumed by CesiumJS
-        node.setMatrix(new float[]
-        { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 0.0f, 0.0f, 1.0f });
+        // The node needs a matrix, and it may have to be one that
+        // converts Z-up to Y-up, as of version 1.131 of CesiumJS
+        // @formatter:off
+        float zUpToYup[] = new float[]
+        { 
+            1.0f, 0.0f,  0.0f, 0.0f, 
+            0.0f, 0.0f, -1.0f, 0.0f, 
+            0.0f, 1.0f,  0.0f, 0.0f, 
+            0.0f, 0.0f,  0.0f, 1.0f 
+        };
+        float identity[] = new float[]
+        { 
+            1.0f, 0.0f, 0.0f, 0.0f, 
+            0.0f, 1.0f, 0.0f, 0.0f, 
+            0.0f, 0.0f, 1.0f, 0.0f, 
+            0.0f, 0.0f, 0.0f, 1.0f 
+        };
+        // @formatter:on
+        if (config.APPLY_UP_AXIS_TRANSFORMS)
+        {
+            node.setMatrix(zUpToYup);
+        }
+        else
+        {
+            node.setMatrix(identity);
+        }
         gltf.addNodes(node);
-
+        
         // Add the scene
         Scene scene = new Scene();
         scene.addNodes(0);
@@ -222,12 +274,18 @@ public final class SpzGltfSplatWriter implements SplatListWriter
         gltf.setScene(0);
 
         // Add information about the used/required extension
-        gltf.addExtensionsUsed("KHR_spz_gaussian_splats_compression");
-        gltf.addExtensionsRequired("KHR_spz_gaussian_splats_compression");
-
+        if (config.USE_BASE_EXTENSION)
+        {
+            gltf.addExtensionsUsed("KHR_gaussian_splatting");
+            gltf.addExtensionsRequired("KHR_gaussian_splatting");
+        }
+        gltf.addExtensionsUsed(config.SPZ_EXTENSION_NAME);
+        gltf.addExtensionsRequired(config.SPZ_EXTENSION_NAME);
+        
         // Build the actual asset
         ByteBuffer binaryData = ByteBuffer.wrap(spzBytes);
         GltfAssetV2 gltfAsset = new GltfAssetV2(gltf, binaryData);
+        
         return gltfAsset;
     }
 

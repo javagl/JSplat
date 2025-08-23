@@ -42,20 +42,52 @@ import de.javagl.jspz.SpzWriters;
 public final class SpzSplatWriter implements SplatListWriter
 {
     /**
-     * Creates a new instance
+     * The version that should be written. Currently supported are 2 and 3.
+     */
+    private final int version;
+    
+    /**
+     * Creates a new instance that writes SPZ data in the latest supported
+     * version.
      */
     public SpzSplatWriter()
     {
-        // Default constructor
+        this(3);
+    }
+
+    /**
+     * Creates a new instance that writes SPZ data in the given version.
+     * 
+     * @param version The version that should be written. Currently supported
+     * are 2 and 3
+     * @throws IllegalArgumentException If the version is not valid
+     */
+    public SpzSplatWriter(int version)
+    {
+        if (version < 2 || version > 3) 
+        {
+            throw new IllegalArgumentException(
+                "The version must be 2 or 3, but is " + version);
+        }
+        this.version = version;
     }
 
     @Override
     public void writeList(List<? extends Splat> splats,
         OutputStream outputStream) throws IOException
     {
-        SpzWriter spzWriter = SpzWriters.createDefaultV2();
-        GaussianCloud g = GaussianCloudSplats.fromSplats(splats);
-        spzWriter.write(g, outputStream);
+        if (version == 2)
+        {
+            SpzWriter spzWriter = SpzWriters.createDefaultV2();
+            GaussianCloud g = GaussianCloudSplats.fromSplats(splats);
+            spzWriter.write(g, outputStream);
+        }
+        else
+        {
+            SpzWriter spzWriter = SpzWriters.createDefaultV3();
+            GaussianCloud g = GaussianCloudSplats.fromSplats(splats);
+            spzWriter.write(g, outputStream);
+        }
     }
 
 }

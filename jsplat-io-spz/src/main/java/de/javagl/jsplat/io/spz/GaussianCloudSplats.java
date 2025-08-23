@@ -172,4 +172,11 @@ public class GaussianCloudSplats
         return g;
     }
 
+    /**
+     * Private constructor to prevent instantiation
+     */
+    private GaussianCloudSplats()
+    {
+        // Private constructor to prevent instantiation
+    }
 }

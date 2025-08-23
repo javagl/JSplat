@@ -52,7 +52,7 @@ public final class SpzSplatReader implements SplatListReader
     @Override
     public List<MutableSplat> readList(InputStream inputStream) throws IOException
     {
-        SpzReader spzReader = SpzReaders.createDefaultV2();
+        SpzReader spzReader = SpzReaders.createDefault();
         GaussianCloud g = spzReader.read(inputStream);
         return GaussianCloudSplats.toSplats(g);
     }

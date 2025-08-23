@@ -50,19 +50,36 @@ import de.javagl.jspz.SpzReaders;
 
 /**
  * Implementation of a {@link SplatListReader} that reads glTF data with the
- * <code>KHR_spz_gaussian_splats_compression</code> extension.
+ * SPZ-based Gaussian splat extension.
  * 
- * This will read GLB data, and return the splats from the first mesh primitive
- * that uses the extension.
+ * NOTE: This class is preliminary, and tries to track the development of
+ * https://github.com/KhronosGroup/glTF/pull/2490. Some details of this
+ * class depend on compile-time flags that may change in the future.
  */
 public final class SpzGltfSplatReader implements SplatListReader
 {
+    /**
+     * Preliminary configuration settings
+     */
+    private final SpzGltfConfig config;
+    
     /**
      * Creates a new instance
      */
     public SpzGltfSplatReader()
     {
-        // Default constructor
+        this(false);
+    }
+
+    /**
+     * Creates a new instance
+     * 
+     * @param useBaseExtension Experimental
+     * @deprecated Experimental support for the base extension 
+     */
+    public SpzGltfSplatReader(boolean useBaseExtension)
+    {
+        this.config = new SpzGltfConfig(useBaseExtension);
     }
 
     @Override
@@ -95,8 +112,7 @@ public final class SpzGltfSplatReader implements SplatListReader
             }
         }
         throw new IOException(
-            "No mesh primitive with KHR_spz_gaussian_splats_compression "
-                + "found in input data");
+            "No mesh primitive with Gaussian splats found in input data");
     }
 
     /**
@@ -114,7 +130,7 @@ public final class SpzGltfSplatReader implements SplatListReader
         ByteBuffer spzData = extractBufferViewData(gltfAsset, bufferViewIndex);
         ByteBufferInputStream spzInputStream =
             new ByteBufferInputStream(spzData);
-        SpzReader spzReader = SpzReaders.createDefaultV2();
+        SpzReader spzReader = SpzReaders.createDefault();
         GaussianCloud gaussianGloud = spzReader.read(spzInputStream);
         return GaussianCloudSplats.toSplats(gaussianGloud);
 
@@ -141,6 +157,7 @@ public final class SpzGltfSplatReader implements SplatListReader
             byteOffset = 0;
         }
         Integer byteLength = bufferView.getByteLength();
+        
         // Workaround for NoSuchMethodError when compiling and 
         // using with newer JDKs
         ((Buffer)binaryData).limit(byteOffset + byteLength);
@@ -158,15 +175,53 @@ public final class SpzGltfSplatReader implements SplatListReader
      * @param primitive The {@link MeshPrimitive}
      * @return The buffer view index
      */
-    private static Integer getExtensionBufferViewIndex(MeshPrimitive primitive)
+    private Integer getExtensionBufferViewIndex(MeshPrimitive primitive)
     {
         Map<String, Object> extensions = primitive.getExtensions();
         if (extensions == null)
         {
             return null;
         }
+        
+        if (config.USE_BASE_EXTENSION)
+        {
+            // Lots of ugly, untyped code here. 
+            // It could be worse.
+            // It could be JavaScript.
+            Object baseExtensionObject = 
+                extensions.get("KHR_gaussian_splatting");
+            if (baseExtensionObject == null)
+            {
+                return null;
+            }
+            if (!(baseExtensionObject instanceof Map<?, ?>)) 
+            {
+                return null;
+            }
+            Map<?, ?> baseExtension = (Map<?, ?>) baseExtensionObject;
+            Object baseExtensionsObject = baseExtension.get("extensions");
+            if (!(baseExtensionsObject instanceof Map<?, ?>)) 
+            {
+                return null;
+            }
+            Map<?, ?> baseExtensions = (Map<?, ?>) baseExtensionsObject;
+            Object extension =
+                baseExtensions.get(config.SPZ_EXTENSION_NAME);
+            if (!(extension instanceof Map<?, ?>))
+            {
+                return null;
+            }
+            Map<?, ?> extensionMap = (Map<?, ?>) extension;
+            Object bufferViewIndexObject = extensionMap.get("bufferView");
+            if (!(bufferViewIndexObject instanceof Number))
+            {
+                return null;
+            }
+            Number bufferViewIndexNumber = (Number) bufferViewIndexObject;
+            return bufferViewIndexNumber.intValue();
+        }
         Object extension =
-            extensions.get("KHR_spz_gaussian_splats_compression");
+            extensions.get(config.SPZ_EXTENSION_NAME);
         if (!(extension instanceof Map<?, ?>))
         {
             return null;
