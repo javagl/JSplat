@@ -272,6 +272,7 @@ public class SplatGrids
             setDefaults(s);
             return s;
         };
+        
         SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
 
         float maxPosition = 100.0f;
@@ -398,7 +399,7 @@ public class SplatGrids
      * 
      * @param s The splat
      */
-    private static void setDefaults(MutableSplat s)
+    static void setDefaults(MutableSplat s)
     {
         s.setOpacity(20.0f);
         setColor(s, 1.0f, 1.0f, 1.0f);
