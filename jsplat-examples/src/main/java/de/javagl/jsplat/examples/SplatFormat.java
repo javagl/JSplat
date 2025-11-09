@@ -38,5 +38,11 @@ enum SplatFormat
     /**
      * SPZ format embedded in binary glTF
      */
-    SPZ_GLTF
+    SPZ_GLTF,
+    
+    /**
+     * glTF format (without compression), stored as binary glTF
+     */
+    GLTF
+    
 }

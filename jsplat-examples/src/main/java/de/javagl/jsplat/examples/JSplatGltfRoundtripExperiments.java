@@ -32,16 +32,13 @@ public class JSplatGltfRoundtripExperiments
      */
     public static void main(String[] args) throws IOException
     {
-        // Whether the KHR_gaussian_splatting base extension should be used.
-        boolean useBaseExtension = true;
-        
         List<MutableSplat> splatsA = UnitCubeSplats.create();
         
-        SpzGltfSplatWriter w = new SpzGltfSplatWriter(useBaseExtension);
+        SpzGltfSplatWriter w = new SpzGltfSplatWriter();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         w.writeList(splatsA, os);
-        
-        SpzGltfSplatReader r = new SpzGltfSplatReader(useBaseExtension);
+
+        SpzGltfSplatReader r = new SpzGltfSplatReader();
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
         List<MutableSplat> splatsB = r.readList(is);
         

@@ -18,6 +18,8 @@ import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.SplatListWriter;
+import de.javagl.jsplat.io.gltf.GltfSplatReader;
+import de.javagl.jsplat.io.gltf.GltfSplatWriter;
 import de.javagl.jsplat.io.gsplat.GsplatSplatReader;
 import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatReader;
@@ -59,6 +61,8 @@ class Utils
                 return new SpzSplatReader();
             case SPZ_GLTF:
                 return new SpzGltfSplatReader();
+            case GLTF:
+                return new GltfSplatReader();
         }
         logger.severe("Unknown format: " + format);
         return null;
@@ -86,6 +90,8 @@ class Utils
                 return new SpzSplatWriter();
             case SPZ_GLTF:
                 return new SpzGltfSplatWriter();
+            case GLTF:
+                return new GltfSplatWriter();
         }
         logger.severe("Unknown format: " + format);
         return null;
@@ -127,6 +133,7 @@ class Utils
             case SPZ:
                 return "spz";
             case SPZ_GLTF:
+            case GLTF:
                 return "glb";
         }
         logger.severe("Unknown format: " + format);

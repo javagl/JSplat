@@ -1,4 +1,4 @@
 # jsplat-io-spz-gltf
 
 Classes for reading and writing Gaussian splats in glTF format,
-using the KHR_spz_gaussian_splats_compression extension.
+using the KHR_gaussian_splatting_compression_spz_2 extension.
