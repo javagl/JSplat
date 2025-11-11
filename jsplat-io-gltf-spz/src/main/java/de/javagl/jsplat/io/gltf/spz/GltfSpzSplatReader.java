@@ -24,7 +24,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.spz.gltf;
+package de.javagl.jsplat.io.gltf.spz;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,13 +55,13 @@ import de.javagl.jspz.SpzReaders;
  * Gaussian splat data using the KHR_gaussian_splatting_compression_spz_2
  * extension.
  */
-public final class SpzGltfSplatReader implements SplatListReader
+public final class GltfSpzSplatReader implements SplatListReader
 {
     /**
      * The logger used in this class
      */
     private static final Logger logger =
-        Logger.getLogger(SpzGltfSplatReader.class.getName());
+        Logger.getLogger(GltfSpzSplatReader.class.getName());
 
     /**
      * The base extension name (and attribute prefix)
@@ -77,7 +77,7 @@ public final class SpzGltfSplatReader implements SplatListReader
     /**
      * Creates a new instance
      */
-    public SpzGltfSplatReader()
+    public GltfSpzSplatReader()
     {
         // Default constructor
     }

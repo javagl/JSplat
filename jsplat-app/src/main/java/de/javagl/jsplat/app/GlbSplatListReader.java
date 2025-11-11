@@ -38,14 +38,14 @@ import de.javagl.jgltf.model.io.GltfAssetReader;
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.io.gltf.GltfSplatReader;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatReader;
+import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatReader;
 
 /**
  * Internal implementation of a SplatListReader for GLB data.
  * 
  * Yeah, it's a bit quirky: It reads the GLB data and creates a glTF asset,
  * checks whether this asset uses the SPZ compression extension, and either
- * dispatches to a {@link GltfSplatReader} or {@link SpzGltfSplatReader}.
+ * dispatches to a {@link GltfSplatReader} or {@link GltfSpzSplatReader}.
  */
 class GlbSplatListReader implements SplatListReader
 {
@@ -57,11 +57,9 @@ class GlbSplatListReader implements SplatListReader
         boolean usesSpz = usesSpz(data);
         if (usesSpz)
         {
-            System.out.println("Uses SPZ");
-            SpzGltfSplatReader sr = new SpzGltfSplatReader();
+            GltfSpzSplatReader sr = new GltfSpzSplatReader();
             return sr.readList(new ByteArrayInputStream(data));
         }
-        System.out.println("Does not use SPZ");
         GltfSplatReader sr = new GltfSplatReader();
         return sr.readList(new ByteArrayInputStream(data));
     }

@@ -50,8 +50,8 @@ public class JSplatRoundtrips
         Files.createDirectories(Paths.get(BASE_DIRECTORY));
 
         FORMATS = Arrays.asList(SplatFormat.GSPLAT, SplatFormat.PLY_BINARY_LE,
-            SplatFormat.PLY_ASCII, SplatFormat.SPZ, SplatFormat.SPZ_GLTF,
-            SplatFormat.GLTF);
+            SplatFormat.PLY_BINARY_BE, SplatFormat.PLY_ASCII, SplatFormat.SPZ, 
+            SplatFormat.SPZ_GLTF, SplatFormat.GLTF);
 
 //        writeAll("rotations2D", SplatGrids.createRotations2D());
 //        writeAll("rotations", SplatGrids.createRotations());

@@ -13,8 +13,8 @@ import java.util.List;
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.Splats;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatReader;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatWriter;
+import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatReader;
+import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatWriter;
 
 /**
  * Experiments for writing and reading SPZ-compressed Gaussian splats in glTF.
@@ -34,11 +34,11 @@ public class JSplatGltfRoundtripExperiments
     {
         List<MutableSplat> splatsA = UnitCubeSplats.create();
         
-        SpzGltfSplatWriter w = new SpzGltfSplatWriter();
+        GltfSpzSplatWriter w = new GltfSpzSplatWriter();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         w.writeList(splatsA, os);
 
-        SpzGltfSplatReader r = new SpzGltfSplatReader();
+        GltfSpzSplatReader r = new GltfSpzSplatReader();
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
         List<MutableSplat> splatsB = r.readList(is);
         

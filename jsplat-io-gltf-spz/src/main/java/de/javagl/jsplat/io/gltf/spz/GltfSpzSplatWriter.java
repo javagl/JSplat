@@ -24,7 +24,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.spz.gltf;
+package de.javagl.jsplat.io.gltf.spz;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,7 +59,7 @@ import de.javagl.jspz.SpzWriters;
  * Implementation of a {@link SplatListWriter} that writes glTF data with
  * SPZ-compressed Gaussian splats.
  */
-public final class SpzGltfSplatWriter implements SplatListWriter
+public final class GltfSpzSplatWriter implements SplatListWriter
 {
     /**
      * The base extension name (and attribute prefix)
@@ -75,7 +75,7 @@ public final class SpzGltfSplatWriter implements SplatListWriter
     /**
      * Creates a new instance
      */
-    public SpzGltfSplatWriter()
+    public GltfSpzSplatWriter()
     {
         // Default constructor
     }

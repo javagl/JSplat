@@ -60,6 +60,7 @@ import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.app.common.UriLoading;
 import de.javagl.jsplat.app.common.UriTransferHandler;
 import de.javagl.jsplat.app.common.UriUtils;
+import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatWriter;
 import de.javagl.jsplat.io.gsplat.GsplatSplatReader;
 import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatReader;
@@ -67,7 +68,6 @@ import de.javagl.jsplat.io.ply.PlySplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
 import de.javagl.jsplat.io.spz.SpzSplatReader;
 import de.javagl.jsplat.io.spz.SpzSplatWriter;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatWriter;
 import de.javagl.swing.tasks.SwingTask;
 import de.javagl.swing.tasks.SwingTaskExecutors;
 
@@ -482,9 +482,9 @@ class JSplatApplication
         {
             if (glbSaveOptions.shouldApplySpzCompression())
             {
-                return new SpzGltfSplatWriter();
+                return new GltfSpzSplatWriter();
             }
-            return new SpzGltfSplatWriter();
+            return new GltfSpzSplatWriter();
         }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");
