@@ -28,7 +28,6 @@ package de.javagl.jsplat.io.gltf;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import de.javagl.jgltf.model.AccessorData;
 import de.javagl.jgltf.model.AccessorModel;
 import de.javagl.jgltf.model.GltfModel;
 import de.javagl.jgltf.model.MeshModel;
@@ -206,18 +204,19 @@ public final class GltfSplatReader implements SplatListReader
         return splats;
     }
 
+
     /**
      * Returns the data from the given accessor model as a float buffer, tightly
-     * packed.
+     * packed, applying dequantization as necessary.
      * 
      * @param accessorModel The accessor model
      * @return The buffer
+     * @throws IllegalArgumentException If the component type of the given
+     * accessor model is neither float, nor signed/unsigned byte/short.
      */
     private static FloatBuffer readAsFloatBuffer(AccessorModel accessorModel)
     {
-        AccessorData accessorData = accessorModel.getAccessorData();
-        ByteBuffer inputByteBuffer = accessorData.createByteBuffer();
-        return inputByteBuffer.asFloatBuffer();
+        return Quantization.readAsFloatBuffer(accessorModel);
     }
 
     /**

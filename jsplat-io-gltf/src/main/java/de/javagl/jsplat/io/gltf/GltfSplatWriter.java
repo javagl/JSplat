@@ -100,8 +100,7 @@ public final class GltfSplatWriter implements SplatListWriter
         DefaultGltfModel gltfModel = b.build();
 
         DefaultExtensionsModel extensionsModel = gltfModel.getExtensionsModel();
-        extensionsModel
-            .addExtensionsUsed(Arrays.asList(NAME));
+        extensionsModel.addExtensionsUsed(Arrays.asList(NAME));
 
         return gltfModel;
     }
@@ -168,7 +167,7 @@ public final class GltfSplatWriter implements SplatListWriter
     /**
      * Create a map that represents an unspecified default
      * KHR_gaussian_splatting extension object
-     *  
+     * 
      * @return The extension object
      */
     private Map<String, Object> createExtension()
