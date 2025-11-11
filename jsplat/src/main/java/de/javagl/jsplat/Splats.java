@@ -285,7 +285,7 @@ public class Splats
      * Returns the index of the dimension for the specified spherical harmonics
      * coefficient.
      * 
-     * <code><pre>
+     * <pre><code>
      * (degree 0, coefficient 0) : 0
      * 
      * (degree 1, coefficient 0) : 1
@@ -301,7 +301,7 @@ public class Splats
      * (degree 3, coefficient 0) : 9
      * ...
      * (degree 3, coefficient 6) : 15
-     * </pre></code>
+     * </code></pre>
      * 
      * @param degree The degree
      * @param coefficient The coefficient
