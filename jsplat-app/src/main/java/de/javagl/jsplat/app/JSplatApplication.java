@@ -60,6 +60,7 @@ import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.app.common.UriLoading;
 import de.javagl.jsplat.app.common.UriTransferHandler;
 import de.javagl.jsplat.app.common.UriUtils;
+import de.javagl.jsplat.io.gltf.GltfSplatWriter;
 import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatWriter;
 import de.javagl.jsplat.io.gsplat.GsplatSplatReader;
 import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
@@ -484,7 +485,7 @@ class JSplatApplication
             {
                 return new GltfSpzSplatWriter();
             }
-            return new GltfSpzSplatWriter();
+            return new GltfSplatWriter();
         }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");
