@@ -33,7 +33,8 @@
 		<module>jsplat-io-gsplat</module>
 		<module>jsplat-io-ply</module>
 		<module>jsplat-io-spz</module>
-		<module>jsplat-io-spz-gltf</module>
+		<module>jsplat-io-gltf</module>
+		<module>jsplat-io-gltf-spz</module>
 	</modules>
 
 	<properties>
