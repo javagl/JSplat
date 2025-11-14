@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>jsplat-io-spz-gltf</artifactId>
+	<artifactId>jsplat-io-gltf</artifactId>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A splat library for Java</description>
@@ -28,12 +28,12 @@
 		</dependency>
 		<dependency>
 			<groupId>de.javagl</groupId>
-			<artifactId>jspz</artifactId>
-			<version>0.0.2</version>
+			<artifactId>jgltf-model</artifactId>
+			<version>2.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>de.javagl</groupId>
-			<artifactId>jgltf-model</artifactId>
+			<artifactId>jgltf-model-builder</artifactId>
 			<version>2.0.4</version>
 		</dependency>
 	</dependencies>

@@ -16,7 +16,8 @@ Java libraries for Gaussian splats.
   - [`jsplat-io-gsplat`](./jsplat-io-gsplat) - [gsplat](https://github.com/antimatter15/splat) format
   - [`jsplat-io-ply`](./jsplat-io-ply) - PLY files
   - [`jsplat-io-spz`](./jsplat-io-spz) - [SPZ](https://github.com/nianticlabs/spz) format
-  - [`jsplat-io-spz-gltf`](./jsplat-io-spz-gltf) - glTF with [`KHR_spz_gaussian_splats_compression`](https://github.com/KhronosGroup/glTF/pull/2490)
+  - [`jsplat-io-gltf`](./jsplat-io-gltf) - glTF with [`KHR_gaussian_splatting`](https://github.com/KhronosGroup/glTF/pull/2490)
+  - [`jsplat-io-gltf-spz`](./jsplat-io-gltf-spz) - glTF with [`KHR_spz_gaussian_splatting_compression_spz_2`](https://github.com/KhronosGroup/glTF/pull/2531)
 
 A basic viewer implementation can be found in [`jsplat-viewer`](./jsplat-viewer),
 with the actual implementation based on LWJGL in [`jsplat-viewer-lwjgl`](./jsplat-viewer-lwjgl).

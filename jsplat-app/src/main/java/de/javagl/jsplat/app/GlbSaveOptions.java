@@ -34,80 +34,58 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
-
 /**
  * A panel that serves as an accessory for the save file chooser, to select the
- * {@link PlyFormat} that should be used for saving a PLY file
+ * compression that should be applied in GLB files
  */
-class PlySaveOptions extends ExtensionBasedSaveOptions
+class GlbSaveOptions extends ExtensionBasedSaveOptions
 {
     /**
      * Serial UID
      */
-    private static final long serialVersionUID = 370867883086984812L;
+    private static final long serialVersionUID = 37867883086984812L;
 
     /**
-     * The binary LE button
+     * The button for no compression
      */
-    private JRadioButton binaryLeButton;
+    private JRadioButton noneButton;
 
     /**
-     * The binary BE button
+     * The button for SPZ compression
      */
-    private JRadioButton binaryBeButton;
-
-    /**
-     * The ASCII button
-     */
-    private JRadioButton asciiButton;
+    private JRadioButton spzButton;
 
     /**
      * Creates a new instance
      * 
      * @param fileChooser The file chooser
      */
-    PlySaveOptions(JFileChooser fileChooser)
+    GlbSaveOptions(JFileChooser fileChooser)
     {
-        super(fileChooser, "PLY save options", ".ply");
+        super(fileChooser, "GLB save options", ".glb");
 
-        binaryLeButton = new JRadioButton("Binary (Little Endian)");
-        binaryLeButton.setSelected(true);
-        binaryBeButton = new JRadioButton("Binary (Big Endian)");
-        asciiButton = new JRadioButton("ASCII");
+        noneButton = new JRadioButton("No compression");
+        noneButton.setSelected(true);
+        spzButton = new JRadioButton("SPZ compression");
 
         ButtonGroup group = new ButtonGroup();
-        group.add(binaryLeButton);
-        group.add(binaryBeButton);
-        group.add(asciiButton);
+        group.add(noneButton);
+        group.add(spzButton);
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(binaryLeButton);
-        panel.add(binaryBeButton);
-        panel.add(asciiButton);
+        panel.add(noneButton);
+        panel.add(spzButton);
         add(panel, BorderLayout.NORTH);
     }
 
     /**
-     * Returns the {@link PlyFormat} that is selected
+     * Returns whether SPZ compression should be applied
      * 
-     * @return The {@link PlyFormat}
+     * @return The state
      */
-    PlyFormat getPlyFormat()
+    boolean shouldApplySpzCompression()
     {
-        if (binaryLeButton.isSelected())
-        {
-            return PlyFormat.BINARY_LITTLE_ENDIAN;
-        }
-        if (binaryBeButton.isSelected())
-        {
-            return PlyFormat.BINARY_BIG_ENDIAN;
-        }
-        if (asciiButton.isSelected())
-        {
-            return PlyFormat.ASCII;
-        }
-        return PlyFormat.BINARY_LITTLE_ENDIAN;
+        return spzButton.isSelected();
     }
 
 }

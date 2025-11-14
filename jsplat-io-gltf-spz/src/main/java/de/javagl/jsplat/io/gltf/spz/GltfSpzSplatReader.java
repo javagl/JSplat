@@ -24,15 +24,17 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.spz.gltf;
+package de.javagl.jsplat.io.gltf.spz;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import de.javagl.jgltf.impl.v2.BufferView;
 import de.javagl.jgltf.impl.v2.GlTF;
@@ -50,36 +52,34 @@ import de.javagl.jspz.SpzReaders;
 
 /**
  * Implementation of a {@link SplatListReader} that reads glTF data with the
- * SPZ-based Gaussian splat extension.
- * 
- * NOTE: This class is preliminary, and tries to track the development of
- * https://github.com/KhronosGroup/glTF/pull/2490. Some details of this
- * class depend on compile-time flags that may change in the future.
+ * Gaussian splat data using the KHR_gaussian_splatting_compression_spz_2
+ * extension.
  */
-public final class SpzGltfSplatReader implements SplatListReader
+public final class GltfSpzSplatReader implements SplatListReader
 {
     /**
-     * Preliminary configuration settings
+     * The logger used in this class
      */
-    private final SpzGltfConfig config;
-    
+    private static final Logger logger =
+        Logger.getLogger(GltfSpzSplatReader.class.getName());
+
     /**
-     * Creates a new instance
+     * The base extension name (and attribute prefix)
      */
-    public SpzGltfSplatReader()
-    {
-        this(false);
-    }
+    private static final String BASE_NAME = "KHR_gaussian_splatting";
+
+    /**
+     * The extension name
+     */
+    private static final String NAME =
+        "KHR_gaussian_splatting_compression_spz_2";
 
     /**
      * Creates a new instance
-     * 
-     * @param useBaseExtension Experimental
-     * @deprecated Experimental support for the base extension 
      */
-    public SpzGltfSplatReader(boolean useBaseExtension)
+    public GltfSpzSplatReader()
     {
-        this.config = new SpzGltfConfig(useBaseExtension);
+        // Default constructor
     }
 
     @Override
@@ -157,83 +157,152 @@ public final class SpzGltfSplatReader implements SplatListReader
             byteOffset = 0;
         }
         Integer byteLength = bufferView.getByteLength();
-        
-        // Workaround for NoSuchMethodError when compiling and 
+
+        // Workaround for NoSuchMethodError when compiling and
         // using with newer JDKs
-        ((Buffer)binaryData).limit(byteOffset + byteLength);
-        ((Buffer)binaryData).position(byteOffset);
+        ((Buffer) binaryData).limit(byteOffset + byteLength);
+        ((Buffer) binaryData).position(byteOffset);
         ByteBuffer spzData = binaryData.slice();
         return spzData;
     }
 
     /**
-     * Returns the <code>bufferView</code> from the
-     * <code>KHR_spz_gaussian_splats_compression</code> extension object of the
-     * given primitive, or <code>null</code> if this object does not have this
-     * extension.
+     * Returns the <code>bufferView</code> index for the SPZ data from the given
+     * mesh primitive.
      * 
-     * @param primitive The {@link MeshPrimitive}
+     * This will try to fall back to different legacy extension versions. Not
+     * all of these legacy versions may be fully supported...
+     * 
+     * @param meshPrimitive The {@link MeshPrimitive}
      * @return The buffer view index
      */
-    private Integer getExtensionBufferViewIndex(MeshPrimitive primitive)
+    private Integer getExtensionBufferViewIndex(MeshPrimitive meshPrimitive)
     {
-        Map<String, Object> extensions = primitive.getExtensions();
+        Integer bufferViewIndex =
+            getFinalExtensionBufferViewIndex(meshPrimitive);
+        if (bufferViewIndex != null)
+        {
+            return bufferViewIndex;
+        }
+        return getLegacyExtensionBufferViewIndex(meshPrimitive);
+    }
+
+    /**
+     * Returns the index of the buffer view that stores the SPZ data, using the
+     * "final" form of the extension specification.
+     * 
+     * If it can not be found, then <code>null</code> is returned.
+     * 
+     * Details omitted here.
+     * 
+     * @param meshPrimitive The mesh primitive
+     * @return The index
+     */
+    private static Integer
+        getFinalExtensionBufferViewIndex(MeshPrimitive meshPrimitive)
+    {
+        Map<String, Object> extensions = meshPrimitive.getExtensions();
         if (extensions == null)
         {
             return null;
         }
-        
-        if (config.USE_BASE_EXTENSION)
-        {
-            // Lots of ugly, untyped code here. 
-            // It could be worse.
-            // It could be JavaScript.
-            Object baseExtensionObject = 
-                extensions.get("KHR_gaussian_splatting");
-            if (baseExtensionObject == null)
-            {
-                return null;
-            }
-            if (!(baseExtensionObject instanceof Map<?, ?>)) 
-            {
-                return null;
-            }
-            Map<?, ?> baseExtension = (Map<?, ?>) baseExtensionObject;
-            Object baseExtensionsObject = baseExtension.get("extensions");
-            if (!(baseExtensionsObject instanceof Map<?, ?>)) 
-            {
-                return null;
-            }
-            Map<?, ?> baseExtensions = (Map<?, ?>) baseExtensionsObject;
-            Object extension =
-                baseExtensions.get(config.SPZ_EXTENSION_NAME);
-            if (!(extension instanceof Map<?, ?>))
-            {
-                return null;
-            }
-            Map<?, ?> extensionMap = (Map<?, ?>) extension;
-            Object bufferViewIndexObject = extensionMap.get("bufferView");
-            if (!(bufferViewIndexObject instanceof Number))
-            {
-                return null;
-            }
-            Number bufferViewIndexNumber = (Number) bufferViewIndexObject;
-            return bufferViewIndexNumber.intValue();
-        }
-        Object extension =
-            extensions.get(config.SPZ_EXTENSION_NAME);
-        if (!(extension instanceof Map<?, ?>))
+        Map<?, ?> baseExtension = getMapOptional(extensions, BASE_NAME);
+        Map<?, ?> baseExtensionExtensions =
+            getMapOptional(baseExtension, "extensions");
+        Map<?, ?> extension = getMapOptional(baseExtensionExtensions, NAME);
+        Integer bufferViewIndex = getIntegerOptional(extension, "bufferView");
+        return bufferViewIndex;
+    }
+
+    /**
+     * Returns the index of the buffer view that stores the SPZ data, using
+     * various "legacy" forms of the extension.
+     * 
+     * If it can not be found, then <code>null</code> is returned.
+     * 
+     * Details omitted here.
+     * 
+     * @param meshPrimitive The mesh primitive
+     * @return The index
+     */
+    private static Integer
+        getLegacyExtensionBufferViewIndex(MeshPrimitive meshPrimitive)
+    {
+        Map<String, Object> extensions = meshPrimitive.getExtensions();
+        if (extensions == null)
         {
             return null;
         }
-        Map<?, ?> extensionMap = (Map<?, ?>) extension;
-        Object bufferViewIndexObject = extensionMap.get("bufferView");
-        if (!(bufferViewIndexObject instanceof Number))
+        List<String> legacyNames = Arrays.asList("KHR_spz_compression",
+            "KHR_spz_gaussian_splats_compression",
+            "KHR_gaussian_splatting_spz_compression");
+        for (String legacyName : legacyNames)
+        {
+            Map<?, ?> extension = getMapOptional(extensions, legacyName);
+            Integer bufferViewIndex =
+                getIntegerOptional(extension, "bufferView");
+            if (bufferViewIndex != null)
+            {
+                logger.warning(
+                    "Fetching SPZ data from legacy extension with name "
+                        + legacyName + " - this extension version may "
+                        + "not be fully supported");
+                return bufferViewIndex;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the value for the given key from the given map, if that value is
+     * a map. If the given map is <code>null</code> or the value is not a map,
+     * then <code>null</code> is returned.
+     * 
+     * It could be worse. It could be JavaScript.
+     * 
+     * @param map The map
+     * @param key The key
+     * @return The result
+     */
+    private static Map<?, ?> getMapOptional(Map<?, ?> map, String key)
+    {
+        if (map == null)
         {
             return null;
         }
-        Number bufferViewIndexNumber = (Number) bufferViewIndexObject;
-        return bufferViewIndexNumber.intValue();
+        Object object = map.get(key);
+        if (!(object instanceof Map<?, ?>))
+        {
+            return null;
+        }
+        Map<?, ?> result = (Map<?, ?>) object;
+        return result;
+    }
+
+    /**
+     * Returns the integer value for the given key from the given map, if that
+     * value is a number. If the given map is <code>null</code> or the value is
+     * not a number, then <code>null</code> is returned.
+     * 
+     * It could be worse. It could be JavaScript.
+     * 
+     * @param map The map
+     * @param key The key
+     * @return The result
+     */
+    private static Integer getIntegerOptional(Map<?, ?> map, String key)
+    {
+        if (map == null)
+        {
+            return null;
+        }
+        Object object = map.get(key);
+        if (!(object instanceof Number))
+        {
+            return null;
+        }
+        Number result = (Number) object;
+        return result.intValue();
     }
 
     /**

@@ -37,10 +37,15 @@
 /jsplat-io-spz/.settings
 /jsplat-io-spz/.classpath
 
-/jsplat-io-spz-gltf/target
-/jsplat-io-spz-gltf/.project
-/jsplat-io-spz-gltf/.settings
-/jsplat-io-spz-gltf/.classpath
+/jsplat-io-gltf/target
+/jsplat-io-gltf/.project
+/jsplat-io-gltf/.settings
+/jsplat-io-gltf/.classpath
+
+/jsplat-io-gltf-spz/target
+/jsplat-io-gltf-spz/.project
+/jsplat-io-gltf-spz/.settings
+/jsplat-io-gltf-spz/.classpath
 
 /jsplat-viewer/target
 /jsplat-viewer/.project

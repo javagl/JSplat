@@ -26,6 +26,7 @@
  */
 package de.javagl.jsplat.app;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -49,6 +50,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -58,6 +60,8 @@ import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.app.common.UriLoading;
 import de.javagl.jsplat.app.common.UriTransferHandler;
 import de.javagl.jsplat.app.common.UriUtils;
+import de.javagl.jsplat.io.gltf.GltfSplatWriter;
+import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatWriter;
 import de.javagl.jsplat.io.gsplat.GsplatSplatReader;
 import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatReader;
@@ -65,8 +69,6 @@ import de.javagl.jsplat.io.ply.PlySplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
 import de.javagl.jsplat.io.spz.SpzSplatReader;
 import de.javagl.jsplat.io.spz.SpzSplatWriter;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatReader;
-import de.javagl.jsplat.io.spz.gltf.SpzGltfSplatWriter;
 import de.javagl.swing.tasks.SwingTask;
 import de.javagl.swing.tasks.SwingTaskExecutors;
 
@@ -184,7 +186,12 @@ class JSplatApplication
      * The {@link PlySaveOptions} used as an accessory for the save file chooser
      */
     private PlySaveOptions plySaveOptions;
-    
+
+    /**
+     * The {@link GlbSaveOptions} used as an accessory for the save file chooser
+     */
+    private GlbSaveOptions glbSaveOptions;
+
     /**
      * The {@link JSplatApplicationPanel}
      */
@@ -194,7 +201,6 @@ class JSplatApplication
      * The splats that are currently displayed in the application panel
      */
     private List<? extends Splat> currentSplats;
-
 
     /**
      * Default constructor
@@ -218,8 +224,14 @@ class JSplatApplication
             "glb"));
 
         saveFileChooser = new JFileChooser(".");
+
+        JPanel accessory = new JPanel(new GridLayout(0, 1));
         plySaveOptions = new PlySaveOptions(saveFileChooser);
-        saveFileChooser.setAccessory(plySaveOptions);
+        glbSaveOptions = new GlbSaveOptions(saveFileChooser);
+        accessory.add(plySaveOptions);
+        accessory.add(glbSaveOptions);
+        saveFileChooser.setAccessory(accessory);
+
         saveFileChooser.setFileFilter(new FileNameExtensionFilter(
             "Splat Files (.splat, .ply, .spz, .glb)", "splat", "ply", "spz",
             "glb"));
@@ -394,7 +406,7 @@ class JSplatApplication
         }
         if (name.endsWith("glb"))
         {
-            return new SpzGltfSplatReader();
+            return new GlbSplatListReader();
         }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");
@@ -442,7 +454,7 @@ class JSplatApplication
         }
         saveInBackground(writer, file);
     }
-    
+
     /**
      * Find a writer for the file with the given name, based on the file
      * extension, case-insensitively. If no writer can be found, then
@@ -460,7 +472,7 @@ class JSplatApplication
         }
         if (name.endsWith("ply"))
         {
-            PlyFormat  plyFormat = plySaveOptions.getPlyFormat();
+            PlyFormat plyFormat = plySaveOptions.getPlyFormat();
             return new PlySplatWriter(plyFormat);
         }
         if (name.endsWith("spz"))
@@ -469,7 +481,11 @@ class JSplatApplication
         }
         if (name.endsWith("glb"))
         {
-            return new SpzGltfSplatWriter();
+            if (glbSaveOptions.shouldApplySpzCompression())
+            {
+                return new GltfSpzSplatWriter();
+            }
+            return new GltfSplatWriter();
         }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");

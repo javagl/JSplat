@@ -46,24 +46,27 @@ public class JSplatRoundtrips
     public static void main(String[] args) throws IOException
     {
         LoggerUtil.initLogging();
-        
+
         Files.createDirectories(Paths.get(BASE_DIRECTORY));
 
         FORMATS = Arrays.asList(SplatFormat.GSPLAT, SplatFormat.PLY_BINARY_LE,
-            SplatFormat.PLY_ASCII, SplatFormat.SPZ);
-        
-        writeAll("rotations2D", SplatGrids.createRotations2D());
-        writeAll("rotations", SplatGrids.createRotations());
-        writeAll("shs1", SplatGrids.createShs1());
-        writeAll("shs2", SplatGrids.createShs2());
-        writeAll("shs3", SplatGrids.createShs3());
-        writeAll("unitCube", UnitCubeSplats.create());
-        
-        //roundtripAll("unitCube");
+            SplatFormat.PLY_BINARY_BE, SplatFormat.PLY_ASCII, SplatFormat.SPZ, 
+            SplatFormat.SPZ_GLTF, SplatFormat.GLTF);
 
-        //float epsilon = 1e-6f;
-        //float epsilon = 0.02f;
-        //verifySingle(SplatGrids.createRotations(), SplatFormat.SPZ, epsilon);
+//        writeAll("rotations2D", SplatGrids.createRotations2D());
+//        writeAll("rotations", SplatGrids.createRotations());
+//        writeAll("shs1", SplatGrids.createShs1());
+//        writeAll("shs2", SplatGrids.createShs2());
+//        writeAll("shs3", SplatGrids.createShs3());
+//        writeAll("unitCube", UnitCubeSplats.create());
+
+        
+        writeAll("unitCube", UnitCubeSplats.create());
+        roundtripAll("unitCube");
+
+        // float epsilon = 1e-6f;
+        // float epsilon = 0.02f;
+        // verifySingle(SplatGrids.createRotations(), SplatFormat.SPZ, epsilon);
     }
 
     private static List<SplatFormat> createFormats()

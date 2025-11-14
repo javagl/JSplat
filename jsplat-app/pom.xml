@@ -35,7 +35,12 @@
 		</dependency>
 		<dependency>
 			<groupId>de.javagl</groupId>
-			<artifactId>jsplat-io-spz-gltf</artifactId>
+			<artifactId>jsplat-io-gltf-spz</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>de.javagl</groupId>
+			<artifactId>jsplat-io-gltf</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

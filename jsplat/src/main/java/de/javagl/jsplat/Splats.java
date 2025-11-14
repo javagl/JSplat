@@ -270,6 +270,56 @@ public class Splats
     }
 
     /**
+     * Returns the number of spherical harmonics coefficients for the given
+     * degree.
+     * 
+     * @param degree The degree
+     * @return The number of coefficients
+     */
+    public static int coefficientsForDegree(int degree)
+    {
+        return degree * 2 + 1;
+    }
+
+    /**
+     * Returns the index of the dimension for the specified spherical harmonics
+     * coefficient.
+     * 
+     * <pre><code>
+     * (degree 0, coefficient 0) : 0
+     * 
+     * (degree 1, coefficient 0) : 1
+     * (degree 1, coefficient 1) : 2
+     * (degree 1, coefficient 2) : 3
+     * 
+     * (degree 2, coefficient 0) : 4
+     * (degree 2, coefficient 1) : 5
+     * (degree 2, coefficient 2) : 6
+     * (degree 2, coefficient 3) : 7
+     * (degree 2, coefficient 4) : 8
+     * 
+     * (degree 3, coefficient 0) : 9
+     * ...
+     * (degree 3, coefficient 6) : 15
+     * </code></pre>
+     * 
+     * @param degree The degree
+     * @param coefficient The coefficient
+     * @return The dimension
+     */
+    public static int dimensionForCoefficient(int degree, int coefficient)
+    {
+        int index = 0;
+        for (int d = 0; d < degree; d++)
+        {
+            int dd = Splats.coefficientsForDegree(d);
+            index += dd;
+        }
+        index += coefficient;
+        return index;
+    }
+
+    /**
      * Returns whether the given lists of splats are epsilon-equal
      * 
      * @param sas The first list
@@ -303,10 +353,9 @@ public class Splats
     /**
      * Returns whether the given splats are epsilon-equal.
      * 
-     * This involves special treatment for the scalar (rotation) component
-     * of the quaternions: It will treat them as actual rotation angles,
-     * meaning that values like 1.0 and -1.0 will be considered to be
-     * equal.
+     * This involves special treatment for the scalar (rotation) component of
+     * the quaternions: It will treat them as actual rotation angles, meaning
+     * that values like 1.0 and -1.0 will be considered to be equal.
      * 
      * @param sa The first splat
      * @param sb The second splat
@@ -367,7 +416,7 @@ public class Splats
         // Special treatment for rotation component: The difference
         // modulo 1.0 is computed, and should be epsilon-equal to 0
         float wa = sa.getRotationW();
-        float wb = sb.getRotationW(); 
+        float wb = sb.getRotationW();
         float wd = 1.0f - Math.abs(Math.abs(wa - wb) - 1.0f);
         if (!equalsEpsilon(wd, 0.0f, epsilon))
         {
@@ -398,14 +447,14 @@ public class Splats
         }
         return true;
     }
-    
+
     /**
      * Returns whether the given splats are strictly epsilon-equal.
      * 
      * This means that it will compare the actual values of the splats,
-     * regardless of their semantics. For rotation quaternions, a 
-     * scalar value of 1.0 and -1.0 describe the same rotation, and this
-     * will <b>not</b> be taken into account here. 
+     * regardless of their semantics. For rotation quaternions, a scalar value
+     * of 1.0 and -1.0 describe the same rotation, and this will <b>not</b> be
+     * taken into account here.
      * 
      * @param sa The first splat
      * @param sb The second splat
@@ -491,7 +540,6 @@ public class Splats
         }
         return true;
     }
-    
 
     /**
      * Returns whether the given values are epsilon-equal
