@@ -58,6 +58,9 @@ import de.javagl.jspz.SpzWriters;
 /**
  * Implementation of a {@link SplatListWriter} that writes glTF data with
  * SPZ-compressed Gaussian splats.
+ * 
+ * NOTE: This file is currently (2025-11-18) tweaked to generate output that can
+ * be rendered with CesiumJS. It may change arbitrarily in the future.
  */
 public final class GltfSpzSplatWriter implements SplatListWriter
 {
@@ -140,22 +143,22 @@ public final class GltfSpzSplatWriter implements SplatListWriter
         color.setCount(numPoints);
         gltf.addAccessors(color);
 
-        // Add the _ROTATION accessor
+        // Add the ROTATION accessor
         Accessor rotation = new Accessor();
         rotation.setComponentType(GltfConstants.GL_FLOAT);
         rotation.setType("VEC4");
         rotation.setCount(numPoints);
         gltf.addAccessors(rotation);
 
-        // Add the _SCALE accessor
+        // Add the SCALE accessor
         Accessor scale = new Accessor();
         scale.setComponentType(GltfConstants.GL_FLOAT);
-        scale.setType("VEC3");
+        scale.setType("SCALAR");
         scale.setCount(numPoints);
         gltf.addAccessors(scale);
 
         // Add the spherical harmonics accessors
-        for (int d = 0; d < shDegree; d++)
+        for (int d = 1; d <= shDegree; d++)
         {
             int numCoeffs = Splats.coefficientsForDegree(d + 1);
             for (int n = 0; n < numCoeffs; n++)
@@ -186,11 +189,12 @@ public final class GltfSpzSplatWriter implements SplatListWriter
         // Add all accessors to the mesh primitive
         int a = 0;
         primitive.addAttributes("POSITION", a++);
-        primitive.addAttributes(BASE_NAME + ":" + "SCALE", a++);
+        primitive.addAttributes("COLOR_0", a++);
         primitive.addAttributes(BASE_NAME + ":" + "ROTATION", a++);
-        primitive.addAttributes(BASE_NAME + ":" + "OPACITY", a++);
+        primitive.addAttributes(BASE_NAME + ":" + "SCALE", a++);
+        // primitive.addAttributes(BASE_NAME + ":" + "OPACITY", a++);
 
-        for (int d = 0; d <= shDegree; d++)
+        for (int d = 1; d <= shDegree; d++)
         {
             int numCoeffs = Splats.coefficientsForDegree(d);
             for (int n = 0; n < numCoeffs; n++)
@@ -218,6 +222,12 @@ public final class GltfSpzSplatWriter implements SplatListWriter
 
         // Add the node
         Node node = new Node();
+
+        // XXX That matrix again, for CesiumJS...
+        node.setMatrix(new float[]
+        { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 1.0f });
+
         node.setMesh(0);
         gltf.addNodes(node);
 
@@ -230,6 +240,8 @@ public final class GltfSpzSplatWriter implements SplatListWriter
         // Add information about the used/required extension
         gltf.addExtensionsUsed(BASE_NAME);
         gltf.addExtensionsUsed(NAME);
+        gltf.addExtensionsRequired(BASE_NAME);
+        gltf.addExtensionsRequired(NAME);
 
         // Build the actual asset
         ByteBuffer binaryData = ByteBuffer.wrap(spzBytes);
