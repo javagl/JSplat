@@ -37,7 +37,6 @@ import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.Splats;
 import de.javagl.ply.Descriptor;
-import de.javagl.ply.Descriptors;
 import de.javagl.ply.ElementDescriptor;
 import de.javagl.ply.ObjectPlyTarget;
 import de.javagl.ply.ObjectPlyTarget.Handle;
