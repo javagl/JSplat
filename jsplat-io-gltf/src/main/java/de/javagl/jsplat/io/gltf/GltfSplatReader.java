@@ -41,6 +41,7 @@ import de.javagl.jgltf.model.MeshModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
 import de.javagl.jgltf.model.io.GltfModelReader;
 import de.javagl.jsplat.MutableSplat;
+import de.javagl.jsplat.SplatDatas;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.Splats;
 
@@ -177,16 +178,16 @@ public final class GltfSplatReader implements SplatListReader
         }
 
         FloatBuffer positionBuffer = readAsFloatBuffer(positionAccessor);
-        writePositions(positionBuffer, splats);
+        SplatDatas.writePositions(positionBuffer, splats);
 
         FloatBuffer scaleBuffer = readAsFloatBuffer(scaleAccessor);
-        writeScales(scaleBuffer, splats);
+        SplatDatas.writeScales(scaleBuffer, splats);
 
         FloatBuffer rotationBuffer = readAsFloatBuffer(rotationAccessor);
-        writeRotations(rotationBuffer, splats);
+        SplatDatas.writeRotations(rotationBuffer, splats);
 
         FloatBuffer opacityBuffer = readAsFloatBuffer(opacityAccessor);
-        writeOpacities(opacityBuffer, splats);
+        SplatDatas.writeOpacities(opacityBuffer, splats);
 
         int shIndex = 0;
         for (int d = 0; d <= shDegree; d++)
@@ -196,7 +197,7 @@ public final class GltfSplatReader implements SplatListReader
             {
                 AccessorModel shAccessor = shAccessors.get(shIndex);
                 FloatBuffer shBuffer = readAsFloatBuffer(shAccessor);
-                writeSh(shBuffer, splats, d, c);
+                SplatDatas.writeSh(shBuffer, splats, d, c);
                 shIndex++;
             }
         }
@@ -219,100 +220,4 @@ public final class GltfSplatReader implements SplatListReader
         return Quantization.readAsFloatBuffer(accessorModel);
     }
 
-    /**
-     * Write the positions from the given buffer with splats.size() * 3 elements
-     * into the given splats
-     * 
-     * @param b The buffer
-     * @param splats The splats
-     */
-    private static void writePositions(FloatBuffer b,
-        List<? extends MutableSplat> splats)
-    {
-        for (int i = 0; i < splats.size(); i++)
-        {
-            MutableSplat s = splats.get(i);
-            s.setPositionX(b.get(i * 3 + 0));
-            s.setPositionY(b.get(i * 3 + 1));
-            s.setPositionZ(b.get(i * 3 + 2));
-        }
-    }
-
-    /**
-     * Write the scales from the given buffer with splats.size() * 3 elements
-     * into the given splats
-     * 
-     * @param b The buffer
-     * @param splats The splats
-     */
-    private static void writeScales(FloatBuffer b,
-        List<? extends MutableSplat> splats)
-    {
-        for (int i = 0; i < splats.size(); i++)
-        {
-            MutableSplat s = splats.get(i);
-            s.setScaleX(b.get(i * 3 + 0));
-            s.setScaleY(b.get(i * 3 + 1));
-            s.setScaleZ(b.get(i * 3 + 2));
-        }
-    }
-
-    /**
-     * Write the rotations from the given buffer with splats.size() * 4 elements
-     * into the given splats
-     * 
-     * @param b The buffer
-     * @param splats The splats
-     */
-    private static void writeRotations(FloatBuffer b,
-        List<? extends MutableSplat> splats)
-    {
-        for (int i = 0; i < splats.size(); i++)
-        {
-            MutableSplat s = splats.get(i);
-            s.setRotationX(b.get(i * 4 + 0));
-            s.setRotationY(b.get(i * 4 + 1));
-            s.setRotationZ(b.get(i * 4 + 2));
-            s.setRotationW(b.get(i * 4 + 3));
-        }
-    }
-
-    /**
-     * Write the opacities from the given buffer with splats.size() elements
-     * into the given splats
-     * 
-     * @param b The buffer
-     * @param splats The splats
-     */
-    private static void writeOpacities(FloatBuffer b,
-        List<? extends MutableSplat> splats)
-    {
-        for (int i = 0; i < splats.size(); i++)
-        {
-            MutableSplat s = splats.get(i);
-            s.setOpacity(b.get(i));
-        }
-    }
-
-    /**
-     * Write the specified spherical harmonics from the given buffer with
-     * splats.size() * 3 elements into the given splats
-     * 
-     * @param b The buffer
-     * @param splats The splats
-     * @param degree The degree
-     * @param coefficient The coefficient
-     */
-    private static void writeSh(FloatBuffer b,
-        List<? extends MutableSplat> splats, int degree, int coefficient)
-    {
-        int index = Splats.dimensionForCoefficient(degree, coefficient);
-        for (int i = 0; i < splats.size(); i++)
-        {
-            MutableSplat s = splats.get(i);
-            s.setShX(index, b.get(i * 3 + 0));
-            s.setShY(index, b.get(i * 3 + 1));
-            s.setShZ(index, b.get(i * 3 + 2));
-        }
-    }
 }

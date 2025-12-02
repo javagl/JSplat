@@ -46,6 +46,7 @@ import de.javagl.jgltf.model.impl.DefaultGltfModel;
 import de.javagl.jgltf.model.impl.DefaultMeshPrimitiveModel;
 import de.javagl.jgltf.model.io.GltfModelWriter;
 import de.javagl.jsplat.Splat;
+import de.javagl.jsplat.SplatDatas;
 import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.Splats;
 
@@ -112,27 +113,27 @@ public final class GltfSplatWriter implements SplatListWriter
      * @param splats The splats
      * @return The mesh primitive model
      */
-    private DefaultMeshPrimitiveModel
+    private static DefaultMeshPrimitiveModel
         createMeshPrimitiveModel(List<? extends Splat> splats)
     {
         MeshPrimitiveBuilder mpb = MeshPrimitiveBuilder.create();
 
-        FloatBuffer position = readPositions(splats);
+        FloatBuffer position = SplatDatas.readPositions(splats, null);
         DefaultAccessorModel positionAccessor =
             AccessorModels.createFloat3D(position);
         mpb.addAttribute("POSITION", positionAccessor);
 
-        FloatBuffer scale = readScales(splats);
+        FloatBuffer scale = SplatDatas.readScales(splats, null);
         DefaultAccessorModel scaleAccessor =
             AccessorModels.createFloat3D(scale);
         mpb.addAttribute(NAME + ":" + "SCALE", scaleAccessor);
 
-        FloatBuffer rotation = readRotations(splats);
+        FloatBuffer rotation = SplatDatas.readRotations(splats, null);
         DefaultAccessorModel rotationAccessor =
             AccessorModels.createFloat4D(rotation);
         mpb.addAttribute(NAME + ":" + "ROTATION", rotationAccessor);
 
-        FloatBuffer opacity = readOpacities(splats);
+        FloatBuffer opacity = SplatDatas.readOpacities(splats, null);
         DefaultAccessorModel opacityAccessor =
             AccessorModels.createFloatScalar(opacity);
         mpb.addAttribute(NAME + ":" + "OPACITY", opacityAccessor);
@@ -143,7 +144,7 @@ public final class GltfSplatWriter implements SplatListWriter
             int numCoefficients = Splats.coefficientsForDegree(d);
             for (int c = 0; c < numCoefficients; c++)
             {
-                FloatBuffer sh = readSh(splats, d, c);
+                FloatBuffer sh = SplatDatas.readSh(splats, d, c, null);
                 DefaultAccessorModel shAccessor =
                     AccessorModels.createFloat3D(sh);
 
@@ -170,7 +171,7 @@ public final class GltfSplatWriter implements SplatListWriter
      * 
      * @return The extension object
      */
-    private Map<String, Object> createExtension()
+    private static Map<String, Object> createExtension()
     {
         Map<String, Object> extension = new LinkedHashMap<String, Object>();
         extension.put("kernel", "ellipse");
@@ -180,107 +181,5 @@ public final class GltfSplatWriter implements SplatListWriter
         return extension;
     }
 
-    /**
-     * Read the positions from the given splats, as a buffer with splats.size()
-     * * 3 elements
-     * 
-     * @param splats The splats
-     * @return The result
-     */
-    private static FloatBuffer readPositions(List<? extends Splat> splats)
-    {
-        FloatBuffer b = FloatBuffer.allocate(splats.size() * 3);
-        for (int i = 0; i < splats.size(); i++)
-        {
-            Splat s = splats.get(i);
-            b.put(i * 3 + 0, s.getPositionX());
-            b.put(i * 3 + 1, s.getPositionY());
-            b.put(i * 3 + 2, s.getPositionZ());
-        }
-        return b;
-    }
-
-    /**
-     * Read the scales from the given splats, as a buffer with splats.size() * 3
-     * elements
-     * 
-     * @param splats The splats
-     * @return The result
-     */
-    private static FloatBuffer readScales(List<? extends Splat> splats)
-    {
-        FloatBuffer b = FloatBuffer.allocate(splats.size() * 3);
-        for (int i = 0; i < splats.size(); i++)
-        {
-            Splat s = splats.get(i);
-            b.put(i * 3 + 0, s.getScaleX());
-            b.put(i * 3 + 1, s.getScaleY());
-            b.put(i * 3 + 2, s.getScaleZ());
-        }
-        return b;
-    }
-
-    /**
-     * Read the rotations from the given splats, as a buffer with splats.size()
-     * * 4 elements
-     * 
-     * @param splats The splats
-     * @return The result
-     */
-    private static FloatBuffer readRotations(List<? extends Splat> splats)
-    {
-        FloatBuffer b = FloatBuffer.allocate(splats.size() * 4);
-        for (int i = 0; i < splats.size(); i++)
-        {
-            Splat s = splats.get(i);
-            b.put(i * 4 + 0, s.getRotationX());
-            b.put(i * 4 + 1, s.getRotationY());
-            b.put(i * 4 + 2, s.getRotationZ());
-            b.put(i * 4 + 3, s.getRotationW());
-        }
-        return b;
-    }
-
-    /**
-     * Read the opacities from the given splats, as a buffer with splats.size()
-     * elements
-     * 
-     * @param splats The splats
-     * @return The result
-     */
-    private static FloatBuffer readOpacities(List<? extends Splat> splats)
-    {
-        FloatBuffer b = FloatBuffer.allocate(splats.size());
-        for (int i = 0; i < splats.size(); i++)
-        {
-            Splat s = splats.get(i);
-            b.put(i, s.getOpacity());
-        }
-        return b;
-    }
-
-    /**
-     * Read the specified spherical harmonics from the given splats, as a buffer
-     * with splats.size() * 3 elements
-     * 
-     * @param splats The splats
-     * @param degree The degree
-     * @param coefficient The coefficient
-     * @return The result
-     */
-    private static FloatBuffer readSh(List<? extends Splat> splats, int degree,
-        int coefficient)
-    {
-        int index = Splats.dimensionForCoefficient(degree, coefficient);
-        FloatBuffer b = FloatBuffer.allocate(splats.size() * 3);
-        for (int i = 0; i < splats.size(); i++)
-        {
-            Splat s = splats.get(i);
-            b.put(i * 3 + 0, s.getShX(index));
-            b.put(i * 3 + 1, s.getShY(index));
-            b.put(i * 3 + 2, s.getShZ(index));
-        }
-        return b;
-    }
 
 }

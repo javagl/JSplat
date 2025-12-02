@@ -26,8 +26,6 @@
  */
 package de.javagl.jsplat;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 /**
@@ -94,29 +92,15 @@ class DefaultSplatData implements SplatData
         this.shDegree = shDegree;
         this.size = size;
         
-        this.positions = createFloatBuffer(size * 3);
-        this.scales = createFloatBuffer(size * 3);
-        this.rotations = createFloatBuffer(size * 4);
-        this.opacities = createFloatBuffer(size);
+        this.positions = Buffers.createFloatBuffer(size * 3);
+        this.scales = Buffers.createFloatBuffer(size * 3);
+        this.rotations = Buffers.createFloatBuffer(size * 4);
+        this.opacities = Buffers.createFloatBuffer(size);
         
         int dimensions = Splats.dimensionsForDegree(shDegree);
-        this.shs = createFloatBuffer(dimensions * size * 3);
+        this.shs = Buffers.createFloatBuffer(dimensions * size * 3);
     }
 
-    /**
-     * Creates a new direct float buffer with the given size and native
-     * byte order
-     * 
-     * @param size The size
-     * @return The buffer
-     */
-    private static FloatBuffer createFloatBuffer(int size)
-    {
-        ByteBuffer bb = ByteBuffer.allocateDirect(size * Float.BYTES);
-        bb.order(ByteOrder.nativeOrder());
-        return bb.asFloatBuffer();
-    }
-    
     @Override
     public int getShDegree()
     {
