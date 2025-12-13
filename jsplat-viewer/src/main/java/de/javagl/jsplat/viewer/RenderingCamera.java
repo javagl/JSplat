@@ -93,6 +93,7 @@ class RenderingCamera
     RenderingCamera()
     {
         this.view = Views.create();
+        resetCamera();
         view.getCamera().addCameraListener(new CameraListener()
         {
             @Override

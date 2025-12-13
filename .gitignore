@@ -1,6 +1,7 @@
 /.metadata/
 
 /jsplat-experiments
+/jsplat-experiments-tilesets
 
 /jsplat-examples/target
 /jsplat-examples/.project
@@ -58,3 +59,7 @@
 /jsplat-viewer-lwjgl/.classpath
 /jsplat-viewer-lwjgl/.lwjgl
 
+/jsplat-processing/target
+/jsplat-processing/.project
+/jsplat-processing/.settings
+/jsplat-processing/.classpath
