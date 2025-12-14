@@ -51,7 +51,7 @@ public class JSplatRoundtrips
 
         FORMATS = Arrays.asList(SplatFormat.GSPLAT, SplatFormat.PLY_BINARY_LE,
             SplatFormat.PLY_BINARY_BE, SplatFormat.PLY_ASCII, SplatFormat.SPZ, 
-            SplatFormat.SPZ_GLTF, SplatFormat.GLTF);
+            SplatFormat.GLTF_SPZ, SplatFormat.GLTF);
 
 //        writeAll("rotations2D", SplatGrids.createRotations2D());
 //        writeAll("rotations", SplatGrids.createRotations());
@@ -61,12 +61,12 @@ public class JSplatRoundtrips
 //        writeAll("unitCube", UnitCubeSplats.create());
 
         
-        writeAll("unitCube", UnitCubeSplats.create());
-        roundtripAll("unitCube");
+        //writeAll("unitCube", UnitCubeSplats.create());
+        //roundtripAll("unitCube");
 
         // float epsilon = 1e-6f;
-        // float epsilon = 0.02f;
-        // verifySingle(SplatGrids.createRotations(), SplatFormat.SPZ, epsilon);
+        float epsilon = 0.02f;
+        verifySingle(SplatGrids.createShs3(), SplatFormat.SPZ, epsilon);
     }
 
     private static List<SplatFormat> createFormats()
