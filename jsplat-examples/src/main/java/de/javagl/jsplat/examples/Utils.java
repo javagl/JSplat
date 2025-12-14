@@ -59,7 +59,7 @@ class Utils
                 return new PlySplatReader();
             case SPZ:
                 return new SpzSplatReader();
-            case SPZ_GLTF:
+            case GLTF_SPZ:
                 return new GltfSpzSplatReader();
             case GLTF:
                 return new GltfSplatReader();
@@ -88,7 +88,7 @@ class Utils
                 return new PlySplatWriter(PlyFormat.BINARY_BIG_ENDIAN);
             case SPZ:
                 return new SpzSplatWriter();
-            case SPZ_GLTF:
+            case GLTF_SPZ:
                 return new GltfSpzSplatWriter();
             case GLTF:
                 return new GltfSplatWriter();
@@ -132,7 +132,7 @@ class Utils
                 return "ply";
             case SPZ:
                 return "spz";
-            case SPZ_GLTF:
+            case GLTF_SPZ:
             case GLTF:
                 return "glb";
         }
