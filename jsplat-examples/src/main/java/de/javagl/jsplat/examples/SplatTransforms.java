@@ -14,6 +14,8 @@ import de.javagl.jsplat.Splats;
 
 /**
  * Utility methods to transform splats
+ * 
+ * @deprecated May be replaced with the splat-processing project soon.
  */
 class SplatTransforms
 {
