@@ -51,6 +51,7 @@ public final class SogSplatWriter implements SplatListWriter
         OutputStream outputStream) throws IOException
     {
         // TODO Not implemented yet
+        System.err.println("SogSplatWriter#writeList is not implemented yet");
     }
 
 }

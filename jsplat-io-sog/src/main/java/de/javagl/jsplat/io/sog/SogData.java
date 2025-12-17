@@ -26,31 +26,26 @@
  */
 package de.javagl.jsplat.io.sog;
 
-import java.awt.image.BufferedImage;
-
 import de.javagl.jsplat.io.sog.meta.Meta;
 
 /**
  * Package-private class storing the SOG images.
  * 
  * For details of the fields, see the SOG specification.
- * 
- * Also see notes in SogSplatReader: Maybe this should not store images that are
- * accessed with getRGB, but raw (pixel) data buffers instead.
  */
 @SuppressWarnings("javadoc")
 class SogData
 {
     Meta meta;
 
-    BufferedImage meansL;
-    BufferedImage meansU;
+    byte[] meansL;
+    byte[] meansU;
 
-    BufferedImage scales;
-    BufferedImage quats;
-    BufferedImage sh0;
+    byte[] scales;
+    byte[] quats;
+    byte[] sh0;
 
-    BufferedImage shNLabels;
-    BufferedImage shNCentroids;
+    byte[] shNLabels;
+    byte[] shNCentroids;
 
 }

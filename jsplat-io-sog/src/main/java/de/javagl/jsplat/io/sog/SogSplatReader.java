@@ -26,7 +26,6 @@
  */
 package de.javagl.jsplat.io.sog;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,10 +54,6 @@ import de.javagl.jsplat.io.sog.meta.ShN;
 
 /**
  * Implementation of a {@link SplatListReader} that reads SOG data
- * 
- * TODO The image access functions might do some color conversion. Everything
- * ~"looks right", but maybe the data should be accessed in its raw form (using
- * the DataBuffer structures). This could also allow more efficient access.
  */
 public final class SogSplatReader implements SplatListReader
 {
@@ -186,18 +181,19 @@ public final class SogSplatReader implements SplatListReader
     private static SogData readSogData(ZipFile zipFile,
         Map<String, ZipEntry> entryMap, Meta meta) throws IOException
     {
-        BufferedImage[] means =
-            readImages(zipFile, entryMap, "means", meta.means.files, 2);
-        BufferedImage[] scales =
-            readImages(zipFile, entryMap, "scales", meta.scales.files, 1);
-        BufferedImage[] quats =
-            readImages(zipFile, entryMap, "quats", meta.quats.files, 1);
-        BufferedImage[] sh0 =
-            readImages(zipFile, entryMap, "sh0", meta.sh0.files, 1);
-        BufferedImage[] shN = null;
+        byte[][] means = readImagesPixelsByteRgba(zipFile, entryMap, "means",
+            meta.means.files, 2);
+        byte[][] scales = readImagesPixelsByteRgba(zipFile, entryMap, "scales",
+            meta.scales.files, 1);
+        byte[][] quats = readImagesPixelsByteRgba(zipFile, entryMap, "quats",
+            meta.quats.files, 1);
+        byte[][] sh0 = readImagesPixelsByteRgba(zipFile, entryMap, "sh0",
+            meta.sh0.files, 1);
+        byte[][] shN = null;
         if (meta.shN != null)
         {
-            shN = readImages(zipFile, entryMap, "shN", meta.shN.files, 2);
+            shN = readImagesPixelsByteRgba(zipFile, entryMap, "shN",
+                meta.shN.files, 2);
         }
 
         SogData sogData = new SogData();
@@ -245,17 +241,18 @@ public final class SogSplatReader implements SplatListReader
     }
 
     /**
-     * Read WEBP images with the given file names from the given input data
+     * Read WEBP images with the given file names from the given input data, and
+     * return their pixels as RGBA byte arrays
      * 
      * @param zipFile The ZIP file
      * @param entryMap The mapping from file names to ZIP entries
      * @param name The name of the image category (e.g. "means")
      * @param files The file names
      * @param expected The expected number of file names
-     * @return The images
+     * @return The image data
      * @throws IOException If an IO error occurs
      */
-    private static BufferedImage[] readImages(ZipFile zipFile,
+    private static byte[][] readImagesPixelsByteRgba(ZipFile zipFile,
         Map<String, ZipEntry> entryMap, String name, String files[],
         int expected) throws IOException
     {
@@ -268,18 +265,19 @@ public final class SogSplatReader implements SplatListReader
             throw new IOException("Expected " + name
                 + ".files to have length 2, but has " + files.length);
         }
-        BufferedImage images[] = new BufferedImage[expected];
+        byte imagePixelsByteRgba[][] = new byte[expected][];
         for (int i = 0; i < expected; i++)
         {
             String file = files[i];
-            BufferedImage image = readImage(zipFile, entryMap, file);
-            images[i] = image;
+            byte pixlsRgba[] = readImagePixelsByteRgba(zipFile, entryMap, file);
+            imagePixelsByteRgba[i] = pixlsRgba;
         }
-        return images;
+        return imagePixelsByteRgba;
     }
 
     /**
-     * Read a WEBP image with the given name from the given input data
+     * Read a WEBP image with the given name from the given input data and
+     * returns its pixels as RGBA bytes
      * 
      * @param zipFile The ZIP file
      * @param entryMap The mapping from file names to ZIP entries
@@ -287,7 +285,7 @@ public final class SogSplatReader implements SplatListReader
      * @return The image
      * @throws IOException If an IO error occurs
      */
-    private static BufferedImage readImage(ZipFile zipFile,
+    private static byte[] readImagePixelsByteRgba(ZipFile zipFile,
         Map<String, ZipEntry> entryMap, String fileName) throws IOException
     {
         ZipEntry zipEntry = entryMap.get(fileName);
@@ -297,8 +295,8 @@ public final class SogSplatReader implements SplatListReader
         }
         try (InputStream is = zipFile.getInputStream(zipEntry))
         {
-            BufferedImage image = Images.readWebP(is);
-            return image;
+            byte[] pixelBytesRgba = Images.readWebPPixelsRgba(is);
+            return pixelBytesRgba;
         }
     }
 
@@ -345,24 +343,19 @@ public final class SogSplatReader implements SplatListReader
      * @param s The splat
      * @param index The index
      * @param means The {@link Means}
-     * @param meansU The means_u image
-     * @param meansL The means_l image
+     * @param meansU The means_u image data
+     * @param meansL The means_l image data
      */
     private static void convertPosition(MutableSplat s, int index, Means means,
-        BufferedImage meansU, BufferedImage meansL)
+        byte[] meansU, byte[] meansL)
     {
-        int ix = index % meansU.getWidth();
-        int iy = index / meansU.getWidth();
+        int meansUr = Byte.toUnsignedInt(meansU[index * 4 + 0]);
+        int meansUg = Byte.toUnsignedInt(meansU[index * 4 + 1]);
+        int meansUb = Byte.toUnsignedInt(meansU[index * 4 + 2]);
 
-        int meansUrgb = meansU.getRGB(ix, iy);
-        int meansUr = (meansUrgb >> 16) & 0xFF;
-        int meansUg = (meansUrgb >> 8) & 0xFF;
-        int meansUb = (meansUrgb >> 0) & 0xFF;
-
-        int meansLrgb = meansL.getRGB(ix, iy);
-        int meansLr = (meansLrgb >> 16) & 0xFF;
-        int meansLg = (meansLrgb >> 8) & 0xFF;
-        int meansLb = (meansLrgb >> 0) & 0xFF;
+        int meansLr = Byte.toUnsignedInt(meansL[index * 4 + 0]);
+        int meansLg = Byte.toUnsignedInt(meansL[index * 4 + 1]);
+        int meansLb = Byte.toUnsignedInt(meansL[index * 4 + 2]);
 
         // 16-bit normalized value per axis (0..65535)
         int qx = (meansUr << 8) | meansLr;
@@ -390,20 +383,16 @@ public final class SogSplatReader implements SplatListReader
      * 
      * @param s The splat
      * @param index The index
-     * @param quats The quats image
+     * @param quats The quats image data
      * @throws IOException If an IO error occurs
      */
     private static void convertQuaternions(MutableSplat s, int index,
-        BufferedImage quats) throws IOException
+        byte[] quats) throws IOException
     {
-        int ix = index % quats.getWidth();
-        int iy = index / quats.getWidth();
-
-        int quatsrgb = quats.getRGB(ix, iy);
-        int quatsa = (quatsrgb >> 24) & 0xFF;
-        int quatsr = (quatsrgb >> 16) & 0xFF;
-        int quatsg = (quatsrgb >> 8) & 0xFF;
-        int quatsb = (quatsrgb >> 0) & 0xFF;
+        int quatsr = Byte.toUnsignedInt(quats[index * 4 + 0]);
+        int quatsg = Byte.toUnsignedInt(quats[index * 4 + 1]);
+        int quatsb = Byte.toUnsignedInt(quats[index * 4 + 2]);
+        int quatsa = Byte.toUnsignedInt(quats[index * 4 + 3]);
 
         // Dequantize the stored three components:
         float a = toComp(quatsr);
@@ -439,7 +428,9 @@ public final class SogSplatReader implements SplatListReader
                 { a, b, c, d };
                 break; // omitted = w
             default:
-                throw new IOException("Invalid quaternion mode");
+                System.err.println("Invalid quaternion mode");
+                q = new float[]
+                { 1.0f, 0.0f, 0.0f, 0.0f };
         }
         s.setRotationW(q[0]);
         s.setRotationX(q[1]);
@@ -454,19 +445,15 @@ public final class SogSplatReader implements SplatListReader
      * @param s The splat
      * @param index The index
      * @param codebook The {@link Scales#codebook}
-     * @param scales The quats image
+     * @param scales The scales image data
      * @throws IOException If an IO error occurs
      */
     private static void convertScales(MutableSplat s, int index,
-        float codebook[], BufferedImage scales) throws IOException
+        float codebook[], byte[] scales) throws IOException
     {
-        int ix = index % scales.getWidth();
-        int iy = index / scales.getWidth();
-
-        int scalesrgb = scales.getRGB(ix, iy);
-        int scalesr = (scalesrgb >> 16) & 0xFF;
-        int scalesg = (scalesrgb >> 8) & 0xFF;
-        int scalesb = (scalesrgb >> 0) & 0xFF;
+        int scalesr = Byte.toUnsignedInt(scales[index * 4 + 0]);
+        int scalesg = Byte.toUnsignedInt(scales[index * 4 + 1]);
+        int scalesb = Byte.toUnsignedInt(scales[index * 4 + 2]);
 
         float sx = codebook[scalesr];
         float sy = codebook[scalesg];
@@ -487,16 +474,12 @@ public final class SogSplatReader implements SplatListReader
      * @throws IOException If an IO error occurs
      */
     private static void convertSh0(MutableSplat s, int index, float codebook[],
-        BufferedImage sh0) throws IOException
+        byte[] sh0) throws IOException
     {
-        int ix = index % sh0.getWidth();
-        int iy = index / sh0.getWidth();
-
-        int sh0rgb = sh0.getRGB(ix, iy);
-        int sh0a = (sh0rgb >> 24) & 0xFF;
-        int sh0r = (sh0rgb >> 16) & 0xFF;
-        int sh0g = (sh0rgb >> 8) & 0xFF;
-        int sh0b = (sh0rgb >> 0) & 0xFF;
+        int sh0r = Byte.toUnsignedInt(sh0[index * 4 + 0]);
+        int sh0g = Byte.toUnsignedInt(sh0[index * 4 + 1]);
+        int sh0b = Byte.toUnsignedInt(sh0[index * 4 + 2]);
+        int sh0a = Byte.toUnsignedInt(sh0[index * 4 + 3]);
 
         // Not converting to "color" here
         float r = codebook[sh0r];
@@ -521,28 +504,28 @@ public final class SogSplatReader implements SplatListReader
      * @throws IOException If an IO error occurs
      */
     private static void convertShN(MutableSplat s, int splatIndex, ShN shN,
-        BufferedImage shNLabels, BufferedImage shNCentroids) throws IOException
+        byte[] shNLabels, byte[] shNCentroids) throws IOException
     {
         int bands = shN.bands;
-        int ix = splatIndex % shNLabels.getWidth();
-        int iy = splatIndex / shNLabels.getWidth();
 
-        int labelrgb = shNLabels.getRGB(ix, iy);
-        int labelr = (labelrgb >> 16) & 0xFF;
-        int labelg = (labelrgb >> 8) & 0xFF;
+        int labelr = Byte.toUnsignedInt(shNLabels[splatIndex * 4 + 0]);
+        int labelg = Byte.toUnsignedInt(shNLabels[splatIndex * 4 + 1]);
 
         int index = labelr + (labelg << 8);
         int coeffs[] =
         { 3, 8, 15 };
         int u = (index % 64) * coeffs[bands - 1];
         int v = index / 64;
-
+        int width = coeffs[bands - 1] * 64;
+        int centroidIndex = u + v * width;
         for (int k = 0; k < coeffs[bands - 1]; k++)
         {
-            int centroidrgb = shNCentroids.getRGB(u + k, v);
-            int centroidr = (centroidrgb >> 16) & 0xFF;
-            int centroidg = (centroidrgb >> 8) & 0xFF;
-            int centroidb = (centroidrgb >> 0) & 0xFF;
+            int centroidr =
+                Byte.toUnsignedInt(shNCentroids[centroidIndex * 4 + 0]);
+            int centroidg =
+                Byte.toUnsignedInt(shNCentroids[centroidIndex * 4 + 1]);
+            int centroidb =
+                Byte.toUnsignedInt(shNCentroids[centroidIndex * 4 + 2]);
             float x = shN.codebook[centroidr];
             float y = shN.codebook[centroidg];
             float z = shN.codebook[centroidb];
