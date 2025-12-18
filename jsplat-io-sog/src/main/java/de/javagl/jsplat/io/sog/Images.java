@@ -35,10 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
-import com.luciad.imageio.webp.WebPReadParam;
 
 /**
  * Utility methods related to images
@@ -46,40 +42,19 @@ import com.luciad.imageio.webp.WebPReadParam;
 class Images
 {
     /**
-     * Read the pixels if the WebP image from the given input stream and return
+     * Read the pixels of the image from the given input stream and return
      * them as an array of RGBA byte values
      * 
      * @param inputStream The input stream
      * @return The data
      * @throws IOException If an IO error occurs
      */
-    static byte[] readWebPPixelsRgba(InputStream inputStream) throws IOException
+    static byte[] readPixelsRgba(InputStream inputStream) throws IOException
     {
-        BufferedImage image = readWebP(inputStream);
+        BufferedImage image = ImageIO.read(inputStream);
         int pixelsIntArgb[] = getPixelsIntArgb(image);
         byte pixelsByteRgba[] = convertIntArgbToByteRgba(pixelsIntArgb);
         return pixelsByteRgba;
-    }
-
-    /**
-     * Read a WEBP image from the given input stream
-     * 
-     * @param inputStream The input stream
-     * @return The image
-     * @throws IOException If an IO error occurs
-     */
-    private static BufferedImage readWebP(InputStream inputStream)
-        throws IOException
-    {
-        ImageReader imageReader =
-            ImageIO.getImageReadersByMIMEType("image/webp").next();
-        WebPReadParam readParam = new WebPReadParam();
-        readParam.setBypassFiltering(true);
-        ImageInputStream imageInputStream =
-            ImageIO.createImageInputStream(inputStream);
-        imageReader.setInput(imageInputStream);
-        BufferedImage image = imageReader.read(0, readParam);
-        return image;
     }
 
     /**

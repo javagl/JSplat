@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -199,43 +198,15 @@ public final class SogSplatReader implements SplatListReader
         SogData sogData = new SogData();
         sogData.meta = meta;
 
-        List<String> meansFiles = Arrays.asList(meta.means.files);
-        int indexL = meansFiles.indexOf("means_l.webp");
-        if (indexL == -1)
-        {
-            throw new IOException(
-                "The means_l.webp was not found in the SOG data");
-        }
-        int indexU = meansFiles.indexOf("means_u.webp");
-        if (indexU == -1)
-        {
-            throw new IOException(
-                "The means_u.webp was not found in the SOG data");
-        }
-        sogData.meansL = means[indexL];
-        sogData.meansU = means[indexU];
-
+        sogData.meansL = means[0];
+        sogData.meansU = means[1];
         sogData.scales = scales[0];
         sogData.quats = quats[0];
         sogData.sh0 = sh0[0];
-
         if (shN != null)
         {
-            List<String> shNFiles = Arrays.asList(meta.shN.files);
-            int indexSL = shNFiles.indexOf("shN_labels.webp");
-            if (indexSL == -1)
-            {
-                throw new IOException(
-                    "The shN_labels.webp was not found in the SOG data");
-            }
-            int indexSC = shNFiles.indexOf("shN_centroids.webp");
-            if (indexSC == -1)
-            {
-                throw new IOException(
-                    "The shN_centroids.webp was not found in the SOG data");
-            }
-            sogData.shNLabels = shN[indexSL];
-            sogData.shNCentroids = shN[indexSC];
+            sogData.shNLabels = shN[0];
+            sogData.shNCentroids = shN[1];
         }
         return sogData;
     }
@@ -295,7 +266,7 @@ public final class SogSplatReader implements SplatListReader
         }
         try (InputStream is = zipFile.getInputStream(zipEntry))
         {
-            byte[] pixelBytesRgba = Images.readWebPPixelsRgba(is);
+            byte[] pixelBytesRgba = Images.readPixelsRgba(is);
             return pixelBytesRgba;
         }
     }
