@@ -589,12 +589,10 @@ class SogDataGenerator
                 {
                     minMax[j][0] = value;
                 }
-                ;
                 if (value > minMax[j][1])
                 {
                     minMax[j][1] = value;
                 }
-                ;
             }
         }
 
