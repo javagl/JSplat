@@ -219,6 +219,11 @@ public class Splats
      * Converts the given alpha value from the range [0, 1] into an opacity
      * value in range [-Inf,Inf].
      * 
+     * Note that the return value for input values of 0.0 or 1.0 may not be
+     * infinite. For 0.0, the result will be a value that is smaller than
+     * than the result for a small epsilon, and for 1.0, the result will be
+     * a value that is larger than the result for (1.0 - epsilon). 
+     * 
      * @param a The alpha value
      * @return The opacity value
      */
@@ -261,6 +266,13 @@ public class Splats
      * Returns the total number of dimensions for the given spherical harmonics
      * degree.
      * 
+     * <pre><code>
+     * degree 0 :  1 dimensions
+     * degree 1 :  4 dimensions
+     * degree 2 :  9 dimensions
+     * degree 3 : 16 dimensions
+     * </code></pre>
+     * 
      * @param degree The degree
      * @return The dimensions
      */
@@ -272,6 +284,13 @@ public class Splats
     /**
      * Returns the number of spherical harmonics coefficients for the given
      * degree.
+     * 
+     * <pre><code>
+     * degree 0 : 1 coefficient
+     * degree 1 : 3 coefficients
+     * degree 2 : 5 coefficients
+     * degree 3 : 7 coefficients
+     * </code></pre>
      * 
      * @param degree The degree
      * @return The number of coefficients
