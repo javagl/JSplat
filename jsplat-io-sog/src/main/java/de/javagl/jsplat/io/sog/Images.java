@@ -33,8 +33,15 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+
+import com.luciad.imageio.webp.WebPWriteParam;
 
 /**
  * Utility methods related to images
@@ -42,14 +49,56 @@ import javax.imageio.ImageIO;
 class Images
 {
     /**
-     * Read the pixels of the image from the given input stream and return
-     * them as an array of RGBA byte values
+     * Write the pixels of the given image into a (lossless) WEBP image
+     * 
+     * @param w The width
+     * @param h The height
+     * @param pixelsByteRgba The RGBA byte pixels
+     * @param outputStream The output stream
+     * @throws IOException If an IO error occurs
+     */
+    static void writePixelsByteRgba(int w, int h, byte pixelsByteRgba[],
+        OutputStream outputStream) throws IOException
+    {
+        // Convert into ARGB int pixels
+        int source[] = convertByteRgbaToIntArgb(pixelsByteRgba);
+
+        // Write pixels into ARGB int image
+        BufferedImage image =
+            new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        WritableRaster raster = image.getRaster();
+        DataBuffer dataBuffer = raster.getDataBuffer();
+        DataBufferInt dataBufferInt = (DataBufferInt) dataBuffer;
+        int target[] = dataBufferInt.getData();
+        System.arraycopy(source, 0, target, 0, target.length);
+
+        // Create a lossless WEBP writer
+        ImageWriter writer =
+            ImageIO.getImageWritersByMIMEType("image/webp").next();
+        WebPWriteParam writeParam = new WebPWriteParam(writer.getLocale());
+        writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        String[] compressionTypes = writeParam.getCompressionTypes();
+        String compressionType =
+            compressionTypes[WebPWriteParam.LOSSLESS_COMPRESSION];
+        writeParam.setCompressionType(compressionType);
+
+        // Write the image
+        ImageOutputStream imageOutputStream =
+            ImageIO.createImageOutputStream(outputStream);
+        writer.setOutput(imageOutputStream);
+        writer.write(null, new IIOImage(image, null, null), writeParam);
+        imageOutputStream.flush();
+    }
+
+    /**
+     * Read the pixels of the image from the given input stream and return them
+     * as an array of RGBA byte values
      * 
      * @param inputStream The input stream
      * @return The data
      * @throws IOException If an IO error occurs
      */
-    static byte[] readPixelsRgba(InputStream inputStream) throws IOException
+    static byte[] readPixelsByteRgba(InputStream inputStream) throws IOException
     {
         BufferedImage image = ImageIO.read(inputStream);
         int pixelsIntArgb[] = getPixelsIntArgb(image);
@@ -103,7 +152,28 @@ class Images
             pixelsByteRgba[i * 4 + 3] = (byte) a;
         }
         return pixelsByteRgba;
+    }
 
+    /**
+     * Convert the given array of RGBA byte values into an array of ARGB int
+     * values.
+     * 
+     * @param pixelsByteRgba The input
+     * @return The result
+     */
+    private static int[] convertByteRgbaToIntArgb(byte pixelsByteRgba[])
+    {
+        int pixelsIntArgb[] = new int[pixelsByteRgba.length / 4];
+        for (int i = 0; i < pixelsIntArgb.length; i++)
+        {
+            byte r = pixelsByteRgba[i * 4 + 0];
+            byte g = pixelsByteRgba[i * 4 + 1];
+            byte b = pixelsByteRgba[i * 4 + 2];
+            byte a = pixelsByteRgba[i * 4 + 3];
+            int argb = ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF)<< 8) | (b & 0xFF);
+            pixelsIntArgb[i] = argb;
+        }
+        return pixelsIntArgb;
     }
 
     /**

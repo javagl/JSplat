@@ -29,7 +29,7 @@ package de.javagl.jsplat.io.sog;
 import de.javagl.jsplat.io.sog.meta.Meta;
 
 /**
- * Package-private class storing the SOG images.
+ * Package-private class storing the SOG data.
  * 
  * For details of the fields, see the SOG specification.
  */
@@ -45,7 +45,6 @@ class SogData
     byte[] quats;
     byte[] sh0;
 
-    byte[] shNLabels;
     byte[] shNCentroids;
-
+    byte[] shNLabels;
 }

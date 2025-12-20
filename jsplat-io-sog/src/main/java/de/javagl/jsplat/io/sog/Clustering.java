@@ -24,55 +24,53 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.sog.meta;
+package de.javagl.jsplat.io.sog;
 
 /**
- * SOG metadata
+ * Utilities for computing a clustering, for SOG.
+ * 
+ * Some comments here are a bit shallow, I know. Maybe I'll add details later...
  */
-public class Meta
+class Clustering
 {
     /**
-     * File format version (integer)
+     * Default iterations for K-Means clustering
      */
-    public int version;
-
-    /**
-     * Number of gaussians (<= W*H of the images)
-     */
-    public int count;
-
-    /**
-     * True iff scene was trained with anti-aliasing
-     */
-    public boolean antialias;
+    private static final int DEFAULT_ITERATIONS = 10;
     
     /**
-     * The asset information
+     * Package-private class representing the result of a clustering
      */
-    public Asset asset;
-
+    static class ClusteringResult
+    {
+        /**
+         * The centroids
+         */
+        float centroids[][];
+        
+        /**
+         * The labels
+         */
+        int labels[];
+    }
+    
     /**
-     * Ranges for decoding *log-transformed* positions (see §3.1).
+     * Compute a clustering result from the given data
+     * @param data The data
+     * @param k The desired number of clusters
+     * @return The result
      */
-    public Means means;
-
+    static ClusteringResult compute(double data[][], int k) 
+    {
+        return ClusteringElki.compute(data, k, DEFAULT_ITERATIONS);
+    }
+    
     /**
-     * The scales
+     * Private constructor to prevent instantiation
      */
-    public Scales scales;
+    private Clustering()
+    {
+        // Private constructor to prevent instantiation
+    }
 
-    /**
-     * The quats
-     */
-    public Quats quats;
-
-    /**
-     * The spherical harmonics
-     */
-    public Sh0 sh0;
-
-    /**
-     * Present only if higher-order SH exist:
-     */
-    public ShN shN;
 }

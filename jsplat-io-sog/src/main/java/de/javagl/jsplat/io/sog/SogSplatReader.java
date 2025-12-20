@@ -40,8 +40,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.Splats;
@@ -157,8 +155,7 @@ public final class SogSplatReader implements SplatListReader
         ZipEntry metaJsonEntry = entryMap.get("meta.json");
         try (InputStream is = zipFile.getInputStream(metaJsonEntry))
         {
-            ObjectMapper om = JacksonUtils.createObjectMapper();
-            Meta meta = om.readValue(is, Meta.class);
+            Meta meta = JsonUtils.readValue(is, Meta.class);
             if (meta.version != 2)
             {
                 throw new IOException("Only SOG version 2 is supported. "
@@ -205,8 +202,8 @@ public final class SogSplatReader implements SplatListReader
         sogData.sh0 = sh0[0];
         if (shN != null)
         {
-            sogData.shNLabels = shN[0];
-            sogData.shNCentroids = shN[1];
+            sogData.shNCentroids = shN[0];
+            sogData.shNLabels = shN[1];
         }
         return sogData;
     }
@@ -266,7 +263,7 @@ public final class SogSplatReader implements SplatListReader
         }
         try (InputStream is = zipFile.getInputStream(zipEntry))
         {
-            byte[] pixelBytesRgba = Images.readPixelsRgba(is);
+            byte[] pixelBytesRgba = Images.readPixelsByteRgba(is);
             return pixelBytesRgba;
         }
     }
@@ -293,14 +290,14 @@ public final class SogSplatReader implements SplatListReader
         for (int i = 0; i < count; i++)
         {
             MutableSplat s = Splats.create(shDegree);
-            convertPosition(s, i, meta.means, sogData.meansU, sogData.meansL);
+            convertPosition(s, i, meta.means, sogData.meansL, sogData.meansU);
             convertQuaternions(s, i, sogData.quats);
             convertScales(s, i, meta.scales.codebook, sogData.scales);
             convertSh0(s, i, meta.sh0.codebook, sogData.sh0);
             if (meta.shN != null)
             {
-                convertShN(s, i, meta.shN, sogData.shNLabels,
-                    sogData.shNCentroids);
+                convertShN(s, i, meta.shN, sogData.shNCentroids,
+                    sogData.shNLabels);
             }
             result.add(s);
         }
@@ -314,19 +311,19 @@ public final class SogSplatReader implements SplatListReader
      * @param s The splat
      * @param index The index
      * @param means The {@link Means}
-     * @param meansU The means_u image data
      * @param meansL The means_l image data
+     * @param meansU The means_u image data
      */
     private static void convertPosition(MutableSplat s, int index, Means means,
-        byte[] meansU, byte[] meansL)
+        byte[] meansL, byte[] meansU)
     {
-        int meansUr = Byte.toUnsignedInt(meansU[index * 4 + 0]);
-        int meansUg = Byte.toUnsignedInt(meansU[index * 4 + 1]);
-        int meansUb = Byte.toUnsignedInt(meansU[index * 4 + 2]);
-
         int meansLr = Byte.toUnsignedInt(meansL[index * 4 + 0]);
         int meansLg = Byte.toUnsignedInt(meansL[index * 4 + 1]);
         int meansLb = Byte.toUnsignedInt(meansL[index * 4 + 2]);
+
+        int meansUr = Byte.toUnsignedInt(meansU[index * 4 + 0]);
+        int meansUg = Byte.toUnsignedInt(meansU[index * 4 + 1]);
+        int meansUb = Byte.toUnsignedInt(meansU[index * 4 + 2]);
 
         // 16-bit normalized value per axis (0..65535)
         int qx = (meansUr << 8) | meansLr;
@@ -470,12 +467,12 @@ public final class SogSplatReader implements SplatListReader
      * @param s The splat
      * @param splatIndex The splat index
      * @param shN The {@link ShN}
-     * @param shNLabels The labels image
      * @param shNCentroids The centroids image
+     * @param shNLabels The labels image
      * @throws IOException If an IO error occurs
      */
     private static void convertShN(MutableSplat s, int splatIndex, ShN shN,
-        byte[] shNLabels, byte[] shNCentroids) throws IOException
+        byte[] shNCentroids, byte[] shNLabels) throws IOException
     {
         int bands = shN.bands;
 
@@ -483,20 +480,19 @@ public final class SogSplatReader implements SplatListReader
         int labelg = Byte.toUnsignedInt(shNLabels[splatIndex * 4 + 1]);
 
         int index = labelr + (labelg << 8);
-        int coeffs[] =
+        int coeffsArray[] =
         { 3, 8, 15 };
-        int u = (index % 64) * coeffs[bands - 1];
+        int coeffs = coeffsArray[bands - 1];
+        int u = (index % 64) * coeffs;
         int v = index / 64;
-        int width = coeffs[bands - 1] * 64;
+        int width = coeffs * 64;
         int centroidIndex = u + v * width;
-        for (int k = 0; k < coeffs[bands - 1]; k++)
+        for (int k = 0; k < coeffs; k++)
         {
-            int centroidr =
-                Byte.toUnsignedInt(shNCentroids[centroidIndex * 4 + 0]);
-            int centroidg =
-                Byte.toUnsignedInt(shNCentroids[centroidIndex * 4 + 1]);
-            int centroidb =
-                Byte.toUnsignedInt(shNCentroids[centroidIndex * 4 + 2]);
+            int base = centroidIndex + k;
+            int centroidr = Byte.toUnsignedInt(shNCentroids[base * 4 + 0]);
+            int centroidg = Byte.toUnsignedInt(shNCentroids[base * 4 + 1]);
+            int centroidb = Byte.toUnsignedInt(shNCentroids[base * 4 + 2]);
             float x = shN.codebook[centroidr];
             float y = shN.codebook[centroidg];
             float z = shN.codebook[centroidb];

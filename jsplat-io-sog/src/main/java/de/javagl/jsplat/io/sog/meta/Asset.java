@@ -27,52 +27,14 @@
 package de.javagl.jsplat.io.sog.meta;
 
 /**
- * SOG metadata
+ * Asset metadata. 
+ * 
+ * Not specified, but found in example files...
  */
-public class Meta
+public class Asset
 {
     /**
-     * File format version (integer)
+     * The generator
      */
-    public int version;
-
-    /**
-     * Number of gaussians (<= W*H of the images)
-     */
-    public int count;
-
-    /**
-     * True iff scene was trained with anti-aliasing
-     */
-    public boolean antialias;
-    
-    /**
-     * The asset information
-     */
-    public Asset asset;
-
-    /**
-     * Ranges for decoding *log-transformed* positions (see §3.1).
-     */
-    public Means means;
-
-    /**
-     * The scales
-     */
-    public Scales scales;
-
-    /**
-     * The quats
-     */
-    public Quats quats;
-
-    /**
-     * The spherical harmonics
-     */
-    public Sh0 sh0;
-
-    /**
-     * Present only if higher-order SH exist:
-     */
-    public ShN shN;
+    public String generator;
 }

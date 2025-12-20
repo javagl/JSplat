@@ -24,55 +24,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.sog.meta;
+package de.javagl.jsplat.io.sog;
 
 /**
- * SOG metadata
+ * Interface for a function that receives an int, and returns a float.
  */
-public class Meta
+interface IntFloatFunction
 {
     /**
-     * File format version (integer)
+     * Apply this function to the given value
+     * 
+     * @param i The value
+     * @return The result
      */
-    public int version;
-
-    /**
-     * Number of gaussians (<= W*H of the images)
-     */
-    public int count;
-
-    /**
-     * True iff scene was trained with anti-aliasing
-     */
-    public boolean antialias;
-    
-    /**
-     * The asset information
-     */
-    public Asset asset;
-
-    /**
-     * Ranges for decoding *log-transformed* positions (see §3.1).
-     */
-    public Means means;
-
-    /**
-     * The scales
-     */
-    public Scales scales;
-
-    /**
-     * The quats
-     */
-    public Quats quats;
-
-    /**
-     * The spherical harmonics
-     */
-    public Sh0 sh0;
-
-    /**
-     * Present only if higher-order SH exist:
-     */
-    public ShN shN;
+    float apply(int i);
 }
