@@ -45,4 +45,9 @@ enum SplatFormat
      */
     GLTF_SPZ,
     
+    /**
+     * The playcanvas SOG format
+     */
+    SOG
+    
 }
