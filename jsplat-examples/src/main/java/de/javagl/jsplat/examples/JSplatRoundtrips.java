@@ -51,22 +51,21 @@ public class JSplatRoundtrips
 
         FORMATS = Arrays.asList(SplatFormat.GSPLAT, SplatFormat.PLY_BINARY_LE,
             SplatFormat.PLY_BINARY_BE, SplatFormat.PLY_ASCII, SplatFormat.SPZ, 
-            SplatFormat.GLTF_SPZ, SplatFormat.GLTF);
+            SplatFormat.GLTF_SPZ, SplatFormat.GLTF, SplatFormat.SOG);
 
-//        writeAll("rotations2D", SplatGrids.createRotations2D());
-//        writeAll("rotations", SplatGrids.createRotations());
-//        writeAll("shs1", SplatGrids.createShs1());
-//        writeAll("shs2", SplatGrids.createShs2());
-//        writeAll("shs3", SplatGrids.createShs3());
-//        writeAll("unitCube", UnitCubeSplats.create());
-
+        writeAll("rotations2D", SplatGrids.createRotations2D());
+        writeAll("rotations", SplatGrids.createRotations());
+        writeAll("shs1", SplatGrids.createShs1());
+        writeAll("shs2", SplatGrids.createShs2());
+        writeAll("shs3", SplatGrids.createShs3());
+        writeAll("unitCube", UnitCubeSplats.create());
         
         //writeAll("unitCube", UnitCubeSplats.create());
         //roundtripAll("unitCube");
 
         // float epsilon = 1e-6f;
-        float epsilon = 0.02f;
-        verifySingle(SplatGrids.createShs3(), SplatFormat.SPZ, epsilon);
+        //float epsilon = 0.02f;
+        //verifySingle(SplatGrids.createShs3(), SplatFormat.SOG, epsilon);
     }
 
     private static List<SplatFormat> createFormats()

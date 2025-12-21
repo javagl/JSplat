@@ -67,6 +67,8 @@ import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatReader;
 import de.javagl.jsplat.io.ply.PlySplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
+import de.javagl.jsplat.io.sog.SogSplatReader;
+import de.javagl.jsplat.io.sog.SogSplatWriter;
 import de.javagl.jsplat.io.spz.SpzSplatReader;
 import de.javagl.jsplat.io.spz.SpzSplatWriter;
 import de.javagl.swing.tasks.SwingTask;
@@ -408,6 +410,10 @@ class JSplatApplication
         {
             return new GlbSplatListReader();
         }
+        if (name.endsWith("sog"))
+        {
+            return new SogSplatReader();
+        }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");
         return null;
@@ -486,6 +492,10 @@ class JSplatApplication
                 return new GltfSpzSplatWriter();
             }
             return new GltfSplatWriter();
+        }
+        if (name.endsWith("sog"))
+        {
+            return new SogSplatWriter();
         }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");

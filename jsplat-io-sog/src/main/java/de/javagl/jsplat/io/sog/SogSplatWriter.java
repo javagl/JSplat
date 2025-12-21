@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -45,11 +46,18 @@ import de.javagl.jsplat.SplatListWriter;
 public final class SogSplatWriter implements SplatListWriter
 {
     /**
+     * The logger used in this class
+     */
+    private static final Logger logger =
+        Logger.getLogger(SogDataGenerator.class.getName());
+
+    /**
      * Creates a new instance
      */
     public SogSplatWriter()
     {
-        /// Default constructor
+        // Default constructor
+        logger.warning("Using experimental SogSplatWriter");
     }
 
     @Override
