@@ -96,7 +96,7 @@ public final class PlySplatWriter implements SplatListWriter
 
         Handle<? extends Splat> v = plySource.register("vertex", splats);
         
-        // Convert from right-up-front to right-down-front by 
+        // Convert from right-up-front to right-down-back by 
         // negating the y- and z-component
         v.withFloat("x", (s) -> s.getPositionX());
         v.withFloat("y", (s) -> -s.getPositionY());
@@ -106,19 +106,25 @@ public final class PlySplatWriter implements SplatListWriter
         v.withFloat("f_dc_1", (s) -> s.getShY(0));
         v.withFloat("f_dc_2", (s) -> s.getShZ(0));
 
-        // TODO The coordinate system conversion may have to affect
-        // the SHs, but nothing seems to be specified here in a 
-        // way that allows tools and viewers to agree on something.
+        // The coordinate system conversion will affect the SH coefficients.
+        // For PLY, nothing seems to be specified in a way that allows tools 
+        // and viewers to agree on something. The following flip factors
+        // have been found by reverse engineering, based on the
+        // "unit spherical harmonics cube" test data set.
+        float flips[] =
+        { 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f, 1.0f };
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         for (int d = 0; d < shDimensions - 1; d++)
         {
+            int f = d;
             int sd = d + 1;
             int ix = d * 3 + 0;
             int iy = d * 3 + 1;
             int iz = d * 3 + 2;
-            v.withFloat("f_rest_" + ix, (s) -> s.getShX(sd));
-            v.withFloat("f_rest_" + iy, (s) -> s.getShY(sd));
-            v.withFloat("f_rest_" + iz, (s) -> s.getShZ(sd));
+            v.withFloat("f_rest_" + ix, (s) -> flips[f] * s.getShX(sd));
+            v.withFloat("f_rest_" + iy, (s) -> flips[f] * s.getShY(sd));
+            v.withFloat("f_rest_" + iz, (s) -> flips[f] * s.getShZ(sd));
         }
         
         v.withFloat("opacity", Splat::getOpacity);
@@ -127,7 +133,7 @@ public final class PlySplatWriter implements SplatListWriter
         v.withFloat("scale_1", Splat::getScaleY);
         v.withFloat("scale_2", Splat::getScaleZ);
         
-        // Convert from right-up-front to right-down-front by 
+        // Convert from right-up-front to right-down-back by 
         // negating the y- and z-component
         // PLY uses scalar-first quaternions
         v.withFloat("rot_0", Splat::getRotationW);
