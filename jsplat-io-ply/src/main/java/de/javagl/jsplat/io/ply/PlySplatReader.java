@@ -73,7 +73,7 @@ public final class PlySplatReader implements SplatListReader
         Handle<MutableSplat> h =
             plyTarget.register("vertex", () -> Splats.create(shDegree));
 
-        // Convert from right-down-front to right-up-front by
+        // Convert from right-down-back to right-up-front by
         // negating the y- and z-component
         // TODO: This Float/Double check is not so pretty, but
         // a quick solution for the time being.
@@ -111,7 +111,7 @@ public final class PlySplatReader implements SplatListReader
         h.withFloat("scale_1", MutableSplat::setScaleY);
         h.withFloat("scale_2", MutableSplat::setScaleZ);
 
-        // Convert from right-down-front to right-up-front by
+        // Convert from right-down-back to right-up-front by
         // negating the y- and z-component
         // PLY uses scalar-first quaternions
         h.withFloat("rot_0", MutableSplat::setRotationW);
@@ -119,18 +119,24 @@ public final class PlySplatReader implements SplatListReader
         h.withFloat("rot_2", (s, y) -> s.setRotationY(-y));
         h.withFloat("rot_3", (s, z) -> s.setRotationZ(-z));
 
-        // TODO The coordinate system conversion may have to affect
-        // the SHs, but nothing seems to be specified here in a
-        // way that allows tools and viewers to agree on something.
+        // The coordinate system conversion will affect the SH coefficients.
+        // For PLY, nothing seems to be specified in a way that allows tools 
+        // and viewers to agree on something. The following flip factors
+        // have been found by reverse engineering, based on the
+        // "unit spherical harmonics cube" test data set.
+        float flips[] =
+        { 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f, 1.0f };
         for (int d = 0; d < shDimensions - 1; d++)
         {
+            int f = d;
             int sd = d + 1;
             int ix = d * 3 + 0;
             int iy = d * 3 + 1;
             int iz = d * 3 + 2;
-            h.withFloat("f_rest_" + ix, (s, v) -> s.setShX(sd, v));
-            h.withFloat("f_rest_" + iy, (s, v) -> s.setShY(sd, v));
-            h.withFloat("f_rest_" + iz, (s, v) -> s.setShZ(sd, v));
+            h.withFloat("f_rest_" + ix, (s, v) -> s.setShX(sd, flips[f] * v));
+            h.withFloat("f_rest_" + iy, (s, v) -> s.setShY(sd, flips[f] * v));
+            h.withFloat("f_rest_" + iz, (s, v) -> s.setShZ(sd, flips[f] * v));
         }
         h.consume(splats::add);
 

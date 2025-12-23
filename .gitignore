@@ -48,6 +48,11 @@
 /jsplat-io-gltf-spz/.settings
 /jsplat-io-gltf-spz/.classpath
 
+/jsplat-io-sog/target
+/jsplat-io-sog/.project
+/jsplat-io-sog/.settings
+/jsplat-io-sog/.classpath
+
 /jsplat-viewer/target
 /jsplat-viewer/.project
 /jsplat-viewer/.settings
