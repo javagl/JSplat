@@ -124,16 +124,21 @@ public final class PlySplatReader implements SplatListReader
         // and viewers to agree on something. The following flip factors
         // have been found by reverse engineering, based on the
         // "unit spherical harmonics cube" test data set.
+        // @formatter:off
         float flips[] =
-        { 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f };
+        { 
+                          -1.0f, -1.0f,  1.0f, 
+                   -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, 
+            -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,  1.0f 
+        };
+        // @formatter:on
         for (int d = 0; d < shDimensions - 1; d++)
         {
             int f = d;
             int sd = d + 1;
-            int ix = d * 3 + 0;
-            int iy = d * 3 + 1;
-            int iz = d * 3 + 2;
+            int ix = (shDimensions - 1) * 0 + d;
+            int iy = (shDimensions - 1) * 1 + d;
+            int iz = (shDimensions - 1) * 2 + d;
             h.withFloat("f_rest_" + ix, (s, v) -> s.setShX(sd, flips[f] * v));
             h.withFloat("f_rest_" + iy, (s, v) -> s.setShY(sd, flips[f] * v));
             h.withFloat("f_rest_" + iz, (s, v) -> s.setShZ(sd, flips[f] * v));

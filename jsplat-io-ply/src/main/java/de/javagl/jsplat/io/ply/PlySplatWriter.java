@@ -111,17 +111,22 @@ public final class PlySplatWriter implements SplatListWriter
         // and viewers to agree on something. The following flip factors
         // have been found by reverse engineering, based on the
         // "unit spherical harmonics cube" test data set.
+        // @formatter:off
         float flips[] =
-        { 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f };
+        { 
+                          -1.0f, -1.0f,  1.0f, 
+                   -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, 
+            -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,  1.0f 
+        };
+        // @formatter:on
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         for (int d = 0; d < shDimensions - 1; d++)
-        {
+        { 
             int f = d;
             int sd = d + 1;
-            int ix = d * 3 + 0;
-            int iy = d * 3 + 1;
-            int iz = d * 3 + 2;
+            int ix = (shDimensions - 1) * 0 + d;
+            int iy = (shDimensions - 1) * 1 + d;
+            int iz = (shDimensions - 1) * 2 + d;
             v.withFloat("f_rest_" + ix, (s) -> flips[f] * s.getShX(sd));
             v.withFloat("f_rest_" + iy, (s) -> flips[f] * s.getShY(sd));
             v.withFloat("f_rest_" + iz, (s) -> flips[f] * s.getShZ(sd));
