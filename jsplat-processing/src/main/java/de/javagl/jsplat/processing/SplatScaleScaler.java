@@ -34,7 +34,7 @@ package de.javagl.jsplat.processing;
 import de.javagl.jsplat.MutableSplat;
 
 /**
- * Internal class for scaling the scale of splats
+ * Internal class for (linearly) scaling the scale of splats
  */
 class SplatScaleScaler
 {

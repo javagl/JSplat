@@ -76,8 +76,7 @@ class SplatJomlUtils
      * @param splats The splats
      * @return The average
      */
-    public static float[]
-        computeAverageRotation(Collection<? extends Splat> splats)
+    static float[] computeAverageRotation(Collection<? extends Splat> splats)
     {
         JomlUtils jomlUtils = threadLocalJomlUtils.get();
         List<Quaternionf> quaternions = threadLocalQuaternions.get();
@@ -86,7 +85,7 @@ class SplatJomlUtils
         while (quaternions.size() < splats.size())
         {
             quaternions.add(new Quaternionf());
-            weights.add(Float.valueOf(0.0f));
+            weights.add(Float.valueOf(1.0f));
         }
         int index = 0;
         for (Splat s : splats)

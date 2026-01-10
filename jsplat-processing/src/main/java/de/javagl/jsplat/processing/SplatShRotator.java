@@ -74,12 +74,6 @@ class SplatShRotator
      */
     void rotateSh(MutableSplat s)
     {
-        int dims = s.getShDimensions();
-
-        s.setShX(0, s.getShX(0));
-        s.setShY(0, s.getShY(0));
-        s.setShZ(0, s.getShZ(0));
-
         // The SphericalHarmonicsRotator (ported from sh-lib) uses a 
         // different indexing scheme.
         // 
@@ -105,6 +99,8 @@ class SplatShRotator
         // and the "d + 1" when accessing the JSplat structures. 
         // And... yeah, the coefficients are given separately for
         // the X, Y, and Z components...
+        
+        int dims = s.getShDimensions();
         
         // Coefficients for X
         for (int d = 0; d < dims - 1; d++)

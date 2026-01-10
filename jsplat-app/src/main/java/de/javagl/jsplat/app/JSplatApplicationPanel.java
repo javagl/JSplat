@@ -39,9 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
-import de.javagl.jsplat.Splats;
 import de.javagl.jsplat.viewer.SplatViewer;
 import de.javagl.jsplat.viewer.SplatViewers;
 
@@ -116,6 +114,7 @@ class JSplatApplicationPanel extends JPanel
         controlPanel.add(fitButton);
 
         controlPanel.add(createButton("unitCube", UnitCubeSplats::create));
+        controlPanel.add(createButton("unitSh", UnitShSplats::create));
 
         add(controlPanel, BorderLayout.NORTH);
 

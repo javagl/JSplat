@@ -43,13 +43,14 @@ public class SplatSorting
     /**
      * Sort the given splats by their "volume", in descending order.
      * 
-     * The "volume" is just the product of the scales along all axes.
+     * The "volume" is just the product of the (linearized) scales along all 
+     * axes.
      * 
      * @param splats The splats
      */
     public static void sortByVolumeDescending(List<? extends Splat> splats)
     {
-        Comparator<Splat> comparator = SplatComparing::compareByVolume;
+        Comparator<Splat> comparator = SplatComparing::compareByVolumeLinear;
         Collections.sort(splats, comparator.reversed());
     }
     

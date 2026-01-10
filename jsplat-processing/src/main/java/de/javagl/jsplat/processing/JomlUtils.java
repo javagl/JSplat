@@ -377,7 +377,7 @@ class JomlUtils
      * @param dest will hold the result
      * @return dest
      */
-    public Quaternionf computeWeightedAverage(List<? extends Quaternionfc> qs,
+    Quaternionf computeWeightedAverage(List<? extends Quaternionfc> qs,
         List<Float> weights, int maxSvdIterations, Quaternionf dest)
     {
         float m00 = 0.0f, m01 = 0.0f, m02 = 0.0f;
@@ -399,15 +399,16 @@ class JomlUtils
             float q12 = dy * q.z();
             float q13 = dy * q.w();
             float q23 = dz * q.w();
-            m00 += (1.0f - q11 - q22);
-            m01 += (q01 + q23);
-            m02 += (q02 - q13);
-            m10 += (q01 - q23);
-            m11 += (1.0f - q22 - q00);
-            m12 += (q12 + q03);
-            m20 += (q02 + q13);
-            m21 += (q12 - q03);
-            m22 += (1.0f - q11 - q00);
+            float w = weights.get(i);
+            m00 += w * (1.0f - q11 - q22);
+            m01 += w * (q01 + q23);
+            m02 += w * (q02 - q13);
+            m10 += w * (q01 - q23);
+            m11 += w * (1.0f - q22 - q00);
+            m12 += w * (q12 + q03);
+            m20 += w * (q02 + q13);
+            m21 += w * (q12 - q03);
+            m22 += w * (1.0f - q11 - q00);
         }
         m[0] = m00;
         m[1] = m01;
