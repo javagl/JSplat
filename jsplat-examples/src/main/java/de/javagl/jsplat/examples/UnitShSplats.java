@@ -205,9 +205,18 @@ public class UnitShSplats
 
         splat.setOpacity(Splats.alphaToOpacity(1.0f));
 
-        splat.setShX(0, Splats.colorToDirectCurrent(1.0f));
-        splat.setShY(0, Splats.colorToDirectCurrent(1.0f));
-        splat.setShZ(0, Splats.colorToDirectCurrent(1.0f));
+        if (npx == -0.5f && npy == -0.5f && npz == -0.5f)
+        {
+            splat.setShX(0, Splats.colorToDirectCurrent(0.1f));
+            splat.setShY(0, Splats.colorToDirectCurrent(0.1f));
+            splat.setShZ(0, Splats.colorToDirectCurrent(0.1f));
+        }
+        else
+        {
+            splat.setShX(0, Splats.colorToDirectCurrent(npx + 0.5f));
+            splat.setShY(0, Splats.colorToDirectCurrent(npy + 0.5f));
+            splat.setShZ(0, Splats.colorToDirectCurrent(npz + 0.5f));
+        }
 
         splats.add(splat);
     }
