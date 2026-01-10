@@ -115,8 +115,8 @@ public final class PlySplatWriter implements SplatListWriter
         float flips[] =
         { 
                           -1.0f, -1.0f,  1.0f, 
-                   -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, 
-            -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,  1.0f 
+                   -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, 
+            -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f 
         };
         // @formatter:on
         int shDimensions = Splats.dimensionsForDegree(shDegree);

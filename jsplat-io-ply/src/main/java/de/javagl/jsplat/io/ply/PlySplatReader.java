@@ -128,8 +128,8 @@ public final class PlySplatReader implements SplatListReader
         float flips[] =
         { 
                           -1.0f, -1.0f,  1.0f, 
-                   -1.0f, -1.0f, -1.0f,  1.0f,  1.0f, 
-            -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,  1.0f 
+                   -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, 
+            -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f 
         };
         // @formatter:on
         for (int d = 0; d < shDimensions - 1; d++)
