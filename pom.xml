@@ -35,6 +35,7 @@
 		<module>jsplat-io-spz</module>
 		<module>jsplat-io-gltf</module>
 		<module>jsplat-io-gltf-spz</module>
+		<module>jsplat-io-sog</module>
 	</modules>
 
 	<properties>
