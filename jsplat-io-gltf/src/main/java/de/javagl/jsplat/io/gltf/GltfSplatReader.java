@@ -171,7 +171,7 @@ public final class GltfSplatReader implements SplatListReader
      * 
      * @param inputStream The input stream
      * @return The result
-     * @throws IOException If an IO errod occurs
+     * @throws IOException If an IO error occurs
      */
     private static List<MutableSplat>
         readFirstUntransformed(InputStream inputStream) throws IOException
