@@ -35,7 +35,7 @@ import de.javagl.jsplat.io.spz.SpzSplatWriter;
 /**
  * Utilities for the JSplat examples
  */
-class Utils
+public class Utils
 {
     /**
      * The logger used in this class
@@ -194,11 +194,16 @@ class Utils
      * @param baseName The base name for the files
      * @throws IOException If an IO error occurs
      */
-    static void writeAll(List<? extends Splat> splats, String baseDirectory,
-        String baseName) throws IOException
+    public static void writeAll(List<? extends Splat> splats, 
+        String baseDirectory, String baseName) throws IOException
     {
         for (SplatFormat format : SplatFormat.values())
         {
+            if (format.equals(SplatFormat.SOG))
+            {
+                System.out.println("Skipping SOG format");
+                continue;
+            }
             String fileName = createFileName(baseDirectory, baseName, format);
             BufferedOutputStream bos =
                 new BufferedOutputStream(new FileOutputStream(fileName));
