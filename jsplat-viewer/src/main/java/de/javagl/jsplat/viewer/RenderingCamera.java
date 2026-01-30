@@ -103,6 +103,7 @@ class RenderingCamera
                 {
                     component.repaint();
                 }
+                updateView();
             }
         });
         control = CameraControls.createDefaultTrackballControl(view);
@@ -170,6 +171,16 @@ class RenderingCamera
     {
         return getCamera().getFovDegY();
     }
+    
+    /**
+     * Set the field-of-view, in y-direction, in degrees
+     * 
+     * @param fovDegY The field of view
+     */
+    void setFovDegY(float fovDegY)
+    {
+        getCamera().setFovDegY(fovDegY);
+    }
 
     /**
      * Writes the given matrix into the given buffer, in column-major order.
@@ -233,6 +244,12 @@ class RenderingCamera
         int h = component.getHeight();
         view.setViewport(Rectangles.create(0, 0, w, h));
         view.setAspect((float) w / h);
+        
+        // Workaround for https://github.com/javagl/Rendering/issues/1:
+        // Force an update by modifying the near clipping plane
+        float n = view.getNearClippingPlane();
+        view.setNearClippingPlane(n * 1.1f);
+        view.setNearClippingPlane(n);
     }
 
     /**

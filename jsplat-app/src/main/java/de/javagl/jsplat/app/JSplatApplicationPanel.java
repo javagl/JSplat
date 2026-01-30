@@ -38,7 +38,10 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
+import de.javagl.common.ui.JSpinners;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.viewer.SplatViewer;
 import de.javagl.jsplat.viewer.SplatViewers;
@@ -75,6 +78,11 @@ class JSplatApplicationPanel extends JPanel
     private JLabel statusLabel;
 
     /**
+     * The spinner for the FOV
+     */
+    private JSpinner fovDegYSpinner;
+
+    /**
      * Default constructor
      */
     JSplatApplicationPanel()
@@ -95,10 +103,12 @@ class JSplatApplicationPanel extends JPanel
         JButton resetButton = new JButton("Reset camera");
         resetButton.addActionListener(e ->
         {
+            float fovDegY = getFovDegY();
             if (splatViewer != null)
             {
                 splatViewer.resetCamera();
             }
+            fovDegYSpinner.setValue(fovDegY);
             doFit = true;
         });
         controlPanel.add(resetButton);
@@ -115,6 +125,7 @@ class JSplatApplicationPanel extends JPanel
 
         controlPanel.add(createButton("unitCube", UnitCubeSplats::create));
         controlPanel.add(createButton("unitSh", UnitShSplats::create));
+        controlPanel.add(createFovDegYSpinnerPanel());
 
         add(controlPanel, BorderLayout.NORTH);
 
@@ -122,6 +133,45 @@ class JSplatApplicationPanel extends JPanel
         add(statusLabel, BorderLayout.SOUTH);
 
         setSplats(null);
+    }
+    
+    /**
+     * Create a panel with a spinner for controlling the camera FOV
+     * 
+     * @return The panel
+     */
+    private JPanel createFovDegYSpinnerPanel()
+    {
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(new JLabel("FOV"), BorderLayout.WEST);
+        SpinnerNumberModel model =
+            new SpinnerNumberModel(60.0, 5.0, 160.0, 1.0);
+        fovDegYSpinner = new JSpinner(model);
+        fovDegYSpinner.addChangeListener(e ->
+        {
+            if (splatViewer == null)
+            {
+                return;
+            }
+            splatViewer.setCameraFovDegY(getFovDegY());
+        });
+        JSpinners.setSpinnerDraggingEnabled(fovDegYSpinner, true);
+        p.add(fovDegYSpinner, BorderLayout.CENTER);
+        return p;
+    }
+    
+    /**
+     * Returns the current FOV selected in the spinner
+     * 
+     * @return The FOV, in degrees
+     */
+    private float getFovDegY()
+    {
+        Object value = fovDegYSpinner.getValue();
+        Number number = (Number) value;
+        float f = number.floatValue();
+        return f;
+        
     }
 
     /**
