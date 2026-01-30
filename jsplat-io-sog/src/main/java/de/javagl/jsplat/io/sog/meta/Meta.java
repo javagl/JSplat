@@ -37,7 +37,7 @@ public class Meta
     public int version;
 
     /**
-     * Number of gaussians (<= W*H of the images)
+     * Number of gaussians (&lt; W*H of the images)
      */
     public int count;
 
