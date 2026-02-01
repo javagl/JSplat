@@ -65,7 +65,8 @@ public class JSplatRoundtrips
         //writeAll("shs2", SplatGrids.createShs2());
         //writeAll("shs3", SplatGrids.createShs3());
         writeAll("unitCube", UnitCubeSplats.create());
-        writeAll("unitSh", UnitShSplats.create());
+        writeAll("unitSh2", UnitShSplats.createDeg2());
+        writeAll("unitSh3", UnitShSplats.createDeg3());
         
         //writeAll("unitCube", UnitCubeSplats.create());
         //roundtripAll("unitCube");

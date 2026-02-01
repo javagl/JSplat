@@ -27,6 +27,27 @@ public class UnitShSplats
     private static final float baseScale = 1.0f;
 
     /**
+     * Create a list of splats, representing a cube.
+     * 
+     * Many details are intentionally not specified.
+     * 
+     * @param degree The degree
+     * @return The splats
+     */
+    private static List<MutableSplat> createCorners(int degree)
+    {
+        List<MutableSplat> splats = new ArrayList<MutableSplat>();
+        for (int c = 0; c < 8; c++)
+        {
+            float x = -0.5f + ((c & 1) == 0 ? 0.0f : 1.0f);
+            float y = -0.5f + ((c & 2) == 0 ? 0.0f : 1.0f);
+            float z = -0.5f + ((c & 4) == 0 ? 0.0f : 1.0f);
+            add(splats, degree, x, y, z);
+        }
+        return splats;
+    }
+
+    /**
      * Create a list of splats, representing a cube with a "unit spherical
      * harmonics splat" at its center.
      * 
@@ -34,28 +55,120 @@ public class UnitShSplats
      * 
      * @return The splats
      */
-    public static List<MutableSplat> create()
+    public static List<MutableSplat> createDeg2()
     {
-        List<MutableSplat> splats = new ArrayList<MutableSplat>();
-
-        for (int c = 0; c < 8; c++)
-        {
-            float x = -0.5f + ((c & 1) == 0 ? 0.0f : 1.0f);
-            float y = -0.5f + ((c & 2) == 0 ? 0.0f : 1.0f);
-            float z = -0.5f + ((c & 4) == 0 ? 0.0f : 1.0f);
-            add(splats, x, y, z);
-        }
-        addUnitSh(splats);
+        List<MutableSplat> splats = createCorners(2);
+        splats.add(createUnitShSplatDeg2());
         return splats;
     }
 
     /**
-     * Add a "unit spherical harmonics splat" to the given list. Details are not
+     * Create a "unit spherical harmonics splat" with degree 2. Details are not
      * specified.
      * 
-     * @param splats The splats
+     * @return The splat
      */
-    private static void addUnitSh(List<MutableSplat> splats)
+    private static MutableSplat createUnitShSplatDeg2()
+    {
+        MutableSplat splat = Splats.create(2);
+
+        splat.setPositionX(0.0f);
+        splat.setPositionY(0.0f);
+        splat.setPositionZ(0.0f);
+
+        splat.setScaleX(3.0f * baseScale);
+        splat.setScaleY(3.0f * baseScale);
+        splat.setScaleZ(3.0f * baseScale);
+
+        splat.setRotationX(0.0f);
+        splat.setRotationY(0.0f);
+        splat.setRotationZ(0.0f);
+        splat.setRotationW(1.0f);
+
+        splat.setOpacity(Splats.alphaToOpacity(1.0f));
+
+        // One day, someone will read this, and wonder where
+        // these values are coming from.
+        
+        int d = 0;
+
+        splat.setShX(d, 0.1476983315919267f);
+        splat.setShY(d, 0.14769703694704606f);
+        splat.setShZ(d, 0.14771121930450226f);
+        d++;
+
+        // Dim 1
+        splat.setShX(d, -0.7830568718641374f);
+        splat.setShY(d, 1.054372367029317f);
+        splat.setShZ(d, -0.7830538122533596f);
+        d++;
+
+        // Dim 2
+        splat.setShX(d, 0.7830484620033045f);
+        splat.setShY(d, 0.7830548598697407f);
+        splat.setShZ(d, -1.054407314935455f);
+        d++;
+
+        // Dim 3
+        splat.setShX(d, 1.05434329450671f);
+        splat.setShY(d, -0.7829838731344525f);
+        splat.setShZ(d, -0.7830519155090939f);
+        d++;
+
+        // Dim 4
+        splat.setShX(d, 0.22883454327537334f);
+        splat.setShY(d, 0.22881694536762498f);
+        splat.setShZ(d, -7.2464152314211105E-6f);
+        d++;
+
+        // Dim 5
+        splat.setShX(d, -1.1875671158900758E-5f);
+        splat.setShY(d, -0.22880031503889064f);
+        splat.setShZ(d, -0.22880974771043117f);
+        d++;
+
+        // Dim 6
+        splat.setShX(d, -0.026421538828617974f);
+        splat.setShY(d, -0.02640910542972641f);
+        splat.setShZ(d, 0.05283968482224943f);
+        d++;
+
+        // Dim 7
+        splat.setShX(d, -0.2289855776512113f);
+        splat.setShY(d, -1.917440275245319E-5f);
+        splat.setShZ(d, -0.2288323230516771f);
+        d++;
+
+        // Dim 8
+        splat.setShX(d, 0.04575373638021474f);
+        splat.setShY(d, -0.045751875002436826f);
+        splat.setShZ(d, -8.16414088511408E-6f);
+
+        return splat;
+    }
+
+    /**
+     * Create a list of splats, representing a cube with a "unit spherical
+     * harmonics splat" at its center.
+     * 
+     * Many details are intentionally not specified.
+     * 
+     * @return The splats
+     */
+    public static List<MutableSplat> createDeg3()
+    {
+        List<MutableSplat> splats = createCorners(3);
+        splats.add(createUnitShSplatDeg3());
+        return splats;
+    }
+
+    /**
+     * Create a "unit spherical harmonics splat" with degree 3. Details are not
+     * specified.
+     * 
+     * @return The splat
+     */
+    private static MutableSplat createUnitShSplatDeg3()
     {
         MutableSplat splat = Splats.create(3);
 
@@ -74,9 +187,9 @@ public class UnitShSplats
 
         splat.setOpacity(Splats.alphaToOpacity(1.0f));
 
-        // One day, someone will read this, and wonder where 
+        // One day, someone will read this, and wonder where
         // these values are coming from.
-        
+
         int d = 0;
 
         splat.setShX(d, 0.19689117349855656f);
@@ -173,7 +286,7 @@ public class UnitShSplats
         splat.setShY(d, -0.2737727007701105f);
         splat.setShZ(d, -0.12410133512136956f);
 
-        splats.add(splat);
+        return splat;
     }
 
     /**
@@ -181,14 +294,15 @@ public class UnitShSplats
      * parameters and some constants. Details are not specified.
      * 
      * @param splats The splats
+     * @param degree The degree
      * @param npx The normalized x-coordinate
      * @param npy The normalized y-coordinate
      * @param npz The normalized z-coordinate
      */
-    private static void add(List<MutableSplat> splats, float npx, float npy,
-        float npz)
+    private static void add(List<MutableSplat> splats, int degree, float npx,
+        float npy, float npz)
     {
-        MutableSplat splat = Splats.create(3);
+        MutableSplat splat = Splats.create(degree);
 
         splat.setPositionX(npx * size);
         splat.setPositionY(npy * size);
