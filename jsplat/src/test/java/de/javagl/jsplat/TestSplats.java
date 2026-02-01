@@ -19,11 +19,11 @@ public class TestSplats
     public void testSplatsEquals() throws IOException
     {
         float epsilon = 1e-6f;
-        
+
         MutableSplat sa = Utils.createDummySplat();
         MutableSplat sb = Utils.createDummySplat();
         assertTrue(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         // Degree
         sb = Splats.create(0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
@@ -33,71 +33,100 @@ public class TestSplats
 
         sb = Splats.create(2);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         // Position
         sb = Utils.createDummySplat();
         sb.setPositionX(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setPositionY(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setPositionZ(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         // Scale
         sb = Utils.createDummySplat();
         sb.setScaleX(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setScaleY(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setScaleZ(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         // Rotation
         sb = Utils.createDummySplat();
         sb.setRotationX(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setRotationY(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setRotationZ(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         sb = Utils.createDummySplat();
         sb.setRotationW(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         // Opacity
         sb = Utils.createDummySplat();
         sb.setOpacity(-999.0f);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-        
+
         // Spherical harmonics
         int dimensions = sa.getShDimensions();
-        for (int d=0; d<dimensions; d++)
+        for (int d = 0; d < dimensions; d++)
         {
             sb = Utils.createDummySplat();
             sb.setShX(d, -999.0f);
             assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-            
+
             sb = Utils.createDummySplat();
             sb.setShY(d, -999.0f);
             assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
-            
+
             sb = Utils.createDummySplat();
             sb.setShZ(d, -999.0f);
             assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
         }
+    }
+
+    @Test
+    public void testSplatsRotationsEquals() throws IOException
+    {
+        float epsilon = 1e-6f;
+
+        MutableSplat sa = Splats.create(0);
+        MutableSplat sb = Splats.create(0);
+        MutableSplat sc = Splats.create(0);
+
+        sa.setRotationX(0.9239f);
+        sa.setRotationY(0.1023f);
+        sa.setRotationZ(0.2046f);
+        sa.setRotationW(0.3068f);
+
+        // Equal when all components are negated
+        sb.setRotationX(-0.9239f);
+        sb.setRotationY(-0.1023f);
+        sb.setRotationZ(-0.2046f);
+        sb.setRotationW(-0.3068f);
+        assertTrue(Splats.equalsEpsilon(sa, sb, epsilon));
+
+        // Not equal when only one component is negated
+        sc.setRotationX(0.9239f);
+        sc.setRotationY(0.1023f);
+        sc.setRotationZ(0.2046f);
+        sc.setRotationW(-0.3068f);
+        assertFalse(Splats.equalsEpsilon(sa, sc, epsilon));
     }
 
 }
