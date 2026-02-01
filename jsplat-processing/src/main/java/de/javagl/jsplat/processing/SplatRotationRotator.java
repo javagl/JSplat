@@ -26,11 +26,6 @@
  */
 package de.javagl.jsplat.processing;
 
-import java.nio.FloatBuffer;
-
-import org.joml.Matrix3f;
-import org.joml.Quaternionf;
-
 import de.javagl.jsplat.MutableSplat;
 
 /**
@@ -38,37 +33,34 @@ import de.javagl.jsplat.MutableSplat;
  */
 class SplatRotationRotator
 {
-    // That use of Unsafe in JOML was a mistake.
-    static
-    {
-        System.setProperty("joml.nounsafe", "true");
-    }
-
     /**
      * The quaternion for the rotation
      */
-    private final Quaternionf rotationQuaternion;
+    private final float rotationQuaternion[];
+
+    /**
+     * A temporary quaternion
+     */
+    private final float q[];
 
     /**
      * A temporary quaternion for the rotation
      */
-    private final Quaternionf q;
+    private final float result[];
 
     /**
-     * Creates a new instance for the given matrix.
+     * Creates a new instance for the given scalar-last quaternion.
      * 
-     * The given matrix is a 3x3 matrix, stored in a 9-element array, in
-     * column-major order
+     * This will store a reference to the given array. The array may not be
+     * modified after this instance was created.
      * 
-     * @param matrix The rotation matrix
+     * @param rotationQuaternion The rotation quaternion
      */
-    SplatRotationRotator(float matrix[])
+    SplatRotationRotator(float rotationQuaternion[])
     {
-        Quaternionf q = new Quaternionf();
-        Matrix3f m = new Matrix3f(FloatBuffer.wrap(matrix));
-        q.setFromUnnormalized(m);
-        this.rotationQuaternion = q;
-        this.q = new Quaternionf();
+        this.rotationQuaternion = rotationQuaternion;
+        this.q = new float[4];
+        this.result = new float[4];
     }
 
     /**
@@ -78,15 +70,15 @@ class SplatRotationRotator
      */
     void rotate(MutableSplat s)
     {
-        q.x = s.getRotationX();
-        q.y = s.getRotationY();
-        q.z = s.getRotationZ();
-        q.w = s.getRotationW();
-        q.mul(rotationQuaternion);
-        s.setRotationX(q.x);
-        s.setRotationY(q.y);
-        s.setRotationZ(q.z);
-        s.setRotationW(q.w);
+        q[0] = s.getRotationX();
+        q[1] = s.getRotationY();
+        q[2] = s.getRotationZ();
+        q[3] = s.getRotationW();
+        VecMath.multiplyScalarLastQuaternions(q, rotationQuaternion, result);
+        s.setRotationX(result[0]);
+        s.setRotationY(result[1]);
+        s.setRotationZ(result[2]);
+        s.setRotationW(result[3]);
     }
 
 }

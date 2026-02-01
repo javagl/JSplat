@@ -49,30 +49,17 @@ class SplatScaleScaler
     private final float sz;
 
     /**
-     * Creates a new instance for the scaling of the given matrix
-     * 
-     * The given matrix is a 3x3 matrix, stored in a 9-element array, in
-     * column-major order
-     * 
-     * @param matrix The matrix
+     * Creates a new instance
+     *  
+     * @param sx The scaling along x
+     * @param sy The scaling along y
+     * @param sz The scaling along z
      */
-    SplatScaleScaler(float matrix[])
+    SplatScaleScaler(float sx, float sy, float sz)
     {
-        float m00 = matrix[0];
-        float m01 = matrix[1];
-        float m02 = matrix[2];
-
-        float m10 = matrix[3];
-        float m11 = matrix[4];
-        float m12 = matrix[5];
-
-        float m20 = matrix[6];
-        float m21 = matrix[7];
-        float m22 = matrix[8];
-        
-        this.sx = (float)Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
-        this.sy = (float)Math.sqrt(m10 * m10 + m11 * m11 + m12 * m12);
-        this.sz = (float)Math.sqrt(m20 * m20 + m21 * m21 + m22 * m22);
+        this.sx = sx;
+        this.sy = sy;
+        this.sz = sz;
     }
 
     /**

@@ -70,26 +70,15 @@ public class SplatTransforms
     private static Consumer<MutableSplat> createTransform(float matrix4[],
         int dims)
     {
-        // Extract the upper 3x3 matrix from the 4x4 matrix
-        // @formatter:off
-        float matrix3[] = new float[] 
-        {
-            matrix4[0],
-            matrix4[1],
-            matrix4[2],
-            matrix4[4],
-            matrix4[5],
-            matrix4[6],
-            matrix4[8],
-            matrix4[9],
-            matrix4[10],
-        };
-        // @formatter:on
-
+        float scales[] = VecMath.computeScales(matrix4, null);
+        float matrix3[] = VecMath.extractRotation(matrix4, scales, null);
+        float rotation[] =
+            VecMath.rotationMatrixToScalarLastQuaternion(matrix3, null);
         SplatPositionTransformer pt = new SplatPositionTransformer(matrix4);
-        SplatRotationRotator rr = new SplatRotationRotator(matrix3);
+        SplatRotationRotator rr = new SplatRotationRotator(rotation);
         SplatShRotator sr = new SplatShRotator(matrix3, dims);
-        SplatScaleScaler ss = new SplatScaleScaler(matrix3);
+        SplatScaleScaler ss =
+            new SplatScaleScaler(scales[0], scales[1], scales[2]);
         Consumer<MutableSplat> transform = s ->
         {
             sr.rotateSh(s);

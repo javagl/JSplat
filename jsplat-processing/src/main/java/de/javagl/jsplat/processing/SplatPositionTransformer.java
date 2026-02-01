@@ -26,11 +26,6 @@
  */
 package de.javagl.jsplat.processing;
 
-import java.nio.FloatBuffer;
-
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
 import de.javagl.jsplat.MutableSplat;
 
 /**
@@ -38,35 +33,37 @@ import de.javagl.jsplat.MutableSplat;
  */
 class SplatPositionTransformer
 {
-    // That use of Unsafe in JOML was a mistake.
-    static
-    {
-        System.setProperty("joml.nounsafe", "true");
-    }
-
     /**
      * The transform matrix
      */
-    private final Matrix4f matrix;
-
+    private final float matrix4[];
+    
     /**
-     * A temporary vector for the transform
+     * A 3D point
      */
-    private final Vector3f v;
-
+    private final float p[];
+    
+    /**
+     * The result
+     */
+    private final float result[];
 
     /**
      * Creates a new instance for the given matrix.
      * 
      * The given matrix is a 4x4 matrix, stored in a 16-element array, in
-     * column-major order
+     * column-major order.
      * 
-     * @param matrix The matrix
+     * This will store a reference to the given array. The array may not be
+     * modified after this instance was created.
+     * 
+     * @param matrix4 The matrix
      */
-    SplatPositionTransformer(float matrix[])
+    SplatPositionTransformer(float matrix4[])
     {
-        this.matrix = new Matrix4f(FloatBuffer.wrap(matrix));
-        this.v = new Vector3f();
+        this.matrix4 = matrix4;
+        this.p = new float[3];
+        this.result = new float[3];
     }
 
     /**
@@ -76,13 +73,13 @@ class SplatPositionTransformer
      */
     void transform(MutableSplat s)
     {
-        v.x = s.getPositionX();
-        v.y = s.getPositionY();
-        v.z = s.getPositionZ();
-        matrix.transformPosition(v);
-        s.setPositionX(v.x);
-        s.setPositionY(v.y);
-        s.setPositionZ(v.z);
+        p[0] = s.getPositionX();
+        p[1] = s.getPositionY();
+        p[2] = s.getPositionZ();
+        VecMath.multiplyMatrix4WithPoint(matrix4, p, result);
+        s.setPositionX(result[0]);
+        s.setPositionY(result[1]);
+        s.setPositionZ(result[2]);
     }
 
 }
