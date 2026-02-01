@@ -418,30 +418,39 @@ public class Splats
             return false;
         }
 
-        // Rotation
-        if (!equalsEpsilon(sa.getRotationX(), sb.getRotationX(), epsilon))
+        // Special treatment for rotation:
+        // Two scalar-last quaternions describe the same rotation when 
+        // their dot product is +1.0 or -1.0. The quaternions should
+        // be rotation quaternions (i.e. normalized), but this is not
+        // ensured in general, so they are normalized here.
+        float ax = sa.getRotationX();
+        float ay = sa.getRotationY();
+        float az = sa.getRotationZ();
+        float aw = sa.getRotationW();
+        float aLenSquared = ax * ax + ay * ay + az * az + aw * aw;
+        float aInvLen = 1.0f / (float)Math.sqrt(aLenSquared);
+        float anx = ax * aInvLen; 
+        float any = ay * aInvLen; 
+        float anz = az * aInvLen; 
+        float anw = aw * aInvLen; 
+        
+        float bx = sb.getRotationX();
+        float by = sb.getRotationY();
+        float bz = sb.getRotationZ();
+        float bw = sb.getRotationW();
+        float bLenSquared = bx * bx + by * by + bz * bz + bw * bw;
+        float bInvLen = 1.0f / (float)Math.sqrt(bLenSquared);
+        float bnx = bx * bInvLen; 
+        float bny = by * bInvLen; 
+        float bnz = bz * bInvLen; 
+        float bnw = bw * bInvLen; 
+        
+        float dot = anx * bnx + any * bny + anz * bnz + anw * bnw;
+        if (Math.abs(Math.abs(dot) - 1.0f) > epsilon)
         {
             return false;
         }
-        if (!equalsEpsilon(sa.getRotationY(), sb.getRotationY(), epsilon))
-        {
-            return false;
-        }
-        if (!equalsEpsilon(sa.getRotationZ(), sb.getRotationZ(), epsilon))
-        {
-            return false;
-        }
-
-        // Special treatment for rotation component: The difference
-        // modulo 1.0 is computed, and should be epsilon-equal to 0
-        float wa = sa.getRotationW();
-        float wb = sb.getRotationW();
-        float wd = 1.0f - Math.abs(Math.abs(wa - wb) - 1.0f);
-        if (!equalsEpsilon(wd, 0.0f, epsilon))
-        {
-            return false;
-        }
-
+        
         // Opacity
         if (!equalsEpsilon(sa.getOpacity(), sb.getOpacity(), epsilon))
         {
@@ -560,6 +569,22 @@ public class Splats
         return true;
     }
 
+    /**
+     * Returns whether the given scalar components of a quaternion describe
+     * the same rotation. The difference modulo 1.0 is computed, and should 
+     * be epsilon-equal to 0
+     * 
+     * @param a The first component
+     * @param b The second component
+     * @param epsilon The epsilon
+     * @return The result
+     */
+    private static boolean rotationEqualsEpsilon(float a, float b, float epsilon)
+    {
+        float d = 1.0f - Math.abs(Math.abs(a - b) - 1.0f);
+        return equalsEpsilon(d, 0.0f, epsilon);
+    }
+    
     /**
      * Returns whether the given values are epsilon-equal
      * 
