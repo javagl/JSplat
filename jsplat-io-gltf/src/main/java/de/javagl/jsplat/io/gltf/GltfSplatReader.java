@@ -152,9 +152,12 @@ public final class GltfSplatReader implements SplatListReader
                             {
                                 List<MutableSplat> splats =
                                     readListFrom(meshPrimitiveModel);
-                                SplatTransforms.transformList(splats,
-                                    globalTransform);
-                                allSplats.addAll(splats);
+                                if (splats != null && !splats.isEmpty())
+                                {
+                                    SplatTransforms.transformList(splats,
+                                        globalTransform);
+                                    allSplats.addAll(splats);
+                                }
                             }
                         }
                     }

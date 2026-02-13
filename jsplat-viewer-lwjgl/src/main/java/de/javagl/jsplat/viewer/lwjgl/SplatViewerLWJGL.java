@@ -486,7 +486,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     private void setSplatsInternal(List<? extends Splat> splats)
     {
         this.splats = splats;
-        if (splats == null)
+        if (splats == null || splats.isEmpty())
         {
             return;
         }
@@ -645,7 +645,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (splats == null)
+        if (splats == null || splats.isEmpty())
         {
             return;
         }

@@ -51,6 +51,10 @@ public class SplatTransforms
     public static <T extends MutableSplat> List<T> transformList(List<T> list,
         float matrix4[])
     {
+        if (list.isEmpty()) 
+        {
+            return list;
+        }
         int dims = list.get(0).getShDimensions();
         Consumer<MutableSplat> transform = createTransform(matrix4, dims);
         list.forEach(transform);
