@@ -74,7 +74,7 @@ class SplatRotationRotator
         q[1] = s.getRotationY();
         q[2] = s.getRotationZ();
         q[3] = s.getRotationW();
-        VecMath.multiplyScalarLastQuaternions(q, rotationQuaternion, result);
+        VecMath.multiplyScalarLastQuaternions(rotationQuaternion, q, result);
         s.setRotationX(result[0]);
         s.setRotationY(result[1]);
         s.setRotationZ(result[2]);
