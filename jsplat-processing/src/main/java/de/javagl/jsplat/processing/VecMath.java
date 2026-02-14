@@ -129,39 +129,38 @@ class VecMath
         float m22 = matrix3[8];
 
         float trace = m00 + m11 + m22;
-        if (trace > 0)
+        if (trace > 0.0f)
         {
-            float S = (float) Math.sqrt(trace + 1.0) * 2;
-            r[0] = (m12 - m21) / S;
-            r[1] = (m20 - m02) / S;
-            r[2] = (m01 - m10) / S;
+            float S = (float) Math.sqrt(trace + 1.0f) * 2f;
+            r[0] = (m21 - m12) / S;
+            r[1] = (m02 - m20) / S;
+            r[2] = (m10 - m01) / S;
             r[3] = 0.25f * S;
             return r;
         }
-        if ((m00 > m11) & (m00 > m22))
+        if ((m00 > m11) && (m00 > m22))
         {
-            float S = (float) Math.sqrt(1.0 + m00 - m11 - m22) * 2;
+            float S = (float) Math.sqrt(1.0f + m00 - m11 - m22) * 2f;
             r[0] = 0.25f * S;
-            r[1] = (m10 + m01) / S;
-            r[2] = (m20 + m02) / S;
-            r[3] = (m12 - m21) / S;
+            r[1] = (m01 + m10) / S;
+            r[2] = (m02 + m20) / S;
+            r[3] = (m21 - m12) / S;
             return r;
         }
         if (m11 > m22)
         {
-            float S = (float) Math.sqrt(1.0 + m11 - m00 - m22) * 2;
-            r[0] = (m10 + m01) / S;
+            float S = (float) Math.sqrt(1.0f + m11 - m00 - m22) * 2f;
+            r[0] = (m01 + m10) / S;
             r[1] = 0.25f * S;
-            r[2] = (m21 + m12) / S;
-            r[3] = (m20 - m02) / S;
+            r[2] = (m12 + m21) / S;
+            r[3] = (m02 - m20) / S;
             return r;
         }
-
-        float S = (float) Math.sqrt(1.0 + m22 - m00 - m11) * 2;
-        r[0] = (m20 + m02) / S;
-        r[1] = (m21 + m12) / S;
+        float S = (float) Math.sqrt(1.0f + m22 - m00 - m11) * 2f;
+        r[0] = (m02 + m20) / S;
+        r[1] = (m12 + m21) / S;
         r[2] = 0.25f * S;
-        r[3] = (m01 - m10) / S;
+        r[3] = (m10 - m01) / S;
         return r;
     }
 
