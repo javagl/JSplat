@@ -43,6 +43,7 @@ import de.javagl.jgltf.model.NodeModel;
 import de.javagl.jgltf.model.SceneModel;
 import de.javagl.jgltf.model.io.GltfModelReader;
 import de.javagl.jsplat.MutableSplat;
+import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatDatas;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.Splats;
@@ -140,8 +141,7 @@ public final class GltfSplatReader implements SplatListReader
                 {
                     List<MeshPrimitiveModel> meshPrimitiveModels =
                         meshModel.getMeshPrimitiveModels();
-                    for (MeshPrimitiveModel meshPrimitiveModel : 
-                        meshPrimitiveModels)
+                    for (MeshPrimitiveModel meshPrimitiveModel : meshPrimitiveModels)
                     {
                         Map<String, Object> extensions =
                             meshPrimitiveModel.getExtensions();
@@ -156,7 +156,7 @@ public final class GltfSplatReader implements SplatListReader
                                 {
                                     SplatTransforms.transformList(splats,
                                         globalTransform);
-                                    allSplats.addAll(splats);
+                                    allSplats = merge(allSplats, splats);
                                 }
                             }
                         }
@@ -165,6 +165,65 @@ public final class GltfSplatReader implements SplatListReader
             }
         }
         return allSplats;
+    }
+
+    /**
+     * Merge the given lists of splats and return the result.
+     * 
+     * If the existing splats and the new splats have different degrees, then a
+     * new list will be created that contains splats with the larger of both
+     * degrees, initialized based on the given splats.
+     * 
+     * Otherwise, the given added splats will be added to the list of all
+     * splats, and the result will be returned.
+     * 
+     * @param all All existing splats
+     * @param added The added splats
+     * @return The result
+     */
+    private static List<MutableSplat> merge(List<MutableSplat> all,
+        List<MutableSplat> added)
+    {
+        // Handle trivial cases
+        if (all.isEmpty())
+        {
+            all.addAll(added);
+            return all;
+        }
+        if (added.isEmpty())
+        {
+            return all;
+        }
+
+        // When they have the same degree, just add them
+        Splat oldSplat = all.get(0);
+        Splat newSplat = added.get(0);
+        if (oldSplat.getShDegree() == newSplat.getShDegree())
+        {
+            all.addAll(added);
+            return all;
+        }
+
+        // Create a new list, and fill them with copies of the given
+        // splats, with the copies having the larger of both degrees
+        int newDegree =
+            Math.max(oldSplat.getShDegree(), newSplat.getShDegree());
+        List<MutableSplat> merged = new ArrayList<MutableSplat>();
+        for (int i = 0; i < all.size(); i++)
+        {
+            Splat s = all.get(i);
+            MutableSplat t = Splats.create(newDegree);
+            Splats.setAny(s, t);
+            merged.add(t);
+        }
+        for (int i = 0; i < added.size(); i++)
+        {
+            Splat s = added.get(i);
+            MutableSplat t = Splats.create(newDegree);
+            Splats.setAny(s, t);
+            merged.add(t);
+        }
+        return merged;
     }
 
     /**
