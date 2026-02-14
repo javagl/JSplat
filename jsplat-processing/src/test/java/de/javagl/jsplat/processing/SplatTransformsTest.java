@@ -56,7 +56,7 @@ public class SplatTransformsTest
     {
         Random random = new Random(0);
         MutableSplat splat = createRandomSplat(3, random);
-        MutableSplat expectedSplat = copy(splat);
+        MutableSplat expectedSplat = Splats.copy(splat);
 
         float[] identityMatrix = VecMath.identity4x4(null);
 
@@ -103,7 +103,7 @@ public class SplatTransformsTest
         for (int i = 0; i < 100; i++)
         {
             MutableSplat splat = createRandomSplat(shDegree, random);
-            MutableSplat expectedSplat = copy(splat);
+            MutableSplat expectedSplat = Splats.copy(splat);
 
             float[] m = createRandomMatrix(random);
             float[] inv = VecMath.invert4x4(m, null);
@@ -184,34 +184,6 @@ public class SplatTransformsTest
         float q[] = VecMath.createScalarLastQuaternionFromAxisAngleRad(axis,
             angleRad, null);
         return q;
-    }
-
-    /**
-     * Create a copy of the given splat
-     * 
-     * @param s The splat
-     * @return The copy
-     */
-    private static MutableSplat copy(Splat s)
-    {
-        MutableSplat copy = Splats.create(s.getShDegree());
-        copy.setPositionX(s.getPositionX());
-        copy.setPositionY(s.getPositionY());
-        copy.setPositionZ(s.getPositionZ());
-        copy.setScaleX(s.getScaleX());
-        copy.setScaleY(s.getScaleY());
-        copy.setScaleZ(s.getScaleZ());
-        copy.setRotationX(s.getRotationX());
-        copy.setRotationY(s.getRotationY());
-        copy.setRotationZ(s.getRotationZ());
-        copy.setRotationW(s.getRotationW());
-        for (int i = 0; i < s.getShDimensions(); i++)
-        {
-            copy.setShX(i, s.getShX(i));
-            copy.setShY(i, s.getShY(i));
-            copy.setShZ(i, s.getShZ(i));
-        }
-        return copy;
     }
 
     /**

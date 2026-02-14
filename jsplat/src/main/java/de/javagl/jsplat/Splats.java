@@ -48,6 +48,19 @@ public class Splats
     {
         return new DefaultSplat(shDegree);
     }
+    
+    /**
+     * Create a copy of the given splat
+     * 
+     * @param s The splat
+     * @return The copy
+     */
+    public static MutableSplat copy(Splat s)
+    {
+        MutableSplat copy = Splats.create(s.getShDegree());
+        setAny(s, copy);
+        return copy;
+    }
 
     /**
      * Create an unspecified string representation of the given {@link Splat}.
