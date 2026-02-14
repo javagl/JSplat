@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.Splats;
+import de.javagl.jsplat.processing.SplatTransforms;
 import de.javagl.ply.Descriptor;
 import de.javagl.ply.ElementDescriptor;
 import de.javagl.ply.ObjectPlyTarget;
@@ -73,8 +74,6 @@ public final class PlySplatReader implements SplatListReader
         Handle<MutableSplat> h =
             plyTarget.register("vertex", () -> Splats.create(shDegree));
 
-        // Convert from right-down-back to right-up-front by
-        // negating the y- and z-component
         // TODO: This Float/Double check is not so pretty, but
         // a quick solution for the time being.
         if (isDouble(descriptor, "x"))
@@ -85,22 +84,23 @@ public final class PlySplatReader implements SplatListReader
         {
             h.withFloat("x", MutableSplat::setPositionX);
         }
+
         if (isDouble(descriptor, "y"))
         {
-            h.withDouble("y", (s, y) -> s.setPositionY(-y.floatValue()));
+            h.withDouble("y", (s, y) -> s.setPositionY(y.floatValue()));
         }
         else
         {
-            h.withFloat("y", (s, y) -> s.setPositionY(-y));
+            h.withFloat("y", (s, y) -> s.setPositionY(y));
         }
         if (isDouble(descriptor, "z"))
         {
-            h.withDouble("z", (s, z) -> s.setPositionZ(-z.floatValue()));
+            h.withDouble("z", (s, z) -> s.setPositionZ(z.floatValue()));
         }
         else
         {
-            h.withFloat("z", (s, z) -> s.setPositionZ(-z));
-        }        
+            h.withFloat("z", (s, z) -> s.setPositionZ(z));
+        }
 
         h.withFloat("f_dc_0", (s, v) -> s.setShX(0, v));
         h.withFloat("f_dc_1", (s, v) -> s.setShY(0, v));
@@ -111,41 +111,38 @@ public final class PlySplatReader implements SplatListReader
         h.withFloat("scale_1", MutableSplat::setScaleY);
         h.withFloat("scale_2", MutableSplat::setScaleZ);
 
-        // Convert from right-down-back to right-up-front by
-        // negating the y- and z-component
         // PLY uses scalar-first quaternions
         h.withFloat("rot_0", MutableSplat::setRotationW);
         h.withFloat("rot_1", MutableSplat::setRotationX);
-        h.withFloat("rot_2", (s, y) -> s.setRotationY(-y));
-        h.withFloat("rot_3", (s, z) -> s.setRotationZ(-z));
+        h.withFloat("rot_2", MutableSplat::setRotationY);
+        h.withFloat("rot_3", MutableSplat::setRotationZ);
 
-        // The coordinate system conversion will affect the SH coefficients.
-        // For PLY, nothing seems to be specified in a way that allows tools 
-        // and viewers to agree on something. The following flip factors
-        // have been found by reverse engineering, based on the
-        // "unit spherical harmonics cube" test data set.
-        // @formatter:off
-        float flips[] =
-        { 
-                          -1.0f, -1.0f,  1.0f, 
-                   -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, 
-            -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f 
-        };
-        // @formatter:on
         for (int d = 0; d < shDimensions - 1; d++)
         {
-            int f = d;
             int sd = d + 1;
             int ix = (shDimensions - 1) * 0 + d;
             int iy = (shDimensions - 1) * 1 + d;
             int iz = (shDimensions - 1) * 2 + d;
-            h.withFloat("f_rest_" + ix, (s, v) -> s.setShX(sd, flips[f] * v));
-            h.withFloat("f_rest_" + iy, (s, v) -> s.setShY(sd, flips[f] * v));
-            h.withFloat("f_rest_" + iz, (s, v) -> s.setShZ(sd, flips[f] * v));
+            h.withFloat("f_rest_" + ix, (s, v) -> s.setShX(sd, v));
+            h.withFloat("f_rest_" + iy, (s, v) -> s.setShY(sd, v));
+            h.withFloat("f_rest_" + iz, (s, v) -> s.setShZ(sd, v));
         }
         h.consume(splats::add);
 
         plyReader.readContent(inputStream, plyTarget);
+
+        // Rotate about 180 degrees around x, to convert from
+        // right-down-back to right-up-front
+        // @formatter:off
+        float rotate180X[] = 
+        { 
+            1.0f,  0.0f,  0.0f, 0.0f, 
+            0.0f, -1.0f,  0.0f, 0.0f, 
+            0.0f,  0.0f, -1.0f, 0.0f, 
+            0.0f,  0.0f,  0.0f, 1.0f 
+        };
+        // @formatter:on
+        SplatTransforms.transformList(splats, rotate180X);
         return splats;
     }
 
