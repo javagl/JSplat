@@ -71,7 +71,7 @@ public class SplatTransforms
      * @param dims The splat dimensions
      * @return The transform
      */
-    private static Consumer<MutableSplat> createTransform(float matrix4[],
+    public static Consumer<MutableSplat> createTransform(float matrix4[],
         int dims)
     {
         float scales[] = VecMath.computeScales(matrix4, null);
