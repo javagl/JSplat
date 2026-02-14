@@ -165,7 +165,7 @@ class VecMath
     }
 
     /**
-     * Compute a 3x4 rotation matrix, as a 9-element array in column-major
+     * Compute a 3x3 rotation matrix, as a 9-element array in column-major
      * order, from the given scalar-last quaternion.
      * 
      * If the given result is <code>null</code>, a new array will be created and
