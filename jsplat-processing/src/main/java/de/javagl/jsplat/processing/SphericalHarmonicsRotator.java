@@ -171,7 +171,7 @@ class SphericalHarmonicsRotator
             { sh2_4_0, sh2_4_1, sh2_4_2, sh2_4_3, sh2_4_4 } };
 
         this.sh3 = new float[][]
-        { new float[]
+        {
             { kSqrt01_04 * ((sh1_2_2 * sh2_0_0 + sh1_2_0 * sh2_0_4)
                 + (sh1_0_2 * sh2_4_0 + sh1_0_0 * sh2_4_4)),
                 kSqrt03_02 * (sh1_2_1 * sh2_0_0 + sh1_0_1 * sh2_4_0),
@@ -181,7 +181,7 @@ class SphericalHarmonicsRotator
                 kSqrt03_02 * (sh1_2_1 * sh2_0_4 + sh1_0_1 * sh2_4_4),
                 kSqrt01_04 * ((sh1_2_2 * sh2_0_4 - sh1_2_0 * sh2_0_0)
                     + (sh1_0_2 * sh2_4_4 - sh1_0_0 * sh2_4_0)) },
-            new float[]
+
             { kSqrt01_06 * (sh1_1_2 * sh2_0_0 + sh1_1_0 * sh2_0_4)
                 + kSqrt01_06 * ((sh1_2_2 * sh2_1_0 + sh1_2_0 * sh2_1_4)
                     + (sh1_0_2 * sh2_3_0 + sh1_0_0 * sh2_3_4)),
@@ -196,7 +196,7 @@ class SphericalHarmonicsRotator
                 kSqrt01_06 * (sh1_1_2 * sh2_0_4 - sh1_1_0 * sh2_0_0)
                     + kSqrt01_06 * ((sh1_2_2 * sh2_1_4 - sh1_2_0 * sh2_1_0)
                         + (sh1_0_2 * sh2_3_4 - sh1_0_0 * sh2_3_0)) },
-            new float[]
+
             { kSqrt04_15 * (sh1_1_2 * sh2_1_0 + sh1_1_0 * sh2_1_4)
                 + kSqrt01_05 * (sh1_0_2 * sh2_2_0 + sh1_0_0 * sh2_2_4)
                 - kSqrt01_60 * ((sh1_2_2 * sh2_0_0 + sh1_2_0 * sh2_0_4)
@@ -215,7 +215,6 @@ class SphericalHarmonicsRotator
                     + kSqrt01_05 * (sh1_0_2 * sh2_2_4 - sh1_0_0 * sh2_2_0)
                     - kSqrt01_60 * ((sh1_2_2 * sh2_0_4 - sh1_2_0 * sh2_0_0)
                         - (sh1_0_2 * sh2_4_4 - sh1_0_0 * sh2_4_0)) },
-            new float[]
             { kSqrt03_10 * (sh1_1_2 * sh2_2_0 + sh1_1_0 * sh2_2_4)
                 - kSqrt01_10 * ((sh1_2_2 * sh2_3_0 + sh1_2_0 * sh2_3_4)
                     + (sh1_0_2 * sh2_1_0 + sh1_0_0 * sh2_1_4)),
@@ -232,7 +231,6 @@ class SphericalHarmonicsRotator
                 kSqrt03_10 * (sh1_1_2 * sh2_2_4 - sh1_1_0 * sh2_2_0)
                     - kSqrt01_10 * ((sh1_2_2 * sh2_3_4 - sh1_2_0 * sh2_3_0)
                         + (sh1_0_2 * sh2_1_4 - sh1_0_0 * sh2_1_0)) },
-            new float[]
             { kSqrt04_15 * (sh1_1_2 * sh2_3_0 + sh1_1_0 * sh2_3_4)
                 + kSqrt01_05 * (sh1_2_2 * sh2_2_0 + sh1_2_0 * sh2_2_4)
                 - kSqrt01_60 * ((sh1_2_2 * sh2_4_0 + sh1_2_0 * sh2_4_4)
@@ -251,7 +249,6 @@ class SphericalHarmonicsRotator
                     + kSqrt01_05 * (sh1_2_2 * sh2_2_4 - sh1_2_0 * sh2_2_0)
                     - kSqrt01_60 * ((sh1_2_2 * sh2_4_4 - sh1_2_0 * sh2_4_0)
                         + (sh1_0_2 * sh2_0_4 - sh1_0_0 * sh2_0_0)) },
-            new float[]
             { kSqrt01_06 * (sh1_1_2 * sh2_4_0 + sh1_1_0 * sh2_4_4)
                 + kSqrt01_06 * ((sh1_2_2 * sh2_3_0 + sh1_2_0 * sh2_3_4)
                     - (sh1_0_2 * sh2_1_0 + sh1_0_0 * sh2_1_4)),
@@ -266,7 +263,6 @@ class SphericalHarmonicsRotator
                 kSqrt01_06 * (sh1_1_2 * sh2_4_4 - sh1_1_0 * sh2_4_0)
                     + kSqrt01_06 * ((sh1_2_2 * sh2_3_4 - sh1_2_0 * sh2_3_0)
                         - (sh1_0_2 * sh2_1_4 - sh1_0_0 * sh2_1_0)) },
-            new float[]
             { kSqrt01_04 * ((sh1_2_2 * sh2_4_0 + sh1_2_0 * sh2_4_4)
                 - (sh1_0_2 * sh2_0_0 + sh1_0_0 * sh2_0_4)),
                 kSqrt03_02 * (sh1_2_1 * sh2_4_0 - sh1_0_1 * sh2_0_0),
