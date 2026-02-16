@@ -186,8 +186,11 @@ public final class GltfSplatReader implements SplatListReader
         FloatBuffer rotationBuffer = readAsFloatBuffer(rotationAccessor);
         SplatDatas.writeRotations(rotationBuffer, splats);
 
+        // The opacity values are in [0,1] in glTF, so they are written
+        // as alpha values to the splats here (converting them to an
+        // opacity value in [-Inf,+Inf]).
         FloatBuffer opacityBuffer = readAsFloatBuffer(opacityAccessor);
-        SplatDatas.writeOpacities(opacityBuffer, splats);
+        SplatDatas.writeAlphas(opacityBuffer, splats);
 
         int shIndex = 0;
         for (int d = 0; d <= shDegree; d++)
