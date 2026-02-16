@@ -570,22 +570,6 @@ public class Splats
     }
 
     /**
-     * Returns whether the given scalar components of a quaternion describe
-     * the same rotation. The difference modulo 1.0 is computed, and should 
-     * be epsilon-equal to 0
-     * 
-     * @param a The first component
-     * @param b The second component
-     * @param epsilon The epsilon
-     * @return The result
-     */
-    private static boolean rotationEqualsEpsilon(float a, float b, float epsilon)
-    {
-        float d = 1.0f - Math.abs(Math.abs(a - b) - 1.0f);
-        return equalsEpsilon(d, 0.0f, epsilon);
-    }
-    
-    /**
      * Returns whether the given values are epsilon-equal
      * 
      * @param a The first value
