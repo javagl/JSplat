@@ -156,7 +156,9 @@ public final class GltfSplatWriter implements SplatListWriter
             AccessorModels.createFloat4D(rotation);
         mpb.addAttribute(NAME + ":" + "ROTATION", rotationAccessor);
 
-        FloatBuffer opacity = SplatDatas.readOpacities(splats, null);
+        // The opacity values in glTF have to be in [0,1], so they are
+        // read as alpha values from the splats here
+        FloatBuffer opacity = SplatDatas.readAlphas(splats, null);
         DefaultAccessorModel opacityAccessor =
             AccessorModels.createFloatScalar(opacity);
         mpb.addAttribute(NAME + ":" + "OPACITY", opacityAccessor);

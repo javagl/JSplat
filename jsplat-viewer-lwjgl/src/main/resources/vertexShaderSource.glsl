@@ -186,7 +186,12 @@ void main()
     float det_inv = 1.f / det;
 	conic = vec3(cov2d.z * det_inv, -cov2d.y * det_inv, cov2d.x * det_inv);
     
-    vec2 quadwh_scr = vec2(3.f * sqrt(cov2d.x), 3.f * sqrt(cov2d.z));  // screen space half quad height and width
+    // NOTE: In the original form of this shader, as taken from the
+    // GaussianSplattingViewer, the factors here have been 3.0. This
+    // could cause the splats to be cut off too early. The factors 
+    // of 3.4 are chosen to ensure that all values that result
+    // in an opacity of more than 1/255 are actually considered.
+    vec2 quadwh_scr = vec2(3.4f * sqrt(cov2d.x), 3.4f * sqrt(cov2d.z));  // screen space half quad height and width
     vec2 quadwh_ndc = quadwh_scr / wh * 2;  // in ndc space
     g_pos_screen.xy = g_pos_screen.xy + position * quadwh_ndc;
     coordxy = position * quadwh_scr;
