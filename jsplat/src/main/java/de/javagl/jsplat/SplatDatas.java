@@ -252,6 +252,42 @@ public class SplatDatas
         }
         return b;
     }
+    
+    /**
+     * Read the alpha values from the given splats and write them into the 
+     * given target buffer. The alpha values are the {@link Splat#getOpacity()}
+     * values, transformed with {@link Splats#opacityToAlpha(float)}.
+     * 
+     * The position of the given buffer will not be modified.
+     * 
+     * The caller is responsible for the buffer having a size of at least
+     * <code>splats.size()</code>.
+     * 
+     * If the given buffer is <code>null</code>, then a new direct buffer with
+     * native byte order will be created and returned.
+     * 
+     * @param splats The splats
+     * @param result The buffer for the result
+     * @return The result
+     */
+    public static FloatBuffer readAlphas(Collection<? extends Splat> splats,
+        FloatBuffer result)
+    {
+        FloatBuffer b = result;
+        if (b == null)
+        {
+            b = Buffers.createFloatBuffer(splats.size());
+        }
+        int i = 0;
+        for (Splat s : splats)
+        {
+            float opacity = s.getOpacity();
+            float alpha = Splats.opacityToAlpha(opacity);
+            b.put(i, alpha);
+            i++;
+        }
+        return b;
+    }
 
     /**
      * Read the specified spherical harmonics from the given splats and write
@@ -407,6 +443,29 @@ public class SplatDatas
         for (MutableSplat s : splats)
         {
             s.setOpacity(b.get(i));
+            i++;
+        }
+    }
+
+    /**
+     * Write the alpha values from the given buffer with
+     * <code>splats.size()</code> elements into the given splats. The alpha
+     * values are transformed with {@link Splats#alphaToOpacity(float)} before
+     * assigning them as the {@link MutableSplat#setOpacity(float)} of the
+     * splats.
+     * 
+     * @param b The buffer
+     * @param splats The splats
+     */
+    public static void writeAlphas(FloatBuffer b,
+        Collection<? extends MutableSplat> splats)
+    {
+        int i = 0;
+        for (MutableSplat s : splats)
+        {
+            float alpha = b.get(i);
+            float opacity = Splats.alphaToOpacity(alpha);
+            s.setOpacity(opacity);
             i++;
         }
     }
