@@ -39,19 +39,21 @@ import de.javagl.jgltf.model.AccessorModel;
 import de.javagl.jgltf.model.GltfModel;
 import de.javagl.jgltf.model.MeshModel;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
+import de.javagl.jgltf.model.NodeModel;
+import de.javagl.jgltf.model.SceneModel;
 import de.javagl.jgltf.model.io.GltfModelReader;
 import de.javagl.jsplat.MutableSplat;
+import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatDatas;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.Splats;
+import de.javagl.jsplat.processing.SplatTransforms;
 
 /**
  * Implementation of a {@link SplatListReader} that reads glTF data with the
  * KHR_gaussian_splatting Gaussian splat extension.
  * 
- * NOTE: This class is preliminary and limited in terms of its capabilities: It
- * assumes a single mesh primitive that contains splat attributes for now, and
- * simply returns the splats from the first primitive.
+ * NOTE: This class is preliminary
  */
 public final class GltfSplatReader implements SplatListReader
 {
@@ -65,18 +67,176 @@ public final class GltfSplatReader implements SplatListReader
      * The extension name (and attribute prefix)
      */
     private static final String NAME = "KHR_gaussian_splatting";
-    
+
+    /**
+     * Whether all splats from all mesh primitives should be read, transformed
+     * according to the global transform matrix of the respective node, and
+     * added the the resulting list.
+     * 
+     * If this is <code>false</code>, then only the splats from the first mesh
+     * primitive that contains splats will be considered, and returned
+     * untransformed.
+     */
+    private final boolean readAll;
+
     /**
      * Creates a new instance
      */
     public GltfSplatReader()
     {
-        // Default constructor
+        this(true);
+    }
+
+    /**
+     * Creates a new instance
+     * 
+     * @param readAll Whether all splats from all mesh primitives should be
+     *        read, transformed according to the global transform matrix of the
+     *        respective node, and added the the resulting list
+     */
+    public GltfSplatReader(boolean readAll)
+    {
+        this.readAll = readAll;
     }
 
     @Override
     public List<MutableSplat> readList(InputStream inputStream)
         throws IOException
+    {
+        if (readAll)
+        {
+            return readAllTransformed(inputStream);
+        }
+        return readFirstUntransformed(inputStream);
+    }
+
+    /**
+     * Read all splats that are contained in the glTF that is read from the
+     * given input stream, transforming them according to the global transform
+     * of the node that they are attached to, and return them all in a single
+     * list.
+     * 
+     * @param inputStream The input stream
+     * @return The result
+     * @throws IOException If an IO error occurs
+     */
+    private static List<MutableSplat>
+        readAllTransformed(InputStream inputStream) throws IOException
+    {
+        GltfModelReader r = new GltfModelReader();
+        GltfModel gltfModel = r.readWithoutReferences(inputStream);
+
+        List<MutableSplat> allSplats = new ArrayList<MutableSplat>();
+
+        List<SceneModel> sceneModels = gltfModel.getSceneModels();
+        for (SceneModel sceneModel : sceneModels)
+        {
+            List<NodeModel> nodeModels = sceneModel.getNodeModels();
+            for (NodeModel nodeModel : nodeModels)
+            {
+                float[] globalTransform =
+                    nodeModel.computeGlobalTransform(null);
+                List<MeshModel> meshModels = nodeModel.getMeshModels();
+                for (MeshModel meshModel : meshModels)
+                {
+                    List<MeshPrimitiveModel> meshPrimitiveModels =
+                        meshModel.getMeshPrimitiveModels();
+                    for (MeshPrimitiveModel meshPrimitiveModel : meshPrimitiveModels)
+                    {
+                        Map<String, Object> extensions =
+                            meshPrimitiveModel.getExtensions();
+                        if (extensions != null)
+                        {
+                            Object extension = extensions.get(NAME);
+                            if (extension != null)
+                            {
+                                List<MutableSplat> splats =
+                                    readListFrom(meshPrimitiveModel);
+                                if (splats != null && !splats.isEmpty())
+                                {
+                                    SplatTransforms.transformList(splats,
+                                        globalTransform);
+                                    allSplats = merge(allSplats, splats);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return allSplats;
+    }
+
+    /**
+     * Merge the given lists of splats and return the result.
+     * 
+     * If the existing splats and the new splats have different degrees, then a
+     * new list will be created that contains splats with the larger of both
+     * degrees, initialized based on the given splats.
+     * 
+     * Otherwise, the given added splats will be added to the list of all
+     * splats, and the result will be returned.
+     * 
+     * @param all All existing splats
+     * @param added The added splats
+     * @return The result
+     */
+    private static List<MutableSplat> merge(List<MutableSplat> all,
+        List<MutableSplat> added)
+    {
+        // Handle trivial cases
+        if (all.isEmpty())
+        {
+            all.addAll(added);
+            return all;
+        }
+        if (added.isEmpty())
+        {
+            return all;
+        }
+
+        // When they have the same degree, just add them
+        Splat oldSplat = all.get(0);
+        Splat newSplat = added.get(0);
+        if (oldSplat.getShDegree() == newSplat.getShDegree())
+        {
+            all.addAll(added);
+            return all;
+        }
+
+        // Create a new list, and fill them with copies of the given
+        // splats, with the copies having the larger of both degrees
+        int newDegree =
+            Math.max(oldSplat.getShDegree(), newSplat.getShDegree());
+        List<MutableSplat> merged = new ArrayList<MutableSplat>();
+        for (int i = 0; i < all.size(); i++)
+        {
+            Splat s = all.get(i);
+            MutableSplat t = Splats.create(newDegree);
+            Splats.setAny(s, t);
+            merged.add(t);
+        }
+        for (int i = 0; i < added.size(); i++)
+        {
+            Splat s = added.get(i);
+            MutableSplat t = Splats.create(newDegree);
+            Splats.setAny(s, t);
+            merged.add(t);
+        }
+        return merged;
+    }
+
+    /**
+     * Read the splats from the first mesh primitive that contains splats, and
+     * return them as a list (ignoring the transform of the node that the mesh
+     * may be attached to)
+     * 
+     * @param inputStream The input stream
+     * @return The result
+     * @throws IOException If an IO error occurs
+     */
+    private static List<MutableSplat>
+        readFirstUntransformed(InputStream inputStream) throws IOException
     {
         GltfModelReader r = new GltfModelReader();
         GltfModel gltfModel = r.readWithoutReferences(inputStream);
@@ -90,10 +250,13 @@ public final class GltfSplatReader implements SplatListReader
             {
                 Map<String, Object> extensions =
                     meshPrimitiveModel.getExtensions();
-                Object extension = extensions.get(NAME);
-                if (extension != null)
+                if (extensions != null)
                 {
-                    return readListFrom(meshPrimitiveModel);
+                    Object extension = extensions.get(NAME);
+                    if (extension != null)
+                    {
+                        return readListFrom(meshPrimitiveModel);
+                    }
                 }
             }
         }
@@ -102,8 +265,8 @@ public final class GltfSplatReader implements SplatListReader
     }
 
     /**
-     * Read a list of splats from the given mesh primitive model, assuming
-     * that it contains valid KHR_gaussian_splatting attributes. 
+     * Read a list of splats from the given mesh primitive model, assuming that
+     * it contains valid KHR_gaussian_splatting attributes.
      * 
      * @param meshPrimitiveModel The mesh primitive model
      * @return The splats
@@ -208,7 +371,6 @@ public final class GltfSplatReader implements SplatListReader
         return splats;
     }
 
-
     /**
      * Returns the data from the given accessor model as a float buffer, tightly
      * packed, applying dequantization as necessary.
@@ -216,7 +378,7 @@ public final class GltfSplatReader implements SplatListReader
      * @param accessorModel The accessor model
      * @return The buffer
      * @throws IllegalArgumentException If the component type of the given
-     * accessor model is neither float, nor signed/unsigned byte/short.
+     *         accessor model is neither float, nor signed/unsigned byte/short.
      */
     private static FloatBuffer readAsFloatBuffer(AccessorModel accessorModel)
     {

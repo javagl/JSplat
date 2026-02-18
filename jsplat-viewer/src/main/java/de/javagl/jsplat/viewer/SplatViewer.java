@@ -32,7 +32,10 @@ import java.util.List;
 import de.javagl.jsplat.Splat;
 
 /**
- * Interface for a class that can render gaussian splats
+ * Interface for a class that can render Gaussian splats.
+ * 
+ * Note: Some functions that are related to camera controls may be moved
+ * into a dedicated "Camera" interface in the future.
  */
 public interface SplatViewer
 {
@@ -52,6 +55,20 @@ public interface SplatViewer
      * Reset the camera to its initial configuration
      */
     void resetCamera();
+    
+    /**
+     * Set the field-of-view (FOV) of the camera in y-direction
+     * 
+     * @param fovDegY The field-of-view, in degrees
+     */
+    void setCameraFovDegY(float fovDegY);
+    
+    /**
+     * Returns field-of-view (FOV) of the camera in y-direction
+     * 
+     * @return The field-of-view, in degrees
+     */
+    float getCameraFovDegY();
 
     /**
      * Returns the main rendering component

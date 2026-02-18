@@ -28,14 +28,20 @@ package de.javagl.jsplat.app;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
+import de.javagl.common.ui.JSpinners;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.viewer.SplatViewer;
 import de.javagl.jsplat.viewer.SplatViewers;
@@ -65,11 +71,16 @@ class JSplatApplicationPanel extends JPanel
      * Whether the camera should be fit to a loaded data set.
      */
     private boolean doFit = true;
-    
+
     /**
      * A label for status messages
      */
     private JLabel statusLabel;
+
+    /**
+     * The spinner for the FOV
+     */
+    private JSpinner fovDegYSpinner;
 
     /**
      * Default constructor
@@ -92,10 +103,12 @@ class JSplatApplicationPanel extends JPanel
         JButton resetButton = new JButton("Reset camera");
         resetButton.addActionListener(e ->
         {
+            float fovDegY = getFovDegY();
             if (splatViewer != null)
             {
                 splatViewer.resetCamera();
             }
+            fovDegYSpinner.setValue(fovDegY);
             doFit = true;
         });
         controlPanel.add(resetButton);
@@ -111,21 +124,54 @@ class JSplatApplicationPanel extends JPanel
         controlPanel.add(fitButton);
 
         controlPanel.add(createButton("unitCube", UnitCubeSplats::create));
-        /*
-         * controlPanel .add(createButton("rotations",
-         * SplatGrids::createRotations)); controlPanel
-         * .add(createButton("rotations2D", SplatGrids::createRotations2D));
-         * controlPanel.add(createButton("shs1", SplatGrids::createShs1));
-         * controlPanel.add(createButton("shs2", SplatGrids::createShs2));
-         * controlPanel.add(createButton("shs3", SplatGrids::createShs3));
-         */
+        controlPanel.add(createButton("unitSh", UnitShSplats::create));
+        controlPanel.add(createFovDegYSpinnerPanel());
 
         add(controlPanel, BorderLayout.NORTH);
 
         statusLabel = new JLabel(" ");
         add(statusLabel, BorderLayout.SOUTH);
-        
+
         setSplats(null);
+    }
+    
+    /**
+     * Create a panel with a spinner for controlling the camera FOV
+     * 
+     * @return The panel
+     */
+    private JPanel createFovDegYSpinnerPanel()
+    {
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(new JLabel("FOV"), BorderLayout.WEST);
+        SpinnerNumberModel model =
+            new SpinnerNumberModel(60.0, 5.0, 160.0, 1.0);
+        fovDegYSpinner = new JSpinner(model);
+        fovDegYSpinner.addChangeListener(e ->
+        {
+            if (splatViewer == null)
+            {
+                return;
+            }
+            splatViewer.setCameraFovDegY(getFovDegY());
+        });
+        JSpinners.setSpinnerDraggingEnabled(fovDegYSpinner, true);
+        p.add(fovDegYSpinner, BorderLayout.CENTER);
+        return p;
+    }
+    
+    /**
+     * Returns the current FOV selected in the spinner
+     * 
+     * @return The FOV, in degrees
+     */
+    private float getFovDegY()
+    {
+        Object value = fovDegYSpinner.getValue();
+        Number number = (Number) value;
+        float f = number.floatValue();
+        return f;
+        
     }
 
     /**
@@ -165,17 +211,62 @@ class JSplatApplicationPanel extends JPanel
             splatViewer.fitCamera();
             doFit = false;
         }
-        
+
         if (splats == null || splats.size() == 0)
         {
             statusLabel.setText("No splats");
+            return;
         }
-        else 
+
+        int count = splats.size();
+        int degree = splats.get(0).getShDegree();
+        float minMax[] = computeMinMax(splats);
+        String b = boundsToString(minMax);
+        statusLabel.setText(
+            count + " splats with degree " + degree + ", bounds: " + b);
+
+    }
+
+    /**
+     * Creates a string representation of the bounds, as computed with
+     * {@link #computeMinMax(Iterable)}
+     * 
+     * @param minMax The bounds
+     * @return The string
+     */
+    private static String boundsToString(float minMax[])
+    {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
+        DecimalFormat df = new DecimalFormat("0.0###", symbols);
+        String s = "(" + df.format(minMax[0]) + ", " + df.format(minMax[1])
+            + ", " + df.format(minMax[2]) + ")-(" + df.format(minMax[3]) + ", "
+            + df.format(minMax[4]) + ", " + df.format(minMax[5]) + ")";
+        return s;
+    }
+
+    /**
+     * Compute the bounding box of the given splats, as a 6-element array with
+     * (minX, minY, minZ, maxX, maxY, maxZ)
+     * 
+     * @param splats The splats
+     * @return The bounding box
+     */
+    private static float[] computeMinMax(Iterable<? extends Splat> splats)
+    {
+        float minMax[] = new float[]
+        { Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
+            Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
+            Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY };
+        for (Splat s : splats)
         {
-            int count = splats.size();
-            int degree = splats.get(0).getShDegree();
-            statusLabel.setText(count + " splats with degree " + degree);
+            minMax[0] = Math.min(minMax[0], s.getPositionX());
+            minMax[1] = Math.min(minMax[1], s.getPositionY());
+            minMax[2] = Math.min(minMax[2], s.getPositionZ());
+            minMax[3] = Math.max(minMax[3], s.getPositionX());
+            minMax[4] = Math.max(minMax[4], s.getPositionY());
+            minMax[5] = Math.max(minMax[5], s.getPositionZ());
         }
+        return minMax;
     }
 
 }

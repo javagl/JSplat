@@ -208,13 +208,18 @@ public abstract class AbstractSplatViewer implements SplatViewer
     {
         return renderingCamera.obtainCurrentEyePositionBuffer();
     }
+    
+    @Override
+    public void setCameraFovDegY(float fovDegY)
+    {
+        addPreRenderCommand(() ->
+        {
+            renderingCamera.setFovDegY(fovDegY);
+        });
+    }
 
-    /**
-     * Returns the field-of-view of the camera, in y-direction, in degrees
-     * 
-     * @return The field of view
-     */
-    protected final float getCameraFovDegY()
+    @Override
+    public float getCameraFovDegY()
     {
         return renderingCamera.getFovDegY();
     }

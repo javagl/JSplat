@@ -28,12 +28,19 @@ package de.javagl.jsplat.io.ply;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.AbstractList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.RandomAccess;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.Splats;
+import de.javagl.jsplat.processing.SplatTransforms;
 import de.javagl.ply.Descriptor;
 import de.javagl.ply.Descriptors;
 import de.javagl.ply.MutableDescriptor;
@@ -86,65 +93,142 @@ public final class PlySplatWriter implements SplatListWriter
             Objects.requireNonNull(plyFormat, "The plyFormat may not be null");
     }
 
+    /**
+     * Implementation of a list that provides a mapped view on a delegate
+     *
+     * @param <S> The delegate element type
+     * @param <T> The element type
+     */
+    private static class MappedList<S, T> extends AbstractList<T>
+        implements RandomAccess
+    {
+        /**
+         * The delegate
+         */
+        private List<? extends S> delegate;
+
+        /**
+         * The mapper
+         */
+        private final Function<S, T> mapper;
+
+        /**
+         * Creates a new instance
+         * 
+         * @param delegate The delegate
+         * @param mapper The mapper
+         */
+        MappedList(List<? extends S> delegate, Function<S, T> mapper)
+        {
+            this.delegate = Objects.requireNonNull(delegate,
+                "The delegate may not be null");
+            this.mapper =
+                Objects.requireNonNull(mapper, "The mapper may not be null");
+
+        }
+
+        @Override
+        public T get(int index)
+        {
+            S s = delegate.get(index);
+            T t = mapper.apply(s);
+            return t;
+        }
+
+        @Override
+        public int size()
+        {
+            return delegate.size();
+        }
+    }
+
+    /**
+     * Create a mapped view on the given list of splats that transforms each
+     * splat by rotating it by 180 degrees around the x-axis for writing it out
+     * as PLY.
+     * 
+     * @param splats The splats
+     * @return The result
+     */
+    private static List<MutableSplat> createMapped(List<? extends Splat> splats)
+    {
+        if (splats.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        Splat splat = splats.get(0);
+        int dimensions = splat.getShDimensions();
+
+        // Rotate about 180 degrees around x, to convert from
+        // right-up-front to right-down-back
+        // @formatter:off
+        float rotate180X[] = 
+        { 
+            1.0f,  0.0f,  0.0f, 0.0f, 
+            0.0f, -1.0f,  0.0f, 0.0f, 
+            0.0f,  0.0f, -1.0f, 0.0f, 
+            0.0f,  0.0f,  0.0f, 1.0f 
+        };
+        // @formatter:on
+        Consumer<MutableSplat> transform =
+            SplatTransforms.createTransform(rotate180X, dimensions);
+        Function<Splat, MutableSplat> mapper = (s) ->
+        {
+            MutableSplat transformed = Splats.copy(s);
+            transform.accept(transformed);
+            return transformed;
+        };
+        List<MutableSplat> result =
+            new MappedList<Splat, MutableSplat>(splats, mapper);
+        return result;
+    }
+
     @Override
-    public void writeList(List<? extends Splat> splats,
+    public void writeList(List<? extends Splat> inputSplats,
         OutputStream outputStream) throws IOException
     {
-        int shDegree = splats.get(0).getShDegree();
+        int shDegree = 0;
+        if (!inputSplats.isEmpty()) 
+        {
+            shDegree = inputSplats.get(0).getShDegree();
+        }
         Descriptor descriptor = createDescriptor(shDegree);
         ObjectPlySource plySource = new ObjectPlySource(descriptor);
 
+        List<MutableSplat> splats = createMapped(inputSplats);
         Handle<? extends Splat> v = plySource.register("vertex", splats);
-        
-        // Convert from right-up-front to right-down-back by 
-        // negating the y- and z-component
-        v.withFloat("x", (s) -> s.getPositionX());
-        v.withFloat("y", (s) -> -s.getPositionY());
-        v.withFloat("z", (s) -> -s.getPositionZ());
-        
+
+        v.withFloat("x", Splat::getPositionX);
+        v.withFloat("y", Splat::getPositionY);
+        v.withFloat("z", Splat::getPositionZ);
+
         v.withFloat("f_dc_0", (s) -> s.getShX(0));
         v.withFloat("f_dc_1", (s) -> s.getShY(0));
         v.withFloat("f_dc_2", (s) -> s.getShZ(0));
 
-        // The coordinate system conversion will affect the SH coefficients.
-        // For PLY, nothing seems to be specified in a way that allows tools 
-        // and viewers to agree on something. The following flip factors
-        // have been found by reverse engineering, based on the
-        // "unit spherical harmonics cube" test data set.
-        // @formatter:off
-        float flips[] =
-        { 
-                          -1.0f, -1.0f,  1.0f, 
-                   -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, 
-            -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f 
-        };
-        // @formatter:on
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         for (int d = 0; d < shDimensions - 1; d++)
-        { 
-            int f = d;
+        {
             int sd = d + 1;
             int ix = (shDimensions - 1) * 0 + d;
             int iy = (shDimensions - 1) * 1 + d;
             int iz = (shDimensions - 1) * 2 + d;
-            v.withFloat("f_rest_" + ix, (s) -> flips[f] * s.getShX(sd));
-            v.withFloat("f_rest_" + iy, (s) -> flips[f] * s.getShY(sd));
-            v.withFloat("f_rest_" + iz, (s) -> flips[f] * s.getShZ(sd));
+            v.withFloat("f_rest_" + ix, (s) -> s.getShX(sd));
+            v.withFloat("f_rest_" + iy, (s) -> s.getShY(sd));
+            v.withFloat("f_rest_" + iz, (s) -> s.getShZ(sd));
         }
-        
+
         v.withFloat("opacity", Splat::getOpacity);
-        
+
         v.withFloat("scale_0", Splat::getScaleX);
         v.withFloat("scale_1", Splat::getScaleY);
         v.withFloat("scale_2", Splat::getScaleZ);
-        
-        // Convert from right-up-front to right-down-back by 
-        // negating the y- and z-component
+
         // PLY uses scalar-first quaternions
         v.withFloat("rot_0", Splat::getRotationW);
         v.withFloat("rot_1", Splat::getRotationX);
-        v.withFloat("rot_2", (s) -> -s.getRotationY());
-        v.withFloat("rot_3", (s) -> -s.getRotationZ());
+        v.withFloat("rot_2", Splat::getRotationY);
+        v.withFloat("rot_3", Splat::getRotationZ);
 
         if (plyFormat == PlyFormat.ASCII)
         {

@@ -65,11 +65,27 @@ public final class GltfSplatWriter implements SplatListWriter
     private static final String NAME = "KHR_gaussian_splatting";
 
     /**
-     * Creates a new instance
+     * The color space that should be used for the splat extension
+     */
+    private final String colorSpace;
+    
+    /**
+     * Creates a new instance, using an unspecified default color space
      */
     public GltfSplatWriter()
     {
-        // Default constructor
+        this("BT.709-sRGB");
+    }
+
+    /**
+     * Creates a new instance, using the given color space in the splat
+     * extension object
+     *  
+     * @param colorSpace The color space. Nobody really knows what that is. LOL.
+     */
+    public GltfSplatWriter(String colorSpace)
+    {
+        this.colorSpace = colorSpace;        
     }
 
     @Override
@@ -93,6 +109,11 @@ public final class GltfSplatWriter implements SplatListWriter
         DefaultMeshPrimitiveModel meshPrimitiveModel =
             createMeshPrimitiveModel(splats);
 
+        // Manually add the extension (there is no model-level representation
+        // of this extension yet)
+        Map<String, Object> extension = createExtension(colorSpace);
+        meshPrimitiveModel.addExtension(NAME, extension);
+        
         SceneModel sceneModel =
             SceneModels.createFromMeshPrimitive(meshPrimitiveModel);
 
@@ -108,12 +129,14 @@ public final class GltfSplatWriter implements SplatListWriter
 
     /**
      * Create a mesh primitive model from the given splats, using the attribtes
-     * that are defined in the KHR_gaussian_splatting extension
+     * that are defined in the KHR_gaussian_splatting extension.
+     * 
+     * This method is not part of the public API!
      * 
      * @param splats The splats
      * @return The mesh primitive model
      */
-    private static DefaultMeshPrimitiveModel
+    public static DefaultMeshPrimitiveModel
         createMeshPrimitiveModel(List<? extends Splat> splats)
     {
         MeshPrimitiveBuilder mpb = MeshPrimitiveBuilder.create();
@@ -160,24 +183,23 @@ public final class GltfSplatWriter implements SplatListWriter
         // Create the mesh primitive
         DefaultMeshPrimitiveModel meshPrimitiveModel = mpb.build();
 
-        // Manually add the extension (there is no model-level representation
-        // of this extension yet)
-        Map<String, Object> extension = createExtension();
-        meshPrimitiveModel.addExtension(NAME, extension);
         return meshPrimitiveModel;
     }
-
+    
     /**
      * Create a map that represents an unspecified default
      * KHR_gaussian_splatting extension object
+     *
+     * This method is not part of the public API
      * 
+     * @param colorSpace The color space
      * @return The extension object
      */
-    private static Map<String, Object> createExtension()
+    public static Map<String, Object> createExtension(String colorSpace)
     {
         Map<String, Object> extension = new LinkedHashMap<String, Object>();
         extension.put("kernel", "ellipse");
-        extension.put("colorSpace", "BT.709-sRGB");
+        extension.put("colorSpace", colorSpace);
         extension.put("sortingMethod", "cameraDistance");
         extension.put("projection", "perspective");
         return extension;

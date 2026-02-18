@@ -414,6 +414,11 @@ class JSplatApplication
         {
             return new SogSplatReader();
         }
+        if (name.endsWith("gltf"))
+        {
+            logger.warning("Assuming glTF file to be embedded");
+            return new GlbSplatListReader();
+        }
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");
         return null;
