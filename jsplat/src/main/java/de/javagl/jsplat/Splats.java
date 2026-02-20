@@ -26,6 +26,8 @@
  */
 package de.javagl.jsplat;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -60,6 +62,23 @@ public class Splats
         MutableSplat copy = Splats.create(s.getShDegree());
         setAny(s, copy);
         return copy;
+    }
+
+    /**
+     * Create a deep copy of the given list of splats
+     * 
+     * @param splats The splats
+     * @return The copy
+     */
+    public static List<MutableSplat>
+        copyList(Collection<? extends Splat> splats)
+    {
+        List<MutableSplat> copies = new ArrayList<MutableSplat>(splats.size());
+        for (Splat splat : splats)
+        {
+            copies.add(copy(splat));
+        }
+        return copies;
     }
 
     /**
