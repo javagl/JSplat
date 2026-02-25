@@ -30,6 +30,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
@@ -61,7 +63,7 @@ class ExtensionBasedSaveOptions extends JPanel
      * The extension that should cause this panel to become enabled, including
      * the dot.
      */
-    private String extensionWithDot;
+    private final List<String> extensionsWithDot;
 
     /**
      * The file name text field, obtained from the file chooser (quirky)
@@ -73,14 +75,18 @@ class ExtensionBasedSaveOptions extends JPanel
      * 
      * @param fileChooser The file chooser
      * @param title The title
-     * @param extensionWithDot The file extension, including the dot
+     * @param extensionsWithDot The file extensions, including the dot
      */
     ExtensionBasedSaveOptions(JFileChooser fileChooser, String title,
-        String extensionWithDot)
+        String... extensionsWithDot)
     {
         super(new BorderLayout());
         this.fileChooser = fileChooser;
-        this.extensionWithDot = extensionWithDot.toLowerCase();
+        this.extensionsWithDot = new ArrayList<String>();
+        for (String extensionWithDot : extensionsWithDot)
+        {
+            this.extensionsWithDot.add(extensionWithDot.toLowerCase());
+        }
 
         setBorder(BorderFactory.createTitledBorder(title));
 
@@ -155,8 +161,17 @@ class ExtensionBasedSaveOptions extends JPanel
             GuiUtils.setDeepEnabled(this, false);
             return;
         }
-        boolean isPly = fileName.toLowerCase().endsWith(extensionWithDot);
-        GuiUtils.setDeepEnabled(this, isPly);
+        String fileNameLowerCase = fileName.toLowerCase();
+        boolean matches = false;
+        for (String extensionWithDot : extensionsWithDot)
+        {
+            if (fileNameLowerCase.endsWith(extensionWithDot))
+            {
+                matches = true;
+                break;
+            }
+        }
+        GuiUtils.setDeepEnabled(this, matches);
     }
 
     /**
