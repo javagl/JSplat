@@ -365,7 +365,7 @@ class JSplatApplication
                 throw new UncheckedIOException(e);
             }
         };
-        UriLoading.loadInBackground(uris, loader,
+        UriLoading.loadAllInBackground(uris, loader,
             (resultUris, resultSplatLists) ->
             {
                 processLoadedSplats(resultUris, resultSplatLists);

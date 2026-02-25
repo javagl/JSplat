@@ -44,8 +44,8 @@ import java.util.function.Consumer;
 import javax.swing.TransferHandler;
 
 /**
- * Implementation of a transfer handler that allows transferring files or
- * links, passing the respective URLs or files as URIs to a URI consumer.
+ * Implementation of a transfer handler that allows transferring files or links,
+ * passing the respective URLs or files as URIs to a URI consumer.
  */
 public class UriTransferHandler extends TransferHandler
 {
@@ -63,8 +63,8 @@ public class UriTransferHandler extends TransferHandler
         DataFlavor flavor = null;
         try
         {
-            flavor = new DataFlavor(
-                "application/x-java-url; class=java.net.URL");
+            flavor =
+                new DataFlavor("application/x-java-url; class=java.net.URL");
         }
         catch (ClassNotFoundException e)
         {
@@ -83,17 +83,18 @@ public class UriTransferHandler extends TransferHandler
      *
      * @param urisConsumer The consumer for the URIs
      */
-    public UriTransferHandler(Consumer<? super List<? extends URI>> urisConsumer)
+    public UriTransferHandler(
+        Consumer<? super List<? extends URI>> urisConsumer)
     {
-        this.urisConsumer = Objects.requireNonNull(
-            urisConsumer, "The urisConsumer may not be null");
+        this.urisConsumer = Objects.requireNonNull(urisConsumer,
+            "The urisConsumer may not be null");
     }
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport support)
     {
-        if (!support.isDataFlavorSupported(DataFlavor.javaFileListFlavor) &&
-            !support.isDataFlavorSupported(URL_FLAVOR))
+        if (!support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)
+            && !support.isDataFlavorSupported(URL_FLAVOR))
         {
             return false;
         }
@@ -157,8 +158,8 @@ public class UriTransferHandler extends TransferHandler
     }
 
     /**
-     * Obtains the transfer data from the given Transferable as a file list,
-     * or returns <code>null</code> if the data can not be obtained
+     * Obtains the transfer data from the given Transferable as a file list, or
+     * returns <code>null</code> if the data can not be obtained
      *
      * @param transferable The transferable
      * @return The file list, or <code>null</code>
@@ -170,7 +171,7 @@ public class UriTransferHandler extends TransferHandler
             Object transferData =
                 transferable.getTransferData(DataFlavor.javaFileListFlavor);
             @SuppressWarnings("unchecked")
-            List<File> fileList = (List<File>)transferData;
+            List<File> fileList = (List<File>) transferData;
             return fileList;
         }
         catch (UnsupportedFlavorException e)
@@ -184,8 +185,8 @@ public class UriTransferHandler extends TransferHandler
     }
 
     /**
-     * Obtains the transfer data from the given Transferable as a URL,
-     * or returns <code>null</code> if the data can not be obtained
+     * Obtains the transfer data from the given Transferable as a URL, or
+     * returns <code>null</code> if the data can not be obtained
      *
      * @param transferable The transferable
      * @return The URL, or <code>null</code>
@@ -194,9 +195,8 @@ public class UriTransferHandler extends TransferHandler
     {
         try
         {
-            Object transferData =
-                transferable.getTransferData(URL_FLAVOR);
-            URL url = (URL)transferData;
+            Object transferData = transferable.getTransferData(URL_FLAVOR);
+            URL url = (URL) transferData;
             return url;
         }
         catch (UnsupportedFlavorException e)

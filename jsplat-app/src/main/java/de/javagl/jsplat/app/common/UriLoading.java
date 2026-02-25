@@ -73,7 +73,7 @@ public class UriLoading
      * @param loader The loader
      * @param consumer The result consumer
      */
-    public static <T> void loadInBackground(List<? extends URI> uris,
+    public static <T> void loadAllInBackground(List<? extends URI> uris,
         Function<? super InputStream, ? extends T> loader,
         BiConsumer<? super List<? extends URI>, ? super List<? extends T>> consumer)
     {
@@ -85,12 +85,12 @@ public class UriLoading
             protected List<T> doInBackground() throws Exception
             {
                 List<T> results = new ArrayList<T>();
-                for (int i=0; i<uris.size(); i++)
+                for (int i = 0; i < uris.size(); i++)
                 {
                     double progress = -1.0;
                     if (uris.size() > 1)
                     {
-                        progress = (double)i / (uris.size() - 1);
+                        progress = (double) i / (uris.size() - 1);
                     }
                     setProgress(progress);
                     URI uri = uris.get(i);
@@ -150,6 +150,28 @@ public class UriLoading
     /**
      * Load the data from the given URI in a background thread, and pass the
      * result to the given consumer (on the event dispatch thread)
+     * 
+     * @param <T> The type of the result
+     * 
+     * @param uri The URI
+     * @param loader The loader
+     * @param consumer The result consumer
+     */
+    public static <T> void loadInBackground(URI uri,
+        Function<? super InputStream, ? extends T> loader,
+        BiConsumer<? super URI, ? super T> consumer)
+    {
+        BiConsumer<List<? extends URI>, List<? extends T>> c =
+            (uris, results) ->
+            {
+                consumer.accept(uris.get(0), results.get(0));
+            };
+        loadAllInBackground(Collections.singletonList(uri), loader, c);
+    }
+
+    /**
+     * Load the data from the given URI in a background thread, and pass the
+     * result to the given consumer (on the event dispatch thread)
      *
      * @param uri The URI
      * @param consumer The result consumer
@@ -158,11 +180,11 @@ public class UriLoading
         BiConsumer<? super URI, ? super ByteBuffer> consumer)
     {
         BiConsumer<List<? extends URI>, List<? extends ByteBuffer>> c =
-            (us, bs) ->
+            (uris, byteBuffer) ->
             {
-                consumer.accept(us.get(0), bs.get(0));
+                consumer.accept(uris.get(0), byteBuffer.get(0));
             };
-        loadInBackground(Collections.singletonList(uri),
+        loadAllInBackground(Collections.singletonList(uri),
             UriLoading::readAsByteBufferUnchecked, c);
     }
 
