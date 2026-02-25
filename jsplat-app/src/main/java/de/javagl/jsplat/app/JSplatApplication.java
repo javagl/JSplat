@@ -38,6 +38,8 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -208,7 +210,7 @@ class JSplatApplication
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         UriTransferHandler transferHandler =
-            new UriTransferHandler(uri -> openUriInBackground(uri));
+            new UriTransferHandler(uris -> openUrisInBackground(uris));
         frame.setTransferHandler(transferHandler);
 
         menuBar = new JMenuBar();
@@ -325,7 +327,7 @@ class JSplatApplication
         if (returnState == JFileChooser.APPROVE_OPTION)
         {
             File file = openFileChooser.getSelectedFile();
-            openUriInBackground(file.toURI());
+            openUrisInBackground(Collections.singletonList(file.toURI()));
         }
     }
 
@@ -333,12 +335,13 @@ class JSplatApplication
      * Execute the task of loading the data in a background thread, showing a
      * modal dialog.
      *
-     * @param uri The URI to load from
+     * @param uris The URIs to load from
      */
-    void openUriInBackground(URI uri)
+    void openUrisInBackground(List<? extends URI> uris)
     {
-        logger.info("Loading " + uri);
+        logger.info("Loading " + uris);
 
+        URI uri = uris.get(0);
         if (UriUtils.isLocalFile(uri))
         {
             URI directory = UriUtils.getParent(uri);
@@ -362,24 +365,32 @@ class JSplatApplication
                 throw new UncheckedIOException(e);
             }
         };
-        UriLoading.loadInBackground(uri, loader, (resultUri, resultSplats) ->
-        {
-            processLoadedSplats(resultUri, resultSplats);
-        });
+        UriLoading.loadInBackground(uris, loader,
+            (resultUris, resultSplatLists) ->
+            {
+                processLoadedSplats(resultUris, resultSplatLists);
+            });
     }
     
     /**
      * Process the given splats that have been loaded from a URI
      * 
-     * @param uri The URI
-     * @param splats The splats
+     * @param uris The URIs
+     * @param splatLists The splat lists
      */
-    private void processLoadedSplats(URI uri, List<? extends Splat> splats)
+    private void processLoadedSplats(List<? extends URI> uris,
+        List<? extends List<? extends Splat>> splatLists)
     {
-        String fileName = Paths.get(uri).getFileName().toString();
-        applicationPanel.addSplats(fileName, splats);
+        List<String> names = new ArrayList<String>();
+        for (int i = 0; i < uris.size(); i++)
+        {
+            URI uri = uris.get(i);
+            String fileName = Paths.get(uri).getFileName().toString();
+            names.add(fileName);
+        }
+        applicationPanel.addSplatLists(names, splatLists);
     }
-    
+
     /**
      * Find a reader for the file with the given name, based on the file
      * extension, case-insensitively. If no reader can be found, then

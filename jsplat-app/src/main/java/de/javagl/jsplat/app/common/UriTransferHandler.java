@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -74,17 +76,17 @@ public class UriTransferHandler extends TransferHandler
     /**
      * The consumer for the URIs
      */
-    private final Consumer<? super URI> uriConsumer;
+    private final Consumer<? super List<? extends URI>> urisConsumer;
 
     /**
      * Default constructor
      *
-     * @param uriConsumer The consumer for the URIs
+     * @param urisConsumer The consumer for the URIs
      */
-    public UriTransferHandler(Consumer<? super URI> uriConsumer)
+    public UriTransferHandler(Consumer<? super List<? extends URI>> urisConsumer)
     {
-        this.uriConsumer = Objects.requireNonNull(
-            uriConsumer, "The uriConsumer may not be null");
+        this.urisConsumer = Objects.requireNonNull(
+            urisConsumer, "The urisConsumer may not be null");
     }
 
     @Override
@@ -129,7 +131,7 @@ public class UriTransferHandler extends TransferHandler
             {
                 try
                 {
-                    uriConsumer.accept(url.toURI());
+                    urisConsumer.accept(Collections.singletonList(url.toURI()));
                 }
                 catch (URISyntaxException e)
                 {
@@ -143,10 +145,12 @@ public class UriTransferHandler extends TransferHandler
         List<File> fileList = getFileListOptional(transferable);
         if (fileList != null)
         {
+            List<URI> uris = new ArrayList<URI>();
             for (File file : fileList)
             {
-                uriConsumer.accept(file.toURI());
+                uris.add(file.toURI());
             }
+            urisConsumer.accept(uris);
             return true;
         }
         return false;

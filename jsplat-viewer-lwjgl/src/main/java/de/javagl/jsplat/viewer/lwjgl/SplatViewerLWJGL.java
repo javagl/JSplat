@@ -529,6 +529,25 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     }
 
     @Override
+    public void addSplatLists(List<? extends List<? extends Splat>> splatLists)
+    {
+        addPreRenderCommand(() ->
+        {
+            for (List<? extends Splat> splats : splatLists)
+            {
+                if (splats != null && !splats.isEmpty())
+                {
+                    Splat s0 = splats.get(0);
+                    currentMaximumShDegree =
+                        Math.max(currentMaximumShDegree, s0.getShDegree());
+                    this.splats.addDelegate(splats);
+                }
+            }
+            updateSplatsInternal();
+        });
+    }
+
+    @Override
     public void removeSplats(List<? extends Splat> splats)
     {
         addPreRenderCommand(() ->
@@ -584,7 +603,15 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
             + currentMaximumShDegree);
 
         int shDimensions = Splats.dimensionsForDegree(currentMaximumShDegree);
-        int sizeInFloats = numSplats * (11 + shDimensions * 3);
+        long sizeInFloatsLong = numSplats * (11L + shDimensions * 3L);
+        long sizeInBytesLong = sizeInFloatsLong * Float.BYTES;
+        if (sizeInBytesLong > Integer.MAX_VALUE)
+        {
+            throw new OutOfMemoryError("Cannot allocate " + sizeInBytesLong
+                + " bytes in a single buffer");
+        }
+        int sizeInFloats = (int) sizeInFloatsLong;
+        
         if (gaussianData == null || gaussianData.capacity() < sizeInFloats)
         {
             logger.info("Allocating gaussianData for " + numSplats + " with "

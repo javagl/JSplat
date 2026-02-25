@@ -54,6 +54,13 @@ public interface SplatViewer
     void addSplats(List<? extends Splat> splats);
 
     /**
+     * Add the splats that should be displayed.
+     * 
+     * @param splatLists The splats
+     */
+    void addSplatLists(List<? extends List<? extends Splat>> splatLists);
+
+    /**
      * Remove the given splats
      * 
      * @param splats The splats

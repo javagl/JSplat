@@ -327,6 +327,43 @@ class JSplatApplicationPanel extends JPanel
         return transformPanel;
     }
 
+    /**
+     * Add the splats that should be displayed
+     * 
+     * @param names The name
+     * @param splatLists The splat lists
+     */
+    void addSplatLists(List<String> names,
+        List<? extends List<? extends Splat>> splatLists)
+    {
+        if (splatViewer == null)
+        {
+            logger.warning("No SplatViewer was craeted");
+            return;
+        }
+
+        List<List<? extends Splat>> currentSplatLists =
+            new ArrayList<List<? extends Splat>>();
+        for (int i = 0; i < names.size(); i++)
+        {
+            String name = names.get(i);
+            List<? extends Splat> splats = splatLists.get(i);
+
+            DataSet dataSet = new DataSet(name, splats);
+            dataSetsPanel.addDataSet(dataSet);
+
+            List<MutableSplat> currentSplats = dataSet.getCurrentSplats();
+            currentSplatLists.add(currentSplats);
+        }
+        splatViewer.addSplatLists(currentSplatLists);
+
+        if (doFit)
+        {
+            splatViewer.fitCamera();
+            doFit = false;
+        }
+        updateStatus();
+    }    
 
     /**
      * Add the splats that should be displayed
@@ -336,24 +373,8 @@ class JSplatApplicationPanel extends JPanel
      */
     void addSplats(String name, List<? extends Splat> splats)
     {
-        if (splatViewer == null)
-        {
-            logger.warning("No SplatViewer was craeted");
-            return;
-        }
-        
-        DataSet dataSet = new DataSet(name, splats);
-        dataSetsPanel.addDataSet(dataSet);
-        
-        List<MutableSplat> currentSplats = dataSet.getCurrentSplats();
-        splatViewer.addSplats(currentSplats);
-        
-        if (doFit)
-        {
-            splatViewer.fitCamera();
-            doFit = false;
-        }
-        updateStatus();
+        addSplatLists(Collections.singletonList(name),
+            Collections.singletonList(splats));
     }
     
     /**
@@ -368,7 +389,7 @@ class JSplatApplicationPanel extends JPanel
         {
             allSplats.add(dataSet.getCurrentSplats());
         }
-        int count = allSplats.size();
+        int count = allSplats.stream().mapToInt(t -> t.size()).sum();
         float minMax[] = computeMinMax(allSplats);
         String b = boundsToString(minMax);
         statusLabel.setText(count + " splats, bounds: " + b);
