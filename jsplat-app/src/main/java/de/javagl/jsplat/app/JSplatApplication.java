@@ -200,11 +200,6 @@ class JSplatApplication
     private JSplatApplicationPanel applicationPanel;
 
     /**
-     * The splats that are currently displayed in the application panel
-     */
-    private List<? extends Splat> currentSplats;
-
-    /**
      * Default constructor
      */
     JSplatApplication()
@@ -222,8 +217,8 @@ class JSplatApplication
 
         openFileChooser = new JFileChooser(".");
         openFileChooser.setFileFilter(new FileNameExtensionFilter(
-            "Splat Files (.splat, .ply, .spz, .glb)", "splat", "ply", "spz",
-            "glb"));
+            "Splat Files (.splat, .ply, .spz, .sog, .glb)", "splat", "ply",
+            "spz", "sog", "glb"));
 
         saveFileChooser = new JFileChooser(".");
 
@@ -235,9 +230,8 @@ class JSplatApplication
         saveFileChooser.setAccessory(accessory);
 
         saveFileChooser.setFileFilter(new FileNameExtensionFilter(
-            "Splat Files (.splat, .ply, .spz, .glb)", "splat", "ply", "spz",
-            "glb"));
-        saveFileAction.setEnabled(false);
+            "Splat Files (.splat, .ply, .spz, .sog, .glb)", "splat", "ply",
+            "spz", "sog", "glb"));
 
         applicationPanel = new JSplatApplicationPanel();
         frame.getContentPane().add(applicationPanel);
@@ -370,19 +364,22 @@ class JSplatApplication
         };
         UriLoading.loadInBackground(uri, loader, (resultUri, resultSplats) ->
         {
-            currentSplats = resultSplats;
-            if (currentSplats != null)
-            {
-                saveFileAction.setEnabled(true);
-                applicationPanel.setSplats(currentSplats);
-            }
-            else
-            {
-                saveFileAction.setEnabled(false);
-            }
+            processLoadedSplats(resultUri, resultSplats);
         });
     }
-
+    
+    /**
+     * Process the given splats that have been loaded from a URI
+     * 
+     * @param uri The URI
+     * @param splats The splats
+     */
+    private void processLoadedSplats(URI uri, List<? extends Splat> splats)
+    {
+        String fileName = Paths.get(uri).getFileName().toString();
+        applicationPanel.addSplats(fileName, splats);
+    }
+    
     /**
      * Find a reader for the file with the given name, based on the file
      * extension, case-insensitively. If no reader can be found, then
@@ -558,8 +555,14 @@ class JSplatApplication
      */
     private void save(SplatListWriter w, File file) throws IOException
     {
+        List<? extends Splat> allSplats = applicationPanel.getAllSplats();
+        if (allSplats.isEmpty())
+        {
+            logger.severe("No splats are currently loaded");
+            return;
+        }
         OutputStream outputStream = new FileOutputStream(file);
-        w.writeList(currentSplats, outputStream);
+        w.writeList(allSplats, outputStream);
         outputStream.close();
     }
 
