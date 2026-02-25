@@ -97,6 +97,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.swing.SwingUtilities;
 
@@ -107,7 +108,6 @@ import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.Splats;
 import de.javagl.jsplat.viewer.AbstractSplatViewer;
 import de.javagl.jsplat.viewer.BufferUtils;
-import de.javagl.jsplat.viewer.DynamicSplatViewer;
 import de.javagl.jsplat.viewer.SplatViewer;
 
 /**
@@ -122,8 +122,7 @@ import de.javagl.jsplat.viewer.SplatViewer;
  * https://github.com/limacv/GaussianSplattingViewer for offering a shader that
  * can easily be fed with splat data and integrated into other renderers.
  */
-public class SplatViewerLWJGL extends AbstractSplatViewer
-    implements DynamicSplatViewer
+public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
 {
     /**
      * The logger used in this class
@@ -509,7 +508,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
                 currentMaximumShDegree = s0.getShDegree();
                 this.splats.addDelegate(splats);
             }
-            updateSplats();
+            updateSplatsInternal();
         });
     }
 
@@ -525,7 +524,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
                     Math.max(currentMaximumShDegree, s0.getShDegree());
                 this.splats.addDelegate(splats);
             }
-            updateSplats();
+            updateSplatsInternal();
         });
     }
 
@@ -535,7 +534,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
         addPreRenderCommand(() ->
         {
             this.splats.removeDelegate(splats);
-            updateSplats();
+            updateSplatsInternal();
         });
     }
 
@@ -546,15 +545,23 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
         {
             this.splats.clearDelegates();
             currentMaximumShDegree = -1;
-            updateSplats();
+            updateSplatsInternal();
+        });
+    }
+
+    @Override
+    public void updateSplats()
+    {
+        addPreRenderCommand(() ->
+        {
+            updateSplatsInternal();
         });
     }
 
     /**
-     * Update the rendering state based on the current splat data, called in
-     * pre-render commands
+     * Internal version of updateSplats, to be called in a pre-render command
      */
-    private void updateSplats()
+    private void updateSplatsInternal()
     {
         if (splats.isEmpty())
         {
@@ -593,7 +600,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
             initGaussianOrderSSBO(numSplats);
         }
     }
-
+    
     /**
      * Initialize the SSBO for the Gaussian data, for the given number of splats
      * 
@@ -694,9 +701,10 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
         }
         int numSplats = splats.size();
         int shDimensions = Splats.dimensionsForDegree(currentMaximumShDegree);
-        int j = 0;
-        for (int i = 0; i < numSplats; i++)
+        int stride = (11 + shDimensions * 3);
+        IntStream.range(0, numSplats).parallel().forEach(i -> 
         {
+            int j = i * stride;
             Splat s = splats.get(i);
             gaussianData.put(j++, s.getPositionX());
             gaussianData.put(j++, s.getPositionY());
@@ -728,11 +736,11 @@ public class SplatViewerLWJGL extends AbstractSplatViewer
                 gaussianData.put(j++, shY);
                 gaussianData.put(j++, shZ);
             }
-        }
+        });
         fillGaussianDataSSBO(gaussianData, numSplats);
         splatSorter.init(splats);
     }
-
+    
     /**
      * Update the buffer that stores the indices of the splats, sorted by their
      * distance to the viewer, based on the current view matrix.

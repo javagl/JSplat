@@ -47,6 +47,32 @@ public interface SplatViewer
     void setSplats(List<? extends Splat> splats);
 
     /**
+     * Add the splats that should be displayed.
+     * 
+     * @param splats The splats
+     */
+    void addSplats(List<? extends Splat> splats);
+
+    /**
+     * Remove the given splats
+     * 
+     * @param splats The splats
+     */
+    void removeSplats(List<? extends Splat> splats);
+    
+    /**
+     * Clear the splats that are currently displayed
+     */
+    void clearSplats();
+    
+    /**
+     * Update the rendering state based on the current splat data, for the
+     * case that one of the splat lists that have been added did change 
+     * in-place.
+     */
+    void updateSplats();
+    
+    /**
      * Fit the camera to show the current splats.
      */
     void fitCamera();
