@@ -26,8 +26,7 @@
  */
 package de.javagl.jsplat.app;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,6 +34,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
+import de.javagl.common.ui.GridBagLayouts;
 import de.javagl.common.ui.JSpinners;
 
 /**
@@ -92,135 +92,106 @@ class TransformPanel extends JPanel
      */
     private JSpinner scaleZSpinner;
 
-    
     /**
      * Default constructor
      */
     TransformPanel()
     {
-        super(new GridLayout(0, 1));
-        add(createTranslationPanel());
-        add(createRotationPanel());
-        add(createScalePanel());
+        super(new GridBagLayout());
+
+        createTranslationControls();
+        createRotationControls();
+        createScaleControls();
     }
 
     /**
-     * Create the panel with the translation controls
-     * 
-     * @return The panel
+     * Create the translation controls
      */
-    private JPanel createTranslationPanel()
+    private void createTranslationControls()
     {
-        JPanel p = new JPanel(new GridLayout(0, 1));
+        int row = 0;
 
-        JPanel px = new JPanel(new BorderLayout());
-        px.add(new JLabel("Translation X:"), BorderLayout.WEST);
         SpinnerNumberModel modelX =
-            new SpinnerNumberModel(0.0, -1000000.0, 1000000.0, 0.001);
+            new SpinnerNumberModel(0.0, -100000.0, 100000.0, 0.01);
         translationXSpinner = new JSpinner(modelX);
         JSpinners.setSpinnerDraggingEnabled(translationXSpinner, true);
-        px.add(translationXSpinner, BorderLayout.CENTER);
-        p.add(px);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Translation X:"),
+            translationXSpinner);
 
-        JPanel py = new JPanel(new BorderLayout());
-        py.add(new JLabel("Translation Y:"), BorderLayout.WEST);
         SpinnerNumberModel modelY =
-            new SpinnerNumberModel(0.0, -1000000.0, 1000000.0, 0.001);
+            new SpinnerNumberModel(0.0, -100000.0, 100000.0, 0.01);
         translationYSpinner = new JSpinner(modelY);
         JSpinners.setSpinnerDraggingEnabled(translationYSpinner, true);
-        py.add(translationYSpinner, BorderLayout.CENTER);
-        p.add(py);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Translation Y:"),
+            translationYSpinner);
 
-        JPanel pz = new JPanel(new BorderLayout());
-        pz.add(new JLabel("Translation Z:"), BorderLayout.WEST);
         SpinnerNumberModel modelZ =
-            new SpinnerNumberModel(0.0, -1000000.0, 1000000.0, 0.001);
+            new SpinnerNumberModel(0.0, -100000.0, 100000.0, 0.01);
         translationZSpinner = new JSpinner(modelZ);
         JSpinners.setSpinnerDraggingEnabled(translationZSpinner, true);
-        pz.add(translationZSpinner, BorderLayout.CENTER);
-        p.add(pz);
-
-        return p;
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Translation Z:"),
+            translationZSpinner);
     }
 
     /**
-     * Create the panel with the rotation controls
-     * 
-     * @return The panel
+     * Create the rotation controls
      */
-    private JPanel createRotationPanel()
+    private void createRotationControls()
     {
-        JPanel p = new JPanel(new GridLayout(0, 1));
+        int row = 3;
 
-        JPanel px = new JPanel(new BorderLayout());
-        px.add(new JLabel("Rotation X:"), BorderLayout.WEST);
         SpinnerNumberModel modelX =
             new SpinnerNumberModel(0.0, -180.0, 180.0, 0.1);
         rotationDegXSpinner = new JSpinner(modelX);
         JSpinners.setSpinnerDraggingEnabled(rotationDegXSpinner, true);
-        px.add(rotationDegXSpinner, BorderLayout.CENTER);
-        p.add(px);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Rotation X:"),
+            rotationDegXSpinner);
 
-        JPanel py = new JPanel(new BorderLayout());
-        py.add(new JLabel("Rotation Y:"), BorderLayout.WEST);
         SpinnerNumberModel modelY =
             new SpinnerNumberModel(0.0, -180.0, 180.0, 0.1);
         rotationDegYSpinner = new JSpinner(modelY);
         JSpinners.setSpinnerDraggingEnabled(rotationDegYSpinner, true);
-        py.add(rotationDegYSpinner, BorderLayout.CENTER);
-        p.add(py);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Rotation Y:"),
+            rotationDegYSpinner);
 
-        JPanel pz = new JPanel(new BorderLayout());
-        pz.add(new JLabel("Rotation Z:"), BorderLayout.WEST);
         SpinnerNumberModel modelZ =
             new SpinnerNumberModel(0.0, -180.0, 180.0, 0.1);
         rotationDegZSpinner = new JSpinner(modelZ);
         JSpinners.setSpinnerDraggingEnabled(rotationDegZSpinner, true);
-        pz.add(rotationDegZSpinner, BorderLayout.CENTER);
-        p.add(pz);
-
-        return p;
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Rotation Z:"),
+            rotationDegZSpinner);
     }
 
     /**
-     * Create the panel with the scale controls
-     * 
-     * @return The panel
+     * Create the scale controls
      */
-    private JPanel createScalePanel()
+    private void createScaleControls()
     {
-        JPanel p = new JPanel(new GridLayout(0, 1));
+        int row = 6;
 
-        JPanel px = new JPanel(new BorderLayout());
-        px.add(new JLabel("Scale X:"), BorderLayout.WEST);
         SpinnerNumberModel modelX =
             new SpinnerNumberModel(0.0, -1000.0, 1000.0, 0.001);
         scaleXSpinner = new JSpinner(modelX);
         JSpinners.setSpinnerDraggingEnabled(scaleXSpinner, true);
-        px.add(scaleXSpinner, BorderLayout.CENTER);
-        p.add(px);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Scale X:"),
+            scaleXSpinner);
 
-        JPanel py = new JPanel(new BorderLayout());
-        py.add(new JLabel("Scale Y:"), BorderLayout.WEST);
         SpinnerNumberModel modelY =
             new SpinnerNumberModel(0.0, -1000.0, 1000.0, 0.001);
         scaleYSpinner = new JSpinner(modelY);
         JSpinners.setSpinnerDraggingEnabled(scaleYSpinner, true);
-        py.add(scaleYSpinner, BorderLayout.CENTER);
-        p.add(py);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Scale Y:"),
+            scaleYSpinner);
 
-        JPanel pz = new JPanel(new BorderLayout());
-        pz.add(new JLabel("Scale Z:"), BorderLayout.WEST);
         SpinnerNumberModel modelZ =
             new SpinnerNumberModel(0.0, -1000.0, 1000.0, 0.001);
         scaleZSpinner = new JSpinner(modelZ);
         JSpinners.setSpinnerDraggingEnabled(scaleZSpinner, true);
-        pz.add(scaleZSpinner, BorderLayout.CENTER);
-        p.add(pz);
+        GridBagLayouts.addRow(this, row++, 1, new JLabel("Scale Z:"),
+            scaleZSpinner);
 
-        return p;
     }
-    
+
     /**
      * Add the given listener to all relevant UI components
      * 
@@ -350,7 +321,7 @@ class TransformPanel extends JPanel
     {
         return getFloat(scaleZSpinner);
     }
-    
+
     /**
      * Returns the current transform
      * 
@@ -359,23 +330,24 @@ class TransformPanel extends JPanel
     Transform getTransform()
     {
         Transform t = new Transform();
-        
+
         t.translationX = getTranslationX();
         t.translationY = getTranslationY();
         t.translationZ = getTranslationZ();
-        
+
         t.rotationRadX = getRotationRadX();
         t.rotationRadY = getRotationRadY();
         t.rotationRadZ = getRotationRadZ();
-        
+
         t.scaleX = getScaleX();
         t.scaleY = getScaleY();
         t.scaleZ = getScaleZ();
         return t;
     }
-    
+
     /**
      * Set the current transform
+     * 
      * @param transform The transform
      */
     void setTransform(Transform transform)
@@ -383,7 +355,7 @@ class TransformPanel extends JPanel
         translationXSpinner.setValue(transform.translationX);
         translationYSpinner.setValue(transform.translationY);
         translationZSpinner.setValue(transform.translationZ);
-        
+
         rotationDegXSpinner.setValue(Math.toDegrees(transform.rotationRadX));
         rotationDegYSpinner.setValue(Math.toDegrees(transform.rotationRadY));
         rotationDegZSpinner.setValue(Math.toDegrees(transform.rotationRadZ));
