@@ -34,6 +34,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import de.javagl.jsplat.app.common.ExtensionBasedSaveOptions;
 import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
 
 /**

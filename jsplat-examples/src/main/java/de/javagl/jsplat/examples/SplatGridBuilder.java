@@ -16,7 +16,7 @@ import de.javagl.jsplat.MutableSplat;
 /**
  * Utility class for creating splat test data
  */
-class SplatGridBuilder
+public class SplatGridBuilder
 {
     /**
      * Interface for classes that can receive an object and three floating
@@ -24,7 +24,7 @@ class SplatGridBuilder
      * 
      * @param <T> The object type
      */
-    static interface Consumer3D<T>
+    public static interface Consumer3D<T>
     {
         /**
          * Accept the given object and values
@@ -85,7 +85,7 @@ class SplatGridBuilder
      * @param sizeZ The size of the grid in z-direction
      * @param supplier The supplier for the splat instances
      */
-    SplatGridBuilder(int sizeX, int sizeY, int sizeZ,
+    public SplatGridBuilder(int sizeX, int sizeY, int sizeZ,
         Supplier<? extends MutableSplat> supplier)
     {
         if (sizeX < 1 || sizeY < 1 || sizeZ < 1)
@@ -146,7 +146,7 @@ class SplatGridBuilder
      * @param max The maximum
      * @param consumer The consumer
      */
-    void registerX(float min, float max,
+    public void registerX(float min, float max,
         BiConsumer<MutableSplat, Float> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
@@ -165,7 +165,7 @@ class SplatGridBuilder
      * @param max The maximum
      * @param consumer The consumer
      */
-    void registerY(float min, float max,
+    public void registerY(float min, float max,
         BiConsumer<MutableSplat, Float> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
@@ -184,7 +184,7 @@ class SplatGridBuilder
      * @param max The maximum
      * @param consumer The consumer
      */
-    void registerZ(float min, float max,
+    public void registerZ(float min, float max,
         BiConsumer<MutableSplat, Float> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
@@ -200,7 +200,7 @@ class SplatGridBuilder
      * 
      * @param consumer The consumer
      */
-    void register(Consumer3D<MutableSplat> consumer)
+    public void register(Consumer3D<MutableSplat> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         consumers3D.add(consumer);
@@ -211,7 +211,7 @@ class SplatGridBuilder
      * 
      * @return The splats
      */
-    List<MutableSplat> generate()
+    public List<MutableSplat> generate()
     {
         List<MutableSplat> result = new ArrayList<MutableSplat>();
         for (int x = 0; x < sizeX; x++)

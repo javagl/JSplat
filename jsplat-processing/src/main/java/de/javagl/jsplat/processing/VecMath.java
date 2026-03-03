@@ -805,6 +805,28 @@ public class VecMath
     }
     
     /**
+     * Create a matrix with a given scale.
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param sx The scaling along x
+     * @param sy The scaling along y
+     * @param sz The scaling along z
+     * @param result The result 
+     * @return The result
+     */
+    public static float[] scale4x4(float sx, float sy, float sz, float result[])
+    {
+        float[] r = identity4x4(result);
+        r[0] = sx;
+        r[5] = sy;
+        r[10] = sz;
+        r[15] = 1.0f;
+        return r;
+    }
+    
+    /**
      * Copy the contents of the source array to the given target array. The
      * length of the shorter array will determine how many elements are copied.
      * 

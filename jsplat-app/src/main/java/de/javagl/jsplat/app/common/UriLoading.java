@@ -36,6 +36,9 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
@@ -61,49 +64,61 @@ public class UriLoading
         Logger.getLogger(UriLoading.class.getName());
 
     /**
-     * Load the data from the given URI in a background thread, and pass the
+     * Load the data from the given URIs in a background thread, and pass the
      * result to the given consumer (on the event dispatch thread)
      * 
      * @param <T> The type of the result
      * 
-     * @param uri The URI
+     * @param uris The URI
      * @param loader The loader
      * @param consumer The result consumer
      */
-    public static <T> void loadInBackground(URI uri,
+    public static <T> void loadAllInBackground(List<? extends URI> uris,
         Function<? super InputStream, ? extends T> loader,
-        BiConsumer<? super URI, ? super T> consumer)
+        BiConsumer<? super List<? extends URI>, ? super List<? extends T>> consumer)
     {
-        logger.fine("Loading " + uri);
+        logger.fine("Loading " + uris);
 
-        SwingTask<T, Void> swingTask = new SwingTask<T, Void>()
+        SwingTask<List<T>, Void> swingTask = new SwingTask<List<T>, Void>()
         {
             @Override
-            protected T doInBackground() throws Exception
+            protected List<T> doInBackground() throws Exception
             {
-                setProgress(-1.0);
-                try (InputStream inputStream = uri.toURL().openStream())
+                List<T> results = new ArrayList<T>();
+                for (int i = 0; i < uris.size(); i++)
                 {
-                    return loader.apply(inputStream);
+                    double progress = -1.0;
+                    if (uris.size() > 1)
+                    {
+                        progress = (double) i / (uris.size() - 1);
+                    }
+                    setProgress(progress);
+                    URI uri = uris.get(i);
+                    try (InputStream inputStream = uri.toURL().openStream())
+                    {
+                        T result = loader.apply(inputStream);
+                        results.add(result);
+                    }
                 }
+                return results;
             }
         };
         swingTask.addDoneCallback(finishedTask ->
         {
             try
             {
-                T result = finishedTask.get();
-                consumer.accept(uri, result);
+                List<T> results = finishedTask.get();
+                consumer.accept(uris, results);
             }
             catch (CancellationException e)
             {
                 logger.info(
-                    "Cancelled loading " + uri + " (" + e.getMessage() + ")");
+                    "Cancelled loading " + uris + " (" + e.getMessage() + ")");
                 return;
             }
             catch (InterruptedException e)
             {
-                logger.info("Interrupted while loading " + uri + " ("
+                logger.info("Interrupted while loading " + uris + " ("
                     + e.getMessage() + ")");
                 Thread.currentThread().interrupt();
             }
@@ -135,6 +150,28 @@ public class UriLoading
     /**
      * Load the data from the given URI in a background thread, and pass the
      * result to the given consumer (on the event dispatch thread)
+     * 
+     * @param <T> The type of the result
+     * 
+     * @param uri The URI
+     * @param loader The loader
+     * @param consumer The result consumer
+     */
+    public static <T> void loadInBackground(URI uri,
+        Function<? super InputStream, ? extends T> loader,
+        BiConsumer<? super URI, ? super T> consumer)
+    {
+        BiConsumer<List<? extends URI>, List<? extends T>> c =
+            (uris, results) ->
+            {
+                consumer.accept(uris.get(0), results.get(0));
+            };
+        loadAllInBackground(Collections.singletonList(uri), loader, c);
+    }
+
+    /**
+     * Load the data from the given URI in a background thread, and pass the
+     * result to the given consumer (on the event dispatch thread)
      *
      * @param uri The URI
      * @param consumer The result consumer
@@ -142,7 +179,13 @@ public class UriLoading
     public static void loadInBackground(URI uri,
         BiConsumer<? super URI, ? super ByteBuffer> consumer)
     {
-        loadInBackground(uri, UriLoading::readAsByteBufferUnchecked, consumer);
+        BiConsumer<List<? extends URI>, List<? extends ByteBuffer>> c =
+            (uris, byteBuffer) ->
+            {
+                consumer.accept(uris.get(0), byteBuffer.get(0));
+            };
+        loadAllInBackground(Collections.singletonList(uri),
+            UriLoading::readAsByteBufferUnchecked, c);
     }
 
     /**
