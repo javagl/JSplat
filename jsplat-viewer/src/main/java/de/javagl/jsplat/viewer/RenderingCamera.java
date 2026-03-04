@@ -244,6 +244,7 @@ class RenderingCamera
         int h = component.getHeight();
         view.setViewport(Rectangles.create(0, 0, w, h));
         view.setAspect((float) w / h);
+        view.setFarClippingPlane(100000.0f);
         
         // Workaround for https://github.com/javagl/Rendering/issues/1:
         // Force an update by modifying the near clipping plane
