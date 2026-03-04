@@ -29,9 +29,12 @@ package de.javagl.jsplat.processing;
 import java.util.Arrays;
 
 /**
- * Internal vector math utility functions
+ * Internal vector math utility functions.
+ * 
+ * <b>Note:</b> This class is currently public, but it is NOT part of the
+ * public API!
  */
-class VecMath
+public class VecMath
 {
     /**
      * Epsilon for quaternion computations
@@ -266,6 +269,34 @@ class VecMath
         r[0] = matrix4[0] * x + matrix4[4] * y + matrix4[8] * z + matrix4[12];
         r[1] = matrix4[1] * x + matrix4[5] * y + matrix4[9] * z + matrix4[13];
         r[2] = matrix4[2] * x + matrix4[6] * y + matrix4[10] * z + matrix4[14];
+        return r;
+    }
+
+    /**
+     * Multiply the given 4x4 matrix with the given 3D vector.
+     * 
+     * The matrix is assumed to be a 16-element array representing a 4x4 matrix
+     * in column-major order
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param matrix4 The matrix
+     * @param vector The 3D point
+     * @param result The result
+     * @return The result
+     */
+    static float[] multiplyMatrix4WithVector(float matrix4[], float vector[],
+        float result[])
+    {
+        float r[] = validate(result, 3);
+
+        float x = vector[0];
+        float y = vector[1];
+        float z = vector[2];
+        r[0] = matrix4[0] * x + matrix4[4] * y + matrix4[8] * z;
+        r[1] = matrix4[1] * x + matrix4[5] * y + matrix4[9] * z;
+        r[2] = matrix4[2] * x + matrix4[6] * y + matrix4[10] * z;
         return r;
     }
 
@@ -578,7 +609,7 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] identity4x4(float result[])
+    public static float[] identity4x4(float result[])
     {
         float r[] = validate(result, 16);
 
@@ -618,6 +649,183 @@ class VecMath
         return r;
     }
 
+    
+    /**
+     * Create a matrix describing a rotation around the x-axis, and the given
+     * translation
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param angleRad The angle, in radians
+     * @param result The result
+     * @return The matrix
+     */
+    public static float[] rotationX(float angleRad, float result[])
+    {
+        float matrix[] = validate(result, 16);
+
+        float c = (float) Math.cos(angleRad);
+        float s = (float) Math.sin(angleRad);
+
+        // Column 0
+        matrix[0] = 1.0f;
+        matrix[1] = 0.0f;
+        matrix[2] = 0.0f;
+        matrix[3] = 0.0f;
+
+        // Column 1
+        matrix[4] = 0.0f;
+        matrix[5] = c;
+        matrix[6] = s;
+        matrix[7] = 0.0f;
+
+        // Column 2
+        matrix[8] = 0.0f;
+        matrix[9] = -s;
+        matrix[10] = c;
+        matrix[11] = 0.0f;
+
+        // Column 3
+        matrix[12] = 0.0f;
+        matrix[13] = 0.0f;
+        matrix[14] = 0.0f;
+        matrix[15] = 1.0f;
+
+        return matrix;
+    }
+
+    /**
+     * Create a matrix describing a rotation around the y-axis
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param angleRad The angle, in radians
+     * @param result The result
+     * @return The matrix
+     */
+    public static float[] rotationY(float angleRad, float result[])
+    {
+        float matrix[] = validate(result, 16);
+
+        float c = (float) Math.cos(angleRad);
+        float s = (float) Math.sin(angleRad);
+
+        // Column 0
+        matrix[0] = c;
+        matrix[1] = 0.0f;
+        matrix[2] = -s;
+        matrix[3] = 0.0f;
+
+        // Column 1
+        matrix[4] = 0.0f;
+        matrix[5] = 1.0f;
+        matrix[6] = 0.0f;
+        matrix[7] = 0.0f;
+
+        // Column 2
+        matrix[8] = s;
+        matrix[9] = 0.0f;
+        matrix[10] = c;
+        matrix[11] = 0.0f;
+
+        // Column 3
+        matrix[12] = 0.0f;
+        matrix[13] = 0.0f;
+        matrix[14] = 0.0f;
+        matrix[15] = 1.0f;
+
+        return matrix;
+    }
+    
+    
+    /**
+     * Create a matrix describing a rotation around the z-axis
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param angleRad The angle, in radians
+     * @param result The result
+     * @return The matrix
+     */
+    public static float[] rotationZ(float angleRad, float result[])
+    {
+        float matrix[] = validate(result, 16);
+
+        float c = (float) Math.cos(angleRad);
+        float s = (float) Math.sin(angleRad);
+
+        // Column 0
+        matrix[0] = c;
+        matrix[1] = s;
+        matrix[2] = 0.0f;
+        matrix[3] = 0.0f;
+
+        // Column 1
+        matrix[4] = -s;
+        matrix[5] = c;
+        matrix[6] = 0.0f;
+        matrix[7] = 0.0f;
+
+        // Column 2
+        matrix[8] = 0.0f;
+        matrix[9] = 0.0f;
+        matrix[10] = 1.0f;
+        matrix[11] = 0.0f;
+
+        // Column 3
+        matrix[12] = 0.0f;
+        matrix[13] = 0.0f;
+        matrix[14] = 0.0f;
+        matrix[15] = 1.0f;
+
+        return matrix;
+    }
+    
+    /**
+     * Create a matrix with a uniform scale.
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param s The scaling
+     * @param result The result 
+     * @return The result
+     */
+    public static float[] scale4x4(float s, float result[])
+    {
+        float[] r = identity4x4(result);
+        r[0] = s;
+        r[5] = s;
+        r[10] = s;
+        r[15] = 1.0f;
+        return r;
+    }
+    
+    /**
+     * Create a matrix with a given scale.
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param sx The scaling along x
+     * @param sy The scaling along y
+     * @param sz The scaling along z
+     * @param result The result 
+     * @return The result
+     */
+    public static float[] scale4x4(float sx, float sy, float sz, float result[])
+    {
+        float[] r = identity4x4(result);
+        r[0] = sx;
+        r[5] = sy;
+        r[10] = sz;
+        r[15] = 1.0f;
+        return r;
+    }
+    
     /**
      * Copy the contents of the source array to the given target array. The
      * length of the shorter array will determine how many elements are copied.
