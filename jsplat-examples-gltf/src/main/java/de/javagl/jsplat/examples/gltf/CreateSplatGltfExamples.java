@@ -34,8 +34,12 @@ import java.util.List;
 
 import de.javagl.jgltf.model.impl.DefaultMeshPrimitiveModel;
 import de.javagl.jsplat.MutableSplat;
+import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.examples.UnitCubeSplats;
 import de.javagl.jsplat.examples.UnitShSplats;
+import de.javagl.jsplat.io.ply.PlySplatWriter;
+import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
+import de.javagl.jsplat.io.spz.SpzSplatWriter;
 
 /**
  * Methods to create splat glTF example files
@@ -49,6 +53,17 @@ public class CreateSplatGltfExamples
      * @throws IOException When an IO error occurs
      */
     public static void main(String[] args) throws IOException
+    {
+        createGltfs();
+        createCustom();
+    }
+    
+    /**
+     * Create the main glTF examples
+     *  
+     * @throws IOException When an IO error occurs
+     */
+    private static void createGltfs() throws IOException
     {
         String baseDir = "./data/";
         Files.createDirectories(Paths.get(baseDir));
@@ -71,25 +86,21 @@ public class CreateSplatGltfExamples
         {
             GenericGltfSplatWriter w = new GenericGltfSplatWriter();
             w.addSplats(SplatRotationTests.createRotationsX(), null);
-            ;
             w.write(new FileOutputStream(baseDir + "RotationsX.glb"));
         }
         {
             GenericGltfSplatWriter w = new GenericGltfSplatWriter();
             w.addSplats(SplatRotationTests.createRotationsY(), null);
-            ;
             w.write(new FileOutputStream(baseDir + "RotationsY.glb"));
         }
         {
             GenericGltfSplatWriter w = new GenericGltfSplatWriter();
             w.addSplats(SplatRotationTests.createRotationsZ(), null);
-            ;
             w.write(new FileOutputStream(baseDir + "RotationsZ.glb"));
         }
         {
             GenericGltfSplatWriter w = new GenericGltfSplatWriter();
             w.addSplats(SplatScaleTests.createScales(), null);
-            ;
             w.write(new FileOutputStream(baseDir + "Scales.glb"));
         }
         {
@@ -106,6 +117,42 @@ public class CreateSplatGltfExamples
             GenericGltfSplatWriter w = new GenericGltfSplatWriter();
             createScaledScales(w);
             w.write(new FileOutputStream(baseDir + "ScaledScales.glb"));
+        }
+    }
+
+    /**
+     * Create some highly specific tests 
+     * 
+     * @throws IOException When an IO error occurs
+     */
+    private static void createCustom() throws IOException
+    {
+        String baseDir = "./data/";
+        Files.createDirectories(Paths.get(baseDir));
+
+        {
+            SplatListWriter w = new SpzSplatWriter();
+            List<MutableSplat> splats = SplatRotationTests.createRotationsX();
+            w.writeList(splats,
+                new FileOutputStream(baseDir + "RotationsX.spz"));
+        }
+        {
+            SplatListWriter w = new SpzSplatWriter();
+            List<MutableSplat> splats = SplatRotationTests.createRotationsY();
+            w.writeList(splats,
+                new FileOutputStream(baseDir + "RotationsY.spz"));
+        }
+        {
+            SplatListWriter w = new SpzSplatWriter();
+            List<MutableSplat> splats = SplatRotationTests.createRotationsZ();
+            w.writeList(splats,
+                new FileOutputStream(baseDir + "RotationsZ.spz"));
+        }
+        {
+            SplatListWriter w = new PlySplatWriter(PlyFormat.BINARY_LITTLE_ENDIAN);
+            List<MutableSplat> splats = SplatDepthTests.createDepthTest();
+            w.writeList(splats,
+                new FileOutputStream(baseDir + "Depths.ply"));
         }
     }
 
