@@ -42,7 +42,10 @@ public class SplatTransforms
      * Transform all splats in the given list with the given matrix.
      * 
      * The matrix is assumed to be a 16-element array representing a 4x4 matrix
-     * in column-major order
+     * in column-major order.
+     * 
+     * The rotation quaternion of the given splats will be normalized in this
+     * operation.
      * 
      * @param list The list
      * @param matrix4 The matrix
@@ -83,9 +86,11 @@ public class SplatTransforms
         SplatShRotator sr = new SplatShRotator(matrix3, dims);
         SplatScaleScaler ss =
             new SplatScaleScaler(scales[0], scales[1], scales[2]);
+        
         Consumer<MutableSplat> transform = s ->
         {
             sr.rotateSh(s);
+            normalizeRotationQuaternion(s);
             rr.rotate(s);
             pt.transform(s);
             ss.scale(s);
@@ -109,6 +114,30 @@ public class SplatTransforms
         return list;
     }
 
+    /**
+     * Normalize the rotation quaternion of the given splat.
+     * 
+     * @param s The splat
+     */
+    private static void normalizeRotationQuaternion(MutableSplat s)
+    {
+        float rX = s.getRotationX();
+        float rY = s.getRotationY();
+        float rZ = s.getRotationZ();
+        float rW = s.getRotationW();
+        float lenSquared = rX * rX + rY * rY + rZ * rZ + rW * rW;
+        if (Math.abs(1.0f - lenSquared) < 1e-6)
+        {
+            return;
+        }
+        float len = (float) Math.sqrt(lenSquared);
+        float invLen = 1.0f / len;
+        s.setRotationX(rX * invLen);
+        s.setRotationY(rY * invLen);
+        s.setRotationZ(rZ * invLen);
+        s.setRotationW(rW * invLen);
+    }
+    
     /**
      * Translate the given splat by the given amount
      * 
