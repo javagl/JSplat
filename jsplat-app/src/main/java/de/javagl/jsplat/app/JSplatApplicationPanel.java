@@ -338,7 +338,7 @@ class JSplatApplicationPanel extends JPanel
     {
         if (splatViewer == null)
         {
-            logger.warning("No SplatViewer was craeted");
+            logger.warning("No SplatViewer was created");
             return;
         }
 
@@ -404,7 +404,7 @@ class JSplatApplicationPanel extends JPanel
     {
         if (splatViewer == null)
         {
-            logger.warning("No SplatViewer was craeted");
+            logger.warning("No SplatViewer was created");
             return;
         }
         splatViewer.removeSplats(dataSet.getCurrentSplats());
