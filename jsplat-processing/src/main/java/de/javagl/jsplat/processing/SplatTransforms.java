@@ -60,7 +60,7 @@ public class SplatTransforms
         }
         int dims = list.get(0).getShDimensions();
         Consumer<MutableSplat> transform = createTransform(matrix4, dims);
-        list.forEach(transform);
+        list.stream().parallel().forEach(transform);
         return list;
     }
 
@@ -110,7 +110,7 @@ public class SplatTransforms
     public static <T extends MutableSplat> List<T> translateList(List<T> list,
         float dx, float dy, float dz)
     {
-        list.forEach(s -> translate(s, dx, dy, dz));
+        list.stream().parallel().forEach(s -> translate(s, dx, dy, dz));
         return list;
     }
 
@@ -165,7 +165,7 @@ public class SplatTransforms
     static <T extends MutableSplat> List<T> scaleList(List<T> list, float sx,
         float sy, float sz)
     {
-        list.forEach(s -> scale(s, sx, sy, sz));
+        list.stream().parallel().forEach(s -> scale(s, sx, sy, sz));
         return list;
     }
 

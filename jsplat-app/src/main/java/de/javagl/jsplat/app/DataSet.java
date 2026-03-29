@@ -29,6 +29,7 @@ package de.javagl.jsplat.app;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
@@ -101,13 +102,15 @@ class DataSet
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         Consumer<MutableSplat> t =
             SplatTransforms.createTransform(matrix, shDimensions);
-        for (int i = 0; i < initialSplats.size(); i++)
+
+        int n = initialSplats.size();
+        IntStream.range(0, n).parallel().forEach(i ->
         {
             Splat initialSplat = initialSplats.get(i);
             MutableSplat currentSplat = currentSplats.get(i);
             Splats.setAny(initialSplat, currentSplat);
             t.accept(currentSplat);
-        }
+        });
     }
     
     /**
