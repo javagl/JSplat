@@ -28,24 +28,27 @@ package de.javagl.jsplat.io.gltf.spz;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import de.javagl.jgltf.impl.v2.BufferView;
-import de.javagl.jgltf.impl.v2.GlTF;
-import de.javagl.jgltf.impl.v2.Mesh;
-import de.javagl.jgltf.impl.v2.MeshPrimitive;
-import de.javagl.jgltf.model.io.GltfAsset;
-import de.javagl.jgltf.model.io.GltfAssetReader;
-import de.javagl.jgltf.model.io.v2.GltfAssetV2;
+import de.javagl.jgltf.model.BufferViewModel;
+import de.javagl.jgltf.model.GltfModel;
+import de.javagl.jgltf.model.MeshModel;
+import de.javagl.jgltf.model.MeshPrimitiveModel;
+import de.javagl.jgltf.model.NodeModel;
+import de.javagl.jgltf.model.SceneModel;
+import de.javagl.jgltf.model.io.GltfModelReader;
 import de.javagl.jsplat.MutableSplat;
+import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListReader;
+import de.javagl.jsplat.Splats;
 import de.javagl.jsplat.io.spz.GaussianCloudSplats;
+import de.javagl.jsplat.processing.SplatTransforms;
 import de.javagl.jspz.GaussianCloud;
 import de.javagl.jspz.SpzReader;
 import de.javagl.jspz.SpzReaders;
@@ -86,48 +89,119 @@ public final class GltfSpzSplatReader implements SplatListReader
     public List<MutableSplat> readList(InputStream inputStream)
         throws IOException
     {
-        GltfAssetReader r = new GltfAssetReader();
-        GltfAsset gltfAsset = r.readWithoutReferences(inputStream);
-        if (!(gltfAsset instanceof GltfAssetV2))
-        {
-            throw new IOException(
-                "Expected glTF version 2, but found " + gltfAsset);
-        }
-        GltfAssetV2 gltfAssetV2 = (GltfAssetV2) gltfAsset;
-        GlTF gltf = gltfAssetV2.getGltf();
+        GltfModelReader r = new GltfModelReader();
+        GltfModel gltfModel = r.readWithoutReferences(inputStream);
 
-        List<Mesh> meshes = gltf.getMeshes();
-        for (Mesh mesh : meshes)
+        List<MutableSplat> allSplats = new ArrayList<MutableSplat>();
+
+        List<SceneModel> sceneModels = gltfModel.getSceneModels();
+        for (SceneModel sceneModel : sceneModels)
         {
-            List<MeshPrimitive> primitives = mesh.getPrimitives();
-            for (MeshPrimitive primitive : primitives)
+            List<NodeModel> nodeModels = sceneModel.getNodeModels();
+            for (NodeModel nodeModel : nodeModels)
             {
-                Integer bufferViewIndex =
-                    getExtensionBufferViewIndex(primitive);
-                if (bufferViewIndex == null)
+                float[] globalTransform =
+                    nodeModel.computeGlobalTransform(null);
+                List<MeshModel> meshModels = nodeModel.getMeshModels();
+                for (MeshModel meshModel : meshModels)
                 {
-                    continue;
+                    List<MeshPrimitiveModel> meshPrimitiveModels =
+                        meshModel.getMeshPrimitiveModels();
+                    for (MeshPrimitiveModel meshPrimitiveModel : meshPrimitiveModels)
+                    {
+                        Integer bufferViewIndex =
+                            getExtensionBufferViewIndex(meshPrimitiveModel);
+                        if (bufferViewIndex == null)
+                        {
+                            continue;
+                        }
+                        List<MutableSplat> splats =
+                            readSplats(gltfModel, bufferViewIndex);
+                        if (splats != null && !splats.isEmpty())
+                        {
+                            SplatTransforms.transformList(splats,
+                                globalTransform);
+                            allSplats = merge(allSplats, splats);
+                        }
+                    }
                 }
-                return readSplats(gltfAssetV2, bufferViewIndex);
             }
         }
-        throw new IOException(
-            "No mesh primitive with Gaussian splats found in input data");
+        return allSplats;
+    }
+
+    /**
+     * Merge the given lists of splats and return the result.
+     * 
+     * If the existing splats and the new splats have different degrees, then a
+     * new list will be created that contains splats with the larger of both
+     * degrees, initialized based on the given splats.
+     * 
+     * Otherwise, the given added splats will be added to the list of all
+     * splats, and the result will be returned.
+     * 
+     * @param all All existing splats
+     * @param added The added splats
+     * @return The result
+     */
+    private static List<MutableSplat> merge(List<MutableSplat> all,
+        List<MutableSplat> added)
+    {
+        // Handle trivial cases
+        if (all.isEmpty())
+        {
+            all.addAll(added);
+            return all;
+        }
+        if (added.isEmpty())
+        {
+            return all;
+        }
+
+        // When they have the same degree, just add them
+        Splat oldSplat = all.get(0);
+        Splat newSplat = added.get(0);
+        if (oldSplat.getShDegree() == newSplat.getShDegree())
+        {
+            all.addAll(added);
+            return all;
+        }
+
+        // Create a new list, and fill them with copies of the given
+        // splats, with the copies having the larger of both degrees
+        int newDegree =
+            Math.max(oldSplat.getShDegree(), newSplat.getShDegree());
+        List<MutableSplat> merged = new ArrayList<MutableSplat>();
+        for (int i = 0; i < all.size(); i++)
+        {
+            Splat s = all.get(i);
+            MutableSplat t = Splats.create(newDegree);
+            Splats.setAny(s, t);
+            merged.add(t);
+        }
+        for (int i = 0; i < added.size(); i++)
+        {
+            Splat s = added.get(i);
+            MutableSplat t = Splats.create(newDegree);
+            Splats.setAny(s, t);
+            merged.add(t);
+        }
+        return merged;
     }
 
     /**
      * Read splats that are stored in SPZ format in the specified buffer view of
-     * the given glTF asset.
+     * the given glTF model.
      * 
-     * @param gltfAsset The glTF asset
+     * @param gltfModel The glTF model
      * @param bufferViewIndex The buffer view index
      * @return The splats
      * @throws IOException If an IO error occurs
      */
-    private static List<MutableSplat> readSplats(GltfAssetV2 gltfAsset,
+    private static List<MutableSplat> readSplats(GltfModel gltfModel,
         int bufferViewIndex) throws IOException
     {
-        ByteBuffer spzData = extractBufferViewData(gltfAsset, bufferViewIndex);
+        ByteBuffer spzData = extractBufferViewData(gltfModel, bufferViewIndex);
         ByteBufferInputStream spzInputStream =
             new ByteBufferInputStream(spzData);
         SpzReader spzReader = SpzReaders.createDefault();
@@ -140,30 +214,17 @@ public final class GltfSpzSplatReader implements SplatListReader
      * Returns a buffer containing the part of the binary data of the given glTF
      * asset that represents the specified buffer view
      * 
-     * @param gltfAsset The glTF asset
+     * @param gltfModel The glTF model
      * @param bufferViewIndex The buffer view index
      * @return The resulting buffer data
      */
-    private static ByteBuffer extractBufferViewData(GltfAssetV2 gltfAsset,
+    private static ByteBuffer extractBufferViewData(GltfModel gltfModel,
         int bufferViewIndex)
     {
-        GlTF gltf = gltfAsset.getGltf();
-        List<BufferView> bufferViews = gltf.getBufferViews();
-        BufferView bufferView = bufferViews.get(bufferViewIndex);
-        ByteBuffer binaryData = gltfAsset.getBinaryData();
-        Integer byteOffset = bufferView.getByteOffset();
-        if (byteOffset == null)
-        {
-            byteOffset = 0;
-        }
-        Integer byteLength = bufferView.getByteLength();
-
-        // Workaround for NoSuchMethodError when compiling and
-        // using with newer JDKs
-        ((Buffer) binaryData).limit(byteOffset + byteLength);
-        ((Buffer) binaryData).position(byteOffset);
-        ByteBuffer spzData = binaryData.slice();
-        return spzData;
+        List<BufferViewModel> bufferViewModels =
+            gltfModel.getBufferViewModels();
+        BufferViewModel bufferViewModel = bufferViewModels.get(bufferViewIndex);
+        return bufferViewModel.getBufferViewData();
     }
 
     /**
@@ -173,18 +234,19 @@ public final class GltfSpzSplatReader implements SplatListReader
      * This will try to fall back to different legacy extension versions. Not
      * all of these legacy versions may be fully supported...
      * 
-     * @param meshPrimitive The {@link MeshPrimitive}
+     * @param meshPrimitiveModel The {@link MeshPrimitiveModel}
      * @return The buffer view index
      */
-    private Integer getExtensionBufferViewIndex(MeshPrimitive meshPrimitive)
+    private Integer
+        getExtensionBufferViewIndex(MeshPrimitiveModel meshPrimitiveModel)
     {
         Integer bufferViewIndex =
-            getFinalExtensionBufferViewIndex(meshPrimitive);
+            getFinalExtensionBufferViewIndex(meshPrimitiveModel);
         if (bufferViewIndex != null)
         {
             return bufferViewIndex;
         }
-        return getLegacyExtensionBufferViewIndex(meshPrimitive);
+        return getLegacyExtensionBufferViewIndex(meshPrimitiveModel);
     }
 
     /**
@@ -195,13 +257,13 @@ public final class GltfSpzSplatReader implements SplatListReader
      * 
      * Details omitted here.
      * 
-     * @param meshPrimitive The mesh primitive
+     * @param meshPrimitiveModel The mesh primitive
      * @return The index
      */
     private static Integer
-        getFinalExtensionBufferViewIndex(MeshPrimitive meshPrimitive)
+        getFinalExtensionBufferViewIndex(MeshPrimitiveModel meshPrimitiveModel)
     {
-        Map<String, Object> extensions = meshPrimitive.getExtensions();
+        Map<String, Object> extensions = meshPrimitiveModel.getExtensions();
         if (extensions == null)
         {
             return null;
@@ -222,13 +284,13 @@ public final class GltfSpzSplatReader implements SplatListReader
      * 
      * Details omitted here.
      * 
-     * @param meshPrimitive The mesh primitive
+     * @param meshPrimitiveModel The mesh primitive
      * @return The index
      */
     private static Integer
-        getLegacyExtensionBufferViewIndex(MeshPrimitive meshPrimitive)
+        getLegacyExtensionBufferViewIndex(MeshPrimitiveModel meshPrimitiveModel)
     {
-        Map<String, Object> extensions = meshPrimitive.getExtensions();
+        Map<String, Object> extensions = meshPrimitiveModel.getExtensions();
         if (extensions == null)
         {
             return null;

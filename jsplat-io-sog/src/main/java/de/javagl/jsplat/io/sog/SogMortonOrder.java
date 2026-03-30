@@ -32,6 +32,7 @@
  */
 package de.javagl.jsplat.io.sog;
 
+import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,8 +171,8 @@ class SogMortonOrder
             {
                 // logger.debug('sorting', end - start);
                 IntBuffer s = indices.slice();
-                s.position(start);
-                s.limit(start + end);
+                ((Buffer)s).position(start);
+                ((Buffer)s).limit(start + end);
                 IntBuffer subarray = s.slice();
                 generate(subarray, cx, cy, cz);
             }

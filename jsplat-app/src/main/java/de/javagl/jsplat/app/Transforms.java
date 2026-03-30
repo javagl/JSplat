@@ -24,53 +24,47 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.processing;
+package de.javagl.jsplat.app;
 
-import de.javagl.jsplat.MutableSplat;
+import de.javagl.jsplat.processing.VecMath;
 
 /**
- * Internal class for transforming the position of splats
+ * Utility methods related to transforms
  */
-class SplatPositionTransformer
+class Transforms
 {
     /**
-     * The transform matrix
+     * Creates a 4x4 matrix (in column major order) for the given transform.
+     * 
+     * The order of operations is not specified for now.
+     * 
+     * @param t The transform
+     * @return The matrix
      */
-    private final float matrix4[];
-
-    /**
-     * Creates a new instance for the given matrix.
-     * 
-     * The given matrix is a 4x4 matrix, stored in a 16-element array, in
-     * column-major order.
-     * 
-     * This will store a reference to the given array. The array may not be
-     * modified after this instance was created.
-     * 
-     * @param matrix4 The matrix
-     */
-    SplatPositionTransformer(float matrix4[])
+    static float[] toMatrix(Transform t)
     {
-        this.matrix4 = matrix4;
+        float matrixX[] = VecMath.rotationX(t.rotationRadX, null);
+        float matrixY[] = VecMath.rotationY(t.rotationRadY, null);
+        float matrixZ[] = VecMath.rotationZ(t.rotationRadZ, null);
+
+        float scaleMatrix[] =
+            VecMath.scale4x4(t.scaleX, t.scaleY, t.scaleZ, null);
+
+        float matrix[] = VecMath.identity4x4(null);
+        VecMath.mul4x4(matrix, matrixX, matrix);
+        VecMath.mul4x4(matrix, matrixY, matrix);
+        VecMath.mul4x4(matrix, matrixZ, matrix);
+        VecMath.translate4x4(matrix, t.translationX, t.translationY,
+            t.translationZ, matrix);
+        VecMath.mul4x4(matrix, scaleMatrix, matrix);
+        return matrix;
     }
 
     /**
-     * Transform the position of the given splat
-     * 
-     * @param s The splat
+     * Private constructor to prevent instantiation
      */
-    void transform(MutableSplat s)
+    private Transforms()
     {
-        float m[] = matrix4;
-        float x = s.getPositionX();
-        float y = s.getPositionY();
-        float z = s.getPositionZ();
-        float rx = m[0] * x + m[4] * y + m[8] * z + m[12];
-        float ry = m[1] * x + m[5] * y + m[9] * z + m[13];
-        float rz = m[2] * x + m[6] * y + m[10] * z + m[14];
-        s.setPositionX(rx);
-        s.setPositionY(ry);
-        s.setPositionZ(rz);
+        // Private constructor to prevent instantiation
     }
-
 }

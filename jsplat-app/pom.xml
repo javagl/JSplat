@@ -43,11 +43,13 @@
 			<artifactId>jsplat-io-gltf</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<!-- Omitted for release 
 		<dependency>
 			<groupId>de.javagl</groupId>
 			<artifactId>jsplat-io-sog</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+	     -->
 		<dependency>
 			<groupId>de.javagl</groupId>
 			<artifactId>jsplat-viewer</artifactId>
