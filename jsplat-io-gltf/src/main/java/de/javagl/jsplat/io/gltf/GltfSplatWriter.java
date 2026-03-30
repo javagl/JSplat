@@ -146,7 +146,7 @@ public final class GltfSplatWriter implements SplatListWriter
             AccessorModels.createFloat3D(position);
         mpb.addAttribute("POSITION", positionAccessor);
 
-        FloatBuffer scale = SplatDatas.readScales(splats, null);
+        FloatBuffer scale = SplatDatas.readScalesToLinear(splats, null);
         DefaultAccessorModel scaleAccessor =
             AccessorModels.createFloat3D(scale);
         mpb.addAttribute(NAME + ":" + "SCALE", scaleAccessor);
