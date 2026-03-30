@@ -219,11 +219,6 @@ public final class GltfSpzSplatWriter implements SplatListWriter
         // Add the node
         Node node = new Node();
 
-        // XXX That matrix again, for CesiumJS...
-        //node.setMatrix(new float[]
-        //{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        //    0.0f, 0.0f, 0.0f, 0.0f, 1.0f });
-
         node.setMesh(0);
         gltf.addNodes(node);
 
