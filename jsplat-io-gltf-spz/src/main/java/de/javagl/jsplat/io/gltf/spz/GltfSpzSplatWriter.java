@@ -58,9 +58,6 @@ import de.javagl.jspz.SpzWriters;
 /**
  * Implementation of a {@link SplatListWriter} that writes glTF data with
  * SPZ-compressed Gaussian splats.
- * 
- * NOTE: This file is currently (2025-11-18) tweaked to generate output that can
- * be rendered with CesiumJS. It may change arbitrarily in the future.
  */
 public final class GltfSpzSplatWriter implements SplatListWriter
 {
@@ -192,7 +189,6 @@ public final class GltfSpzSplatWriter implements SplatListWriter
         primitive.addAttributes("COLOR_0", a++);
         primitive.addAttributes(BASE_NAME + ":" + "ROTATION", a++);
         primitive.addAttributes(BASE_NAME + ":" + "SCALE", a++);
-        // primitive.addAttributes(BASE_NAME + ":" + "OPACITY", a++);
 
         for (int d = 1; d <= shDegree; d++)
         {

@@ -185,6 +185,41 @@ public class SplatDatas
     }
 
     /**
+     * Read the (logarithmic) scales from the given splats and write the 
+     * corresponding linear scale values into the given buffer.
+     * 
+     * The position of the given buffer will not be modified.
+     * 
+     * The caller is responsible for the buffer having a size of at least
+     * <code>splats.size() * 3</code>.
+     * 
+     * If the given buffer is <code>null</code>, then a new direct buffer with
+     * native byte order will be created and returned.
+     * 
+     * @param splats The splats
+     * @param result The buffer for the result
+     * @return The result
+     */
+    public static FloatBuffer readScalesToLinear(
+        Collection<? extends Splat> splats, FloatBuffer result)
+    {
+        FloatBuffer b = result;
+        if (b == null)
+        {
+            b = Buffers.createFloatBuffer(splats.size() * 3);
+        }
+        int i = 0;
+        for (Splat s : splats)
+        {
+            b.put(i * 3 + 0, (float)Math.exp(s.getScaleX()));
+            b.put(i * 3 + 1, (float)Math.exp(s.getScaleY()));
+            b.put(i * 3 + 2, (float)Math.exp(s.getScaleZ()));
+            i++;
+        }
+        return b;
+    }
+    
+    /**
      * Read the rotations from the given splats and write them into the given
      * buffer, using scalar-last order.
      * 
@@ -403,6 +438,28 @@ public class SplatDatas
             s.setScaleX(b.get(i * 3 + 0));
             s.setScaleY(b.get(i * 3 + 1));
             s.setScaleZ(b.get(i * 3 + 2));
+            i++;
+        }
+    }
+
+    /**
+     * Write the (linear) scales from the given buffer with
+     * <code>splats.size() * 3</code> elements into the given splats,
+     * converting them to log-scale
+     * 
+     * 
+     * @param b The buffer
+     * @param splats The splats
+     */
+    public static void writeScalesFromLinear(FloatBuffer b,
+        Collection<? extends MutableSplat> splats)
+    {
+        int i = 0;
+        for (MutableSplat s : splats)
+        {
+            s.setScaleX((float)Math.log(b.get(i * 3 + 0)));
+            s.setScaleY((float)Math.log(b.get(i * 3 + 1)));
+            s.setScaleZ((float)Math.log(b.get(i * 3 + 2)));
             i++;
         }
     }

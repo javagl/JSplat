@@ -37,16 +37,6 @@ class SplatPositionTransformer
      * The transform matrix
      */
     private final float matrix4[];
-    
-    /**
-     * A 3D point
-     */
-    private final float p[];
-    
-    /**
-     * The result
-     */
-    private final float result[];
 
     /**
      * Creates a new instance for the given matrix.
@@ -62,8 +52,6 @@ class SplatPositionTransformer
     SplatPositionTransformer(float matrix4[])
     {
         this.matrix4 = matrix4;
-        this.p = new float[3];
-        this.result = new float[3];
     }
 
     /**
@@ -73,13 +61,16 @@ class SplatPositionTransformer
      */
     void transform(MutableSplat s)
     {
-        p[0] = s.getPositionX();
-        p[1] = s.getPositionY();
-        p[2] = s.getPositionZ();
-        VecMath.multiplyMatrix4WithPoint(matrix4, p, result);
-        s.setPositionX(result[0]);
-        s.setPositionY(result[1]);
-        s.setPositionZ(result[2]);
+        float m[] = matrix4;
+        float x = s.getPositionX();
+        float y = s.getPositionY();
+        float z = s.getPositionZ();
+        float rx = m[0] * x + m[4] * y + m[8] * z + m[12];
+        float ry = m[1] * x + m[5] * y + m[9] * z + m[13];
+        float rz = m[2] * x + m[6] * y + m[10] * z + m[14];
+        s.setPositionX(rx);
+        s.setPositionY(ry);
+        s.setPositionZ(rz);
     }
 
 }

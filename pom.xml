@@ -30,12 +30,15 @@
 
 	<modules>
 		<module>jsplat</module>
+		<module>jsplat-processing</module>
 		<module>jsplat-io-gsplat</module>
 		<module>jsplat-io-ply</module>
 		<module>jsplat-io-spz</module>
 		<module>jsplat-io-gltf</module>
 		<module>jsplat-io-gltf-spz</module>
 		<module>jsplat-io-sog</module>
+		<module>jsplat-viewer</module>
+		<module>jsplat-viewer-lwjgl</module>
 	</modules>
 
 	<properties>
