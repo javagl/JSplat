@@ -74,7 +74,7 @@ public final class GltfSplatWriter implements SplatListWriter
      */
     public GltfSplatWriter()
     {
-        this("BT.709-sRGB");
+        this("srgb_rec709_display");
     }
 
     /**
