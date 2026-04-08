@@ -65,7 +65,7 @@ class GenericGltfSplatWriter
     /**
      * The default color space for the extension objects
      */
-    private static final String DEFAULT_COLOR_SPACE = "BT.709-sRGB";
+    private static final String DEFAULT_COLOR_SPACE = "srgb_rec709_display";
 
     /**
      * Key for mesh lookups, consisting of a list of splats and the color space
