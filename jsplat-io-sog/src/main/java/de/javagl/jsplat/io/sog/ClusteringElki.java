@@ -41,10 +41,13 @@ import elki.data.Cluster;
 import elki.data.Clustering;
 import elki.data.NumberVector;
 import elki.data.model.KMeansModel;
+import elki.data.type.TypeUtil;
 import elki.database.Database;
 import elki.database.StaticArrayDatabase;
+import elki.database.ids.DBIDRange;
 import elki.database.ids.DBIDRef;
 import elki.database.ids.DBIDs;
+import elki.database.relation.Relation;
 import elki.datasource.ArrayAdapterDatabaseConnection;
 import elki.datasource.DatabaseConnection;
 import elki.distance.minkowski.SquaredEuclideanDistance;
@@ -83,10 +86,13 @@ class ClusteringElki
         KMeans<NumberVector, KMeansModel> kMeans =
             createClusterer(k, iterations);
         Clustering<KMeansModel> clustering = kMeans.autorun(d);
+        
+        Relation<Object> relation = d.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
+        DBIDRange dbIds = (DBIDRange) relation.getDBIDs();
 
         int numRows = data.length;
         int numCols = data[0].length;
-        return translate(numRows, numCols, desiredK, clustering);
+        return translate(numRows, numCols, desiredK, dbIds, clustering);
     }
 
     /**
@@ -97,11 +103,12 @@ class ClusteringElki
      * @param numCols The number of columns
      * @param desiredK The desired number of clusters (may be larger than the
      *        actual number)
+     * @param dbIds The database ID range
      * @param clustering The clustering
      * @return The result
      */
     private static ClusteringResult translate(int numRows, int numCols,
-        int desiredK, Clustering<KMeansModel> clustering)
+        int desiredK, DBIDRange dbIds, Clustering<KMeansModel> clustering)
     {
         int labels[] = new int[numRows];
         float centroids[][] = new float[desiredK][];
@@ -124,12 +131,8 @@ class ClusteringElki
                 @Override
                 public void accept(DBIDRef t)
                 {
-                    // This assumes that the startId was set explicitly.
-                    // I know, the method comment says "NOT FOR PUBLIC USE",
-                    // but we need these indices, and there doesn't seem
-                    // to be a nice solution for that.
-                    int internalIndex = t.internalGetIndex();
-                    labels[internalIndex] = clusterIndex;
+                    int index = dbIds.getOffset(t);
+                    labels[index] = clusterIndex;
                 }
             };
             DBIDs ids = cluster.getIDs();
