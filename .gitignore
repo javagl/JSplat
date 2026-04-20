@@ -7,9 +7,15 @@
 /jsplat-examples/.project
 /jsplat-examples/.settings
 /jsplat-examples/.classpath
-
 /jsplat-examples/data/*
 !/jsplat-examples/data/unitCube-ascii.ply
+
+
+/jsplat-examples-gltf/target
+/jsplat-examples-gltf/.project
+/jsplat-examples-gltf/.settings
+/jsplat-examples-gltf/.classpath
+/jsplat-examples-gltf/data/*
 
 
 /jsplat/target

@@ -344,7 +344,7 @@ public final class GltfSplatReader implements SplatListReader
         SplatDatas.writePositions(positionBuffer, splats);
 
         FloatBuffer scaleBuffer = readAsFloatBuffer(scaleAccessor);
-        SplatDatas.writeScales(scaleBuffer, splats);
+        SplatDatas.writeScalesFromLinear(scaleBuffer, splats);
 
         FloatBuffer rotationBuffer = readAsFloatBuffer(rotationAccessor);
         SplatDatas.writeRotations(rotationBuffer, splats);

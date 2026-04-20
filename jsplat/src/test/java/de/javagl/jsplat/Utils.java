@@ -47,10 +47,10 @@ class Utils
         s.setScaleY(offset + 2.2f);
         s.setScaleZ(offset + 2.3f);
     
-        s.setRotationX(offset + 3.1f);
-        s.setRotationY(offset + 3.2f);
-        s.setRotationZ(offset + 3.3f);
-        s.setRotationW(offset + 3.3f);
+        s.setRotationX(offset + 0.1f);
+        s.setRotationY(offset + 0.2f);
+        s.setRotationZ(offset + 0.3f);
+        s.setRotationW(offset + 0.4f);
     
         s.setOpacity(offset + 4.1f);
     

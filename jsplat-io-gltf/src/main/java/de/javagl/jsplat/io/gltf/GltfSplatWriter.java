@@ -74,7 +74,7 @@ public final class GltfSplatWriter implements SplatListWriter
      */
     public GltfSplatWriter()
     {
-        this("BT.709-sRGB");
+        this("srgb_rec709_display");
     }
 
     /**
@@ -146,7 +146,7 @@ public final class GltfSplatWriter implements SplatListWriter
             AccessorModels.createFloat3D(position);
         mpb.addAttribute("POSITION", positionAccessor);
 
-        FloatBuffer scale = SplatDatas.readScales(splats, null);
+        FloatBuffer scale = SplatDatas.readScalesToLinear(splats, null);
         DefaultAccessorModel scaleAccessor =
             AccessorModels.createFloat3D(scale);
         mpb.addAttribute(NAME + ":" + "SCALE", scaleAccessor);
