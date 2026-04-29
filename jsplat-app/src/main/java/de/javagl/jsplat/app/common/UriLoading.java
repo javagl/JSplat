@@ -28,6 +28,7 @@ package de.javagl.jsplat.app.common;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,7 +95,8 @@ public class UriLoading
                     }
                     setProgress(progress);
                     URI uri = uris.get(i);
-                    try (InputStream inputStream = uri.toURL().openStream())
+                    try (InputStream inputStream =
+                        new BufferedInputStream(uri.toURL().openStream()))
                     {
                         T result = loader.apply(inputStream);
                         results.add(result);

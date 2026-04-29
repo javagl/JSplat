@@ -29,6 +29,7 @@ package de.javagl.jsplat.app;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -56,6 +57,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.SplatListWriter;
@@ -356,7 +358,13 @@ class JSplatApplication
         {
             try
             {
-                return reader.readList(inputStream);
+                long beforeNs = System.nanoTime();
+                List<MutableSplat> result = reader.readList(inputStream);
+                long afterNs = System.nanoTime();
+                double ms = (afterNs - beforeNs) / 1e6;
+                logger.info(
+                    "Loaded " + result.size() + " splats in " + ms + " ms");
+                return result;
             }
             catch (IOException e)
             {
@@ -369,7 +377,7 @@ class JSplatApplication
                 processLoadedSplats(resultUris, resultSplatLists);
             });
     }
-    
+
     /**
      * Process the given splats that have been loaded from a URI
      * 
@@ -416,12 +424,10 @@ class JSplatApplication
         {
             return new GlbSplatListReader();
         }
-        /* Omitted for release
-        if (name.endsWith("sog"))
-        {
-            return new SogSplatReader();
-        }
-        */
+        /*
+         * Omitted for release if (name.endsWith("sog")) { return new
+         * SogSplatReader(); }
+         */
         if (name.endsWith("gltf"))
         {
             logger.warning("Assuming glTF file to be embedded");
@@ -506,12 +512,10 @@ class JSplatApplication
             }
             return new GltfSplatWriter();
         }
-        /* Omitted for release
-        if (name.endsWith("sog"))
-        {
-            return new SogSplatWriter();
-        }
-        */
+        /*
+         * Omitted for release if (name.endsWith("sog")) { return new
+         * SogSplatWriter(); }
+         */
         logger.warning(
             "Could not determine type from file name for '" + fileName + "'");
         return null;
@@ -574,9 +578,18 @@ class JSplatApplication
             logger.severe("No splats are currently loaded");
             return;
         }
-        OutputStream outputStream = new FileOutputStream(file);
+
+        long beforeNs = System.nanoTime();
+
+        OutputStream outputStream =
+            new BufferedOutputStream(new FileOutputStream(file));
         w.writeList(allSplats, outputStream);
         outputStream.close();
+
+        long afterNs = System.nanoTime();
+        double ms = (afterNs - beforeNs) / 1e6;
+        logger.info("Wrote " + allSplats.size() + " splats in " + ms + " ms");
+
     }
 
     /**
