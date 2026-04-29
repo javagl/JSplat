@@ -6,6 +6,10 @@
 // This is extracted from
 // https://github.com/limacv/GaussianSplattingViewer
 // Commit: 2492259fd7db3168509395728660b5f978de5db2
+// 
+// Changes:
+// - switched to premultiplied alpha
+// 
 // Original license statement:
 /*
 MIT License
@@ -56,7 +60,7 @@ void main()
     float opacity = min(0.99f, alpha * exp(power));
     if (opacity < 1.f / 255.f)
         discard;
-    FragColor = vec4(color, opacity);
+    FragColor = vec4(color, 1.0) * opacity;
 
     // handling special shading effect
     if (render_mod == -3)

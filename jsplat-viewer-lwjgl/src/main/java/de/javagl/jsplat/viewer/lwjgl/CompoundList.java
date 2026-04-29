@@ -27,6 +27,8 @@
 package de.javagl.jsplat.viewer.lwjgl;
 
 import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -62,6 +64,26 @@ class CompoundList<T> extends AbstractList<T> implements RandomAccess
     {
         Objects.requireNonNull(delegate, "The delegate may not be null");
         delegates.add(delegate);
+    }
+
+    /**
+     * Add the given delegate lists
+     * 
+     * @param delegates The delegate lists
+     */
+    void addAllDelegates(Collection<List<? extends T>> delegates)
+    {
+        this.delegates.addAll(delegates);
+    }
+
+    /**
+     * Return the delegate lists
+     * 
+     * @return The delegates
+     */
+    Collection<List<? extends T>> getDelegates()
+    {
+        return Collections.unmodifiableCollection(delegates);
     }
 
     /**
