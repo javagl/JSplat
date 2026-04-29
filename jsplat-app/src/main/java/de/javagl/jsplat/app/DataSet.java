@@ -114,6 +114,16 @@ class DataSet
     }
     
     /**
+     * Returns the name of this data set
+     * 
+     * @return The name
+     */
+    String getName()
+    {
+        return name;
+    }
+    
+    /**
      * Returns the SH degree of the splats
      * 
      * @return The degree

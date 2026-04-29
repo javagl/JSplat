@@ -33,10 +33,10 @@ import java.awt.GridLayout;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -55,8 +55,12 @@ import de.javagl.common.ui.panel.collapsible.AccordionPanel;
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.Splats;
+import de.javagl.jsplat.simplification.Simplifier;
+import de.javagl.jsplat.simplification.Simplifiers;
 import de.javagl.jsplat.viewer.SplatViewer;
 import de.javagl.jsplat.viewer.SplatViewers;
+import de.javagl.swing.tasks.SwingTask;
+import de.javagl.swing.tasks.SwingTaskExecutors;
 
 /**
  * The main panel for the JSplat application
@@ -83,7 +87,7 @@ class JSplatApplicationPanel extends JPanel
      * Whether the camera should be fit to a loaded data set.
      */
     private boolean doFit;
-    
+
     /**
      * A label for status messages
      */
@@ -93,12 +97,17 @@ class JSplatApplicationPanel extends JPanel
      * The spinner for the FOV
      */
     private JSpinner fovDegYSpinner;
-    
+
     /**
      * The panel containing the list of data sets
      */
     private DataSetsPanel dataSetsPanel;
-    
+
+    /**
+     * The panel containing editing controls for the data sets
+     */
+    private JPanel dataSetsEditingPanel;
+
     /**
      * The panel for controlling the transforms
      */
@@ -110,10 +119,10 @@ class JSplatApplicationPanel extends JPanel
     JSplatApplicationPanel()
     {
         super(new BorderLayout());
-        
+
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         add(mainSplitPane, BorderLayout.CENTER);
-        
+
         this.splatViewer = SplatViewers.createDefault();
         if (this.splatViewer == null)
         {
@@ -122,7 +131,7 @@ class JSplatApplicationPanel extends JPanel
         }
         else
         {
-            JPanel container = new JPanel(new GridLayout(1,1));
+            JPanel container = new JPanel(new GridLayout(1, 1));
             Component renderComponent = splatViewer.getRenderComponent();
             renderComponent.setMinimumSize(new Dimension(10, 10));
             container.add(renderComponent);
@@ -135,10 +144,10 @@ class JSplatApplicationPanel extends JPanel
 
         statusLabel = new JLabel(" ");
         add(statusLabel, BorderLayout.SOUTH);
-        
+
         doFit = true;
     }
-    
+
     /**
      * Create the control panel
      * 
@@ -147,19 +156,20 @@ class JSplatApplicationPanel extends JPanel
     private JPanel createControlPanel()
     {
         JPanel p = new JPanel(new BorderLayout());
-        
+
         AccordionPanel accordionPanel = new AccordionPanel();
-        
+
         accordionPanel.addToAccordion("Camera", createCameraPanel());
         accordionPanel.addToAccordion("Dummy data sets",
             createDummyDataSetsPanel());
         accordionPanel.addToAccordion("Data sets", createDataSetsPanel());
+        accordionPanel.addToAccordion("Edit", createDataSetsEditingPanel());
         accordionPanel.addToAccordion("Transform", createTransformPanel());
 
         p.add(accordionPanel, BorderLayout.CENTER);
         return p;
     }
-    
+
     /**
      * Create the camera panel
      * 
@@ -168,7 +178,7 @@ class JSplatApplicationPanel extends JPanel
     private JPanel createCameraPanel()
     {
         JPanel p = new JPanel(new GridLayout(0, 1));
-        
+
         JButton resetButton = new JButton("Reset camera");
         resetButton.addActionListener(e ->
         {
@@ -192,7 +202,7 @@ class JSplatApplicationPanel extends JPanel
         });
         p.add(fitButton);
         p.add(createFovDegYSpinnerPanel());
-        
+
         return p;
     }
 
@@ -219,10 +229,10 @@ class JSplatApplicationPanel extends JPanel
         });
         JSpinners.setSpinnerDraggingEnabled(fovDegYSpinner, true);
         p.add(fovDegYSpinner, BorderLayout.CENTER);
-        
+
         return p;
     }
-    
+
     /**
      * Returns the current FOV selected in the spinner
      * 
@@ -234,7 +244,7 @@ class JSplatApplicationPanel extends JPanel
         Number number = (Number) value;
         float f = number.floatValue();
         return f;
-        
+
     }
 
     /**
@@ -245,13 +255,13 @@ class JSplatApplicationPanel extends JPanel
     private JPanel createDummyDataSetsPanel()
     {
         JPanel p = new JPanel(new GridLayout(0, 1));
-        
+
         p.add(createButton("unitCube", UnitCubeSplats::create));
         p.add(createButton("unitSh", UnitShSplats::create));
-        
+
         return p;
     }
-    
+
     /**
      * Create a button with the given text to set the splats provided by the
      * given supplier into the viewer
@@ -270,7 +280,7 @@ class JSplatApplicationPanel extends JPanel
         });
         return button;
     }
-    
+
     /**
      * Create the data sets panel
      * 
@@ -278,29 +288,157 @@ class JSplatApplicationPanel extends JPanel
      */
     private JPanel createDataSetsPanel()
     {
-        Consumer<DataSet> removalCallback = (removedDataSet) -> 
-        {
-            removeDataSet(removedDataSet);
-        };
-        this.dataSetsPanel = new DataSetsPanel(removalCallback);
-        dataSetsPanel.addSelectionListener((e) -> 
+        this.dataSetsPanel = new DataSetsPanel();
+
+        dataSetsPanel.addSelectionListener((e) ->
         {
             DataSet selectedDataSet = dataSetsPanel.getSelectedDataSet();
             if (selectedDataSet == null)
             {
+                GuiUtils.setDeepEnabled(dataSetsEditingPanel, false);
                 GuiUtils.setDeepEnabled(transformPanel, false);
                 return;
             }
+            GuiUtils.setDeepEnabled(dataSetsEditingPanel, true);
             GuiUtils.setDeepEnabled(transformPanel, true);
             Transform transform = selectedDataSet.getTransform();
             transformPanel.setTransform(transform);
         });
         return dataSetsPanel;
     }
-    
+
+    /**
+     * Create the panel with the controls for editing data sets
+     * 
+     * @return The panel
+     */
+    private JPanel createDataSetsEditingPanel()
+    {
+        this.dataSetsEditingPanel = new JPanel(new GridLayout(0, 1));
+
+        JButton removeSelectedButton = new JButton("Remove");
+        removeSelectedButton.addActionListener(e ->
+        {
+            DataSet removedDataSet = dataSetsPanel.getSelectedDataSet();
+            dataSetsPanel.removeDataSet(removedDataSet);
+            removeDataSet(removedDataSet);
+        });
+        dataSetsEditingPanel.add(removeSelectedButton);
+
+        JPanel simplifyPanel = createSimplifyPanel();
+        dataSetsEditingPanel.add(simplifyPanel);
+
+        return dataSetsEditingPanel;
+    }
+
+    /**
+     * Create the panel with the controls for simplifying the selected data set
+     * 
+     * @return The panel
+     */
+    private JPanel createSimplifyPanel()
+    {
+        JPanel simplifyPanel = new JPanel(new BorderLayout());
+        JSpinner simplifySpinner =
+            new JSpinner(new SpinnerNumberModel(0.9, 0.01, 0.99, 0.01));
+        JSpinners.setSpinnerDraggingEnabled(simplifySpinner, true);
+        simplifyPanel.add(simplifySpinner, BorderLayout.CENTER);
+        JButton simplifyButton = new JButton("Simplify");
+        simplifyButton.addActionListener(e ->
+        {
+            DataSet originalDataSet = dataSetsPanel.getSelectedDataSet();
+
+            String originalName = originalDataSet.getName();
+            List<MutableSplat> originalSplats =
+                Splats.copyList(originalDataSet.getCurrentSplats());
+
+            Object v = simplifySpinner.getValue();
+            Number n = (Number) v;
+            float ratio = n.floatValue();
+
+            simplifyInBackground(originalName, originalSplats, ratio);
+
+        });
+        simplifyPanel.add(simplifyButton, BorderLayout.WEST);
+        return simplifyPanel;
+    }
+
+    /**
+     * Run the simplification of the given data set in a background task, and
+     * add the result as a new data set.
+     * 
+     * @param originalName The original name
+     * @param originalSplats The original splats
+     * @param ratio The simplification ratio
+     */
+    private void simplifyInBackground(String originalName,
+        List<? extends Splat> originalSplats, float ratio)
+    {
+        class Task extends SwingTask<Void, Void>
+        {
+            private String simplifiedName;
+            private List<Splat> simplifiedSplats;
+
+            @Override
+            public Void doInBackground()
+            {
+                setProgress(-1.0);
+
+                String ratioString =
+                    String.format(Locale.ENGLISH, "%.2f", ratio);
+                simplifiedName = originalName + " (" + ratioString + ")";
+                simplifiedSplats = simplify(originalSplats, ratio);
+
+                return null;
+            }
+
+            @Override
+            protected void done()
+            {
+                super.done();
+
+                if (simplifiedSplats != null)
+                {
+                    addSplatLists(Arrays.asList(simplifiedName),
+                        Arrays.asList(simplifiedSplats));
+                }
+            }
+        }
+        Task task = new Task();
+        SwingTaskExecutors.create(task).setDialogUncaughtExceptionHandler()
+            .setTitle("Simplifying...").build().execute();
+    }
+
+    /**
+     * Simplify the given splats with the given ratio and return the result
+     * 
+     * @param splats The original splats
+     * @param ratio The simplification ratio
+     * @return The result
+     */
+    private static List<Splat> simplify(List<? extends Splat> splats,
+        float ratio)
+    {
+        String ratioString = String.format(Locale.ENGLISH, "%.2f", ratio);
+        logger.info("Simplifying " + splats.size() + " splats with a ratio of "
+            + ratioString);
+
+        Simplifier simplifier = Simplifiers.createNanoGs();
+        long beforeNs = System.nanoTime();
+
+        List<Splat> simplifiedSplats = simplifier.simplify(splats, ratio);
+
+        long afterNs = System.nanoTime();
+        double ms = (afterNs - beforeNs) / 1e6;
+        logger.info("Simplifying " + splats.size() + " splats with a ratio of "
+            + ratioString + " resulted in " + simplifiedSplats.size()
+            + " splats and took " + ms + " ms");
+        return simplifiedSplats;
+    }
+
     /**
      * Create the transform panel
-     *  
+     * 
      * @return The panel
      */
     private JPanel createTransformPanel()
@@ -363,7 +501,7 @@ class JSplatApplicationPanel extends JPanel
             doFit = false;
         }
         updateStatus();
-    }    
+    }
 
     /**
      * Add the splats that should be displayed
@@ -376,7 +514,7 @@ class JSplatApplicationPanel extends JPanel
         addSplatLists(Collections.singletonList(name),
             Collections.singletonList(splats));
     }
-    
+
     /**
      * Update the status label
      */
@@ -440,8 +578,8 @@ class JSplatApplicationPanel extends JPanel
      * @param splats The splats
      * @return The bounding box
      */
-    private static float[] computeMinMax(
-        Iterable<? extends Iterable<? extends Splat>> splats)
+    private static float[]
+        computeMinMax(Iterable<? extends Iterable<? extends Splat>> splats)
     {
         float minMax[] = new float[]
         { Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
@@ -465,8 +603,8 @@ class JSplatApplicationPanel extends JPanel
     /**
      * Returns a list of all current splats.
      * 
-     * Note: This may be a bit costly and memory-consuming. It is only 
-     * intended for splats that are about to be saved to a file.
+     * Note: This may be a bit costly and memory-consuming. It is only intended
+     * for splats that are about to be saved to a file.
      * 
      * @return The list of all splats
      */
