@@ -118,6 +118,11 @@ public class CreateSplatGltfExamples
             createScaledScales(w);
             w.write(new FileOutputStream(baseDir + "ScaledScales.glb"));
         }
+        {
+            GenericGltfSplatWriter w = new GenericGltfSplatWriter();
+            w.addSplats(SplatBlendingTests.createBlendingTest(), null);
+            w.write(new FileOutputStream(baseDir + "Blending.glb"));
+        }
     }
 
     /**
@@ -149,10 +154,25 @@ public class CreateSplatGltfExamples
                 new FileOutputStream(baseDir + "RotationsZ.spz"));
         }
         {
-            SplatListWriter w = new PlySplatWriter(PlyFormat.BINARY_LITTLE_ENDIAN);
+            SplatListWriter w = new PlySplatWriter(
+                PlyFormat.BINARY_LITTLE_ENDIAN);
             List<MutableSplat> splats = SplatDepthTests.createDepthTest();
             w.writeList(splats,
                 new FileOutputStream(baseDir + "Depths.ply"));
+        }
+        {
+            SplatListWriter w = new PlySplatWriter(
+                PlyFormat.BINARY_LITTLE_ENDIAN);
+            List<MutableSplat> splats = SplatBlendingTests.createBlendingTest();
+            w.writeList(splats,
+                new FileOutputStream(baseDir + "Blending.ply"));
+        }
+        {
+            SplatListWriter w = new PlySplatWriter(
+                PlyFormat.ASCII);
+            List<MutableSplat> splats = SplatBlendingTests.createBlendingTest();
+            w.writeList(splats,
+                new FileOutputStream(baseDir + "Blending-ASCII.ply"));
         }
     }
 
