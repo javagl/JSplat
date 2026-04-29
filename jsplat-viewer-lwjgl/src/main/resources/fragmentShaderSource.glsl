@@ -6,6 +6,10 @@
 // This is extracted from
 // https://github.com/limacv/GaussianSplattingViewer
 // Commit: 2492259fd7db3168509395728660b5f978de5db2
+// 
+// Changes:
+// - switched to premultiplied alpha
+// 
 // Original license statement:
 /*
 MIT License
