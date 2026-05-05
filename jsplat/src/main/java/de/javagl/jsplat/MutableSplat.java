@@ -36,77 +36,77 @@ public interface MutableSplat extends Splat
      * 
      * @param v The value
      */
-    void setPositionX(float v);
+    void setPositionX(double v);
 
     /**
      * Set the y-coordinate of the position
      * 
      * @param v The value
      */
-    void setPositionY(float v);
+    void setPositionY(double v);
 
     /**
      * Set the z-coordinate of the position
      * 
      * @param v The value
      */
-    void setPositionZ(float v);
+    void setPositionZ(double v);
 
     /**
      * Set scale factor in x-direction
      * 
      * @param v The value
      */
-    void setScaleX(float v);
+    void setScaleX(double v);
 
     /**
      * Set scale factor in y-direction
      * 
      * @param v The value
      */
-    void setScaleY(float v);
+    void setScaleY(double v);
 
     /**
      * Set scale factor in y-direction
      * 
      * @param v The value
      */
-    void setScaleZ(float v);
+    void setScaleZ(double v);
 
     /**
      * Set the x-component of the rotation quaternion
      * 
      * @param v The value
      */
-    void setRotationX(float v);
+    void setRotationX(double v);
 
     /**
      * Set the y-component of the rotation quaternion
      * 
      * @param v The value
      */
-    void setRotationY(float v);
+    void setRotationY(double v);
 
     /**
      * Set the z-component of the rotation quaternion
      * 
      * @param v The value
      */
-    void setRotationZ(float v);
+    void setRotationZ(double v);
 
     /**
      * Set the w-component of the rotation quaternion
      * 
      * @param v The value
      */
-    void setRotationW(float v);
+    void setRotationW(double v);
 
     /**
      * Set the opacity value
      * 
      * @param v The value
      */
-    void setOpacity(float v);
+    void setOpacity(double v);
 
     /**
      * Set the x-component of the spherical harmonic for the given dimension
@@ -114,7 +114,7 @@ public interface MutableSplat extends Splat
      * @param dimension The dimension
      * @param v The value
      */
-    void setShX(int dimension, float v);
+    void setShX(int dimension, double v);
 
     /**
      * Set the y-component of the spherical harmonic for the given dimension
@@ -122,7 +122,7 @@ public interface MutableSplat extends Splat
      * @param dimension The dimension
      * @param v The value
      */
-    void setShY(int dimension, float v);
+    void setShY(int dimension, double v);
 
     /**
      * Set the z-component of the spherical harmonic for the given dimension
@@ -130,6 +130,6 @@ public interface MutableSplat extends Splat
      * @param dimension The dimension
      * @param v The value
      */
-    void setShZ(int dimension, float v);
+    void setShZ(int dimension, double v);
 
 }

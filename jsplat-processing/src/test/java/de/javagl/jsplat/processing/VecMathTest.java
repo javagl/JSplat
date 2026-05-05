@@ -41,7 +41,7 @@ public class VecMathTest
     /**
      * The epsilon for comparisons
      */
-    private static final float EPSILON = 1e-5f;
+    private static final double EPSILON = 1e-5;
 
     /**
      * Basic test for matrix-quaternion conversions
@@ -52,9 +52,9 @@ public class VecMathTest
         Random random = new Random(0);
         for (int i = 0; i < 100; i++)
         {
-            float[] e = TestUtils.createRandomScalarLastQuaternion(random);
-            float[] m = VecMath.scalarLastQuaternionToRotationMatrix(e, null);
-            float[] a = VecMath.rotationMatrixToScalarLastQuaternion(m, null);
+            double[] e = TestUtils.createRandomScalarLastQuaternion(random);
+            double[] m = VecMath.scalarLastQuaternionToRotationMatrix(e, null);
+            double[] a = VecMath.rotationMatrixToScalarLastQuaternion(m, null);
 
             String message =
                 "\n a=" + Arrays.toString(a) + ",\n e=" + Arrays.toString(e);

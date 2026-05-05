@@ -41,16 +41,16 @@ class Transforms
      * @param t The transform
      * @return The matrix
      */
-    static float[] toMatrix(Transform t)
+    static double[] toMatrix(Transform t)
     {
-        float matrixX[] = VecMath.rotationX(t.rotationRadX, null);
-        float matrixY[] = VecMath.rotationY(t.rotationRadY, null);
-        float matrixZ[] = VecMath.rotationZ(t.rotationRadZ, null);
+        double matrixX[] = VecMath.rotationX(t.rotationRadX, null);
+        double matrixY[] = VecMath.rotationY(t.rotationRadY, null);
+        double matrixZ[] = VecMath.rotationZ(t.rotationRadZ, null);
 
-        float scaleMatrix[] =
+        double scaleMatrix[] =
             VecMath.scale4x4(t.scaleX, t.scaleY, t.scaleZ, null);
 
-        float matrix[] = VecMath.identity4x4(null);
+        double matrix[] = VecMath.identity4x4(null);
         VecMath.mul4x4(matrix, matrixX, matrix);
         VecMath.mul4x4(matrix, matrixY, matrix);
         VecMath.mul4x4(matrix, matrixZ, matrix);

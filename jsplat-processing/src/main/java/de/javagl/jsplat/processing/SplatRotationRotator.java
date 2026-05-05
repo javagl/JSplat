@@ -36,7 +36,7 @@ class SplatRotationRotator
     /**
      * The quaternion for the rotation
      */
-    private final float rotationQuaternion[];
+    private final double rotationQuaternion[];
 
     /**
      * Creates a new instance for the given scalar-last quaternion.
@@ -46,7 +46,7 @@ class SplatRotationRotator
      * 
      * @param rotationQuaternion The rotation quaternion
      */
-    SplatRotationRotator(float rotationQuaternion[])
+    SplatRotationRotator(double rotationQuaternion[])
     {
         this.rotationQuaternion = rotationQuaternion;
     }
@@ -58,20 +58,20 @@ class SplatRotationRotator
      */
     void rotate(MutableSplat s)
     {
-        float q0x = rotationQuaternion[0];
-        float q0y = rotationQuaternion[1];
-        float q0z = rotationQuaternion[2];
-        float q0w = rotationQuaternion[3];
+        double q0x = rotationQuaternion[0];
+        double q0y = rotationQuaternion[1];
+        double q0z = rotationQuaternion[2];
+        double q0w = rotationQuaternion[3];
 
-        float q1x = s.getRotationX();
-        float q1y = s.getRotationY();
-        float q1z = s.getRotationZ();
-        float q1w = s.getRotationW();
+        double q1x = s.getRotationX();
+        double q1y = s.getRotationY();
+        double q1z = s.getRotationZ();
+        double q1w = s.getRotationW();
 
-        float rx = q0w * q1x + q0x * q1w + q0y * q1z - q0z * q1y;
-        float ry = q0w * q1y - q0x * q1z + q0y * q1w + q0z * q1x;
-        float rz = q0w * q1z + q0x * q1y - q0y * q1x + q0z * q1w;
-        float rw = q0w * q1w - q0x * q1x - q0y * q1y - q0z * q1z;
+        double rx = q0w * q1x + q0x * q1w + q0y * q1z - q0z * q1y;
+        double ry = q0w * q1y - q0x * q1z + q0y * q1w + q0z * q1x;
+        double rz = q0w * q1z + q0x * q1y - q0y * q1x + q0z * q1w;
+        double rw = q0w * q1w - q0x * q1x - q0y * q1y - q0z * q1z;
 
         s.setRotationX(rx);
         s.setRotationY(ry);

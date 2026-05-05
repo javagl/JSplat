@@ -46,7 +46,7 @@ public class SplatTransformsTest
     /**
      * The epsilon for comparisons
      */
-    private static final float EPSILON = 1e-5f;
+    private static final double EPSILON = 1e-5f;
 
     /**
      * Test whether a random splat remains unmodified under identity transform
@@ -58,7 +58,7 @@ public class SplatTransformsTest
         MutableSplat splat = createRandomSplat(3, random);
         MutableSplat expectedSplat = Splats.copy(splat);
 
-        float[] identityMatrix = VecMath.identity4x4(null);
+        double[] identityMatrix = VecMath.identity4x4(null);
 
         SplatTransforms.transformList(Arrays.asList(splat), identityMatrix);
 
@@ -105,8 +105,8 @@ public class SplatTransformsTest
             MutableSplat splat = createRandomSplat(shDegree, random);
             MutableSplat expectedSplat = Splats.copy(splat);
 
-            float[] m = TestUtils.createRandomMatrix4(random);
-            float[] inv = VecMath.invert4x4(m, null);
+            double[] m = TestUtils.createRandomMatrix4(random);
+            double[] inv = VecMath.invert4x4(m, null);
 
             SplatTransforms.transformList(Arrays.asList(splat), m);
             SplatTransforms.transformList(Arrays.asList(splat), inv);
@@ -127,25 +127,25 @@ public class SplatTransformsTest
     {
         MutableSplat splat = Splats.create(shDegree);
 
-        splat.setPositionX(random.nextFloat() * 20.0f - 10.0f);
-        splat.setPositionY(random.nextFloat() * 20.0f - 10.0f);
-        splat.setPositionZ(random.nextFloat() * 20.0f - 10.0f);
+        splat.setPositionX(random.nextDouble() * 20.0 - 10.0);
+        splat.setPositionY(random.nextDouble() * 20.0 - 10.0);
+        splat.setPositionZ(random.nextDouble() * 20.0 - 10.0);
 
-        float[] q = TestUtils.createRandomScalarLastQuaternion(random);
+        double[] q = TestUtils.createRandomScalarLastQuaternion(random);
         splat.setRotationX(q[0]);
         splat.setRotationY(q[1]);
         splat.setRotationZ(q[2]);
         splat.setRotationW(q[3]);
 
-        splat.setScaleX(-1.0f + random.nextFloat() * 2.0f);
-        splat.setScaleY(-1.0f + random.nextFloat() * 2.0f);
-        splat.setScaleZ(-1.0f + random.nextFloat() * 2.0f);
+        splat.setScaleX(-1.0f + random.nextDouble() * 2.0);
+        splat.setScaleY(-1.0f + random.nextDouble() * 2.0);
+        splat.setScaleZ(-1.0f + random.nextDouble() * 2.0);
 
         for (int i = 0; i < splat.getShDimensions(); i++)
         {
-            splat.setShX(i, -1.0f + random.nextFloat() * 2.0f);
-            splat.setShY(i, -1.0f + random.nextFloat() * 2.0f);
-            splat.setShZ(i, -1.0f + random.nextFloat() * 2.0f);
+            splat.setShX(i, -1.0f + random.nextDouble() * 2.0);
+            splat.setShY(i, -1.0f + random.nextDouble() * 2.0);
+            splat.setShZ(i, -1.0f + random.nextDouble() * 2.0);
         }
         return splat;
     }
@@ -174,15 +174,15 @@ public class SplatTransformsTest
         assertEquals(message + ": ScaleZ", expected.getScaleZ(),
             actual.getScaleZ(), EPSILON);
 
-        float ax = actual.getRotationX();
-        float ay = actual.getRotationY();
-        float az = actual.getRotationZ();
-        float aw = actual.getRotationW();
+        double ax = actual.getRotationX();
+        double ay = actual.getRotationY();
+        double az = actual.getRotationZ();
+        double aw = actual.getRotationW();
 
-        float bx = expected.getRotationX();
-        float by = expected.getRotationY();
-        float bz = expected.getRotationZ();
-        float bw = expected.getRotationW();
+        double bx = expected.getRotationX();
+        double by = expected.getRotationY();
+        double bz = expected.getRotationZ();
+        double bw = expected.getRotationW();
 
         boolean rotationEqual =
             TestUtils.rotationEqual(ax, ay, az, aw, bx, by, bz, bw, EPSILON);

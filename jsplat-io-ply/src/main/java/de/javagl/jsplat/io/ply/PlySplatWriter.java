@@ -162,12 +162,12 @@ public final class PlySplatWriter implements SplatListWriter
         // Rotate about 180 degrees around x, to convert from
         // right-up-front to right-down-back
         // @formatter:off
-        float rotate180X[] = 
+        double rotate180X[] = 
         { 
-            1.0f,  0.0f,  0.0f, 0.0f, 
-            0.0f, -1.0f,  0.0f, 0.0f, 
-            0.0f,  0.0f, -1.0f, 0.0f, 
-            0.0f,  0.0f,  0.0f, 1.0f 
+            1.0,  0.0,  0.0, 0.0, 
+            0.0, -1.0,  0.0, 0.0, 
+            0.0,  0.0, -1.0, 0.0, 
+            0.0,  0.0,  0.0, 1.0 
         };
         // @formatter:on
         Consumer<MutableSplat> transform =
@@ -198,13 +198,13 @@ public final class PlySplatWriter implements SplatListWriter
         List<MutableSplat> splats = createMapped(inputSplats);
         Handle<? extends Splat> v = plySource.register("vertex", splats);
 
-        v.withFloat("x", Splat::getPositionX);
-        v.withFloat("y", Splat::getPositionY);
-        v.withFloat("z", Splat::getPositionZ);
+        v.withFloat("x", s -> (float)s.getPositionX());
+        v.withFloat("y", s -> (float)s.getPositionY());
+        v.withFloat("z", s -> (float)s.getPositionZ());
 
-        v.withFloat("f_dc_0", (s) -> s.getShX(0));
-        v.withFloat("f_dc_1", (s) -> s.getShY(0));
-        v.withFloat("f_dc_2", (s) -> s.getShZ(0));
+        v.withFloat("f_dc_0", s -> (float)s.getShX(0));
+        v.withFloat("f_dc_1", s -> (float)s.getShY(0));
+        v.withFloat("f_dc_2", s -> (float)s.getShZ(0));
 
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         for (int d = 0; d < shDimensions - 1; d++)
@@ -213,22 +213,22 @@ public final class PlySplatWriter implements SplatListWriter
             int ix = (shDimensions - 1) * 0 + d;
             int iy = (shDimensions - 1) * 1 + d;
             int iz = (shDimensions - 1) * 2 + d;
-            v.withFloat("f_rest_" + ix, (s) -> s.getShX(sd));
-            v.withFloat("f_rest_" + iy, (s) -> s.getShY(sd));
-            v.withFloat("f_rest_" + iz, (s) -> s.getShZ(sd));
+            v.withFloat("f_rest_" + ix, s -> (float)s.getShX(sd));
+            v.withFloat("f_rest_" + iy, s -> (float)s.getShY(sd));
+            v.withFloat("f_rest_" + iz, s -> (float)s.getShZ(sd));
         }
 
-        v.withFloat("opacity", Splat::getOpacity);
+        v.withFloat("opacity", s -> (float)s.getOpacity());
 
-        v.withFloat("scale_0", Splat::getScaleX);
-        v.withFloat("scale_1", Splat::getScaleY);
-        v.withFloat("scale_2", Splat::getScaleZ);
+        v.withFloat("scale_0", s -> (float)s.getScaleX());
+        v.withFloat("scale_1", s -> (float)s.getScaleY());
+        v.withFloat("scale_2", s -> (float)s.getScaleZ());
 
         // PLY uses scalar-first quaternions
-        v.withFloat("rot_0", Splat::getRotationW);
-        v.withFloat("rot_1", Splat::getRotationX);
-        v.withFloat("rot_2", Splat::getRotationY);
-        v.withFloat("rot_3", Splat::getRotationZ);
+        v.withFloat("rot_0", s -> (float)s.getRotationW());
+        v.withFloat("rot_1", s -> (float)s.getRotationY());
+        v.withFloat("rot_2", s -> (float)s.getRotationY());
+        v.withFloat("rot_3", s -> (float)s.getRotationZ());
 
         if (plyFormat == PlyFormat.ASCII)
         {
