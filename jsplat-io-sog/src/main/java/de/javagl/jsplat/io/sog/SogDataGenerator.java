@@ -132,7 +132,7 @@ class SogDataGenerator
         this.indices = generateIndices();
         int numRows = splats.size();
         this.width = (int) Math.ceil(Math.sqrt(numRows) / 4) * 4;
-        this.height = (int) Math.ceil((float) numRows / width / 4) * 4;
+        this.height = (int) Math.ceil((double) numRows / width / 4) * 4;
         this.channels = 4;
 
         // Create the SogData object, and initialize the top-level metadata
@@ -214,9 +214,9 @@ class SogDataGenerator
         {
             result.put(i, i);
         }
-        IntFloatFunction cx = i -> splats.get(i).getPositionX();
-        IntFloatFunction cy = i -> splats.get(i).getPositionY();
-        IntFloatFunction cz = i -> splats.get(i).getPositionZ();
+        IntDoubleFunction cx = i -> splats.get(i).getPositionX();
+        IntDoubleFunction cy = i -> splats.get(i).getPositionY();
+        IntDoubleFunction cz = i -> splats.get(i).getPositionZ();
         SogMortonOrder.generate(result, cx, cy, cz);
         return result;
     };
@@ -246,12 +246,12 @@ class SogDataGenerator
         byte meansL[] = new byte[width * height * channels];
         byte meansU[] = new byte[width * height * channels];
 
-        IntFloatFunction cx = i -> splats.get(i).getPositionX();
-        IntFloatFunction cy = i -> splats.get(i).getPositionY();
-        IntFloatFunction cz = i -> splats.get(i).getPositionZ();
-        IntFloatFunction columns[] =
+        IntDoubleFunction cx = i -> splats.get(i).getPositionX();
+        IntDoubleFunction cy = i -> splats.get(i).getPositionY();
+        IntDoubleFunction cz = i -> splats.get(i).getPositionZ();
+        IntDoubleFunction columns[] =
         { cx, cy, cz };
-        float meansMinMax[][] = computeMinMax(indices.capacity(), columns);
+        double meansMinMax[][] = computeMinMax(indices.capacity(), columns);
         for (int i = 0; i < meansMinMax.length; i++)
         {
             for (int j = 0; j < meansMinMax[i].length; j++)
@@ -262,13 +262,13 @@ class SogDataGenerator
         for (int i = 0; i < indices.capacity(); ++i)
         {
             int index = indices.get(i);
-            float rowx = cx.apply(index);
-            float rowy = cy.apply(index);
-            float rowz = cz.apply(index);
+            double rowx = cx.apply(index);
+            double rowy = cy.apply(index);
+            double rowz = cz.apply(index);
 
-            float x = meanTransform(rowx, meansMinMax[0]);
-            float y = meanTransform(rowy, meansMinMax[1]);
-            float z = meanTransform(rowz, meansMinMax[2]);
+            double x = meanTransform(rowx, meansMinMax[0]);
+            double y = meanTransform(rowy, meansMinMax[1]);
+            double z = meanTransform(rowz, meansMinMax[2]);
 
             int ti = layout(i, width);
 
@@ -285,9 +285,9 @@ class SogDataGenerator
 
         // Assign the result to the SogData
         Means means = new Means();
-        means.mins = new float[]
+        means.mins = new double[]
         { meansMinMax[0][0], meansMinMax[1][0], meansMinMax[2][0], };
-        means.maxs = new float[]
+        means.maxs = new double[]
         { meansMinMax[0][1], meansMinMax[1][1], meansMinMax[2][1], };
         means.files = new String[]
         { "means_l.webp", "means_u.webp" };
@@ -305,10 +305,10 @@ class SogDataGenerator
      * @param minMax The minimum/maximum
      * @return The result
      */
-    private static float meanTransform(float value, float minMax[])
+    private static double meanTransform(double value, double minMax[])
     {
-        float min = minMax[0];
-        float max = minMax[1];
+        double min = minMax[0];
+        double max = minMax[1];
         return 65535.0f * (logTransform(value) - min) / (max - min);
     }
 
@@ -321,19 +321,19 @@ class SogDataGenerator
 
         byte quatsPixelData[] = new byte[width * height * channels];
 
-        IntFloatFunction cw = i -> splats.get(i).getRotationW();
-        IntFloatFunction cx = i -> splats.get(i).getRotationX();
-        IntFloatFunction cy = i -> splats.get(i).getRotationY();
-        IntFloatFunction cz = i -> splats.get(i).getRotationZ();
-        float q[] = new float[]
+        IntDoubleFunction cw = i -> splats.get(i).getRotationW();
+        IntDoubleFunction cx = i -> splats.get(i).getRotationX();
+        IntDoubleFunction cy = i -> splats.get(i).getRotationY();
+        IntDoubleFunction cz = i -> splats.get(i).getRotationZ();
+        double q[] = new double[]
         { 0, 0, 0, 0 };
         for (int i = 0; i < indices.capacity(); ++i)
         {
             int index = indices.get(i);
-            float rowrot_0 = cw.apply(index);
-            float rowrot_1 = cx.apply(index);
-            float rowrot_2 = cy.apply(index);
-            float rowrot_3 = cz.apply(index);
+            double rowrot_0 = cw.apply(index);
+            double rowrot_1 = cx.apply(index);
+            double rowrot_2 = cy.apply(index);
+            double rowrot_3 = cz.apply(index);
             q[0] = rowrot_0;
             q[1] = rowrot_1;
             q[2] = rowrot_2;
@@ -358,10 +358,10 @@ class SogDataGenerator
     {
         logger.fine("Generating SOG scales");
 
-        IntFloatFunction cx = i -> splats.get(i).getScaleX();
-        IntFloatFunction cy = i -> splats.get(i).getScaleY();
-        IntFloatFunction cz = i -> splats.get(i).getScaleZ();
-        IntFloatFunction columns[] =
+        IntDoubleFunction cx = i -> splats.get(i).getScaleX();
+        IntDoubleFunction cy = i -> splats.get(i).getScaleY();
+        IntDoubleFunction cz = i -> splats.get(i).getScaleZ();
+        IntDoubleFunction columns[] =
         { cx, cy, cz };
         ClusteringResult1D scaleData =
             SogClustering.cluster1d(splats.size(), columns);
@@ -385,10 +385,10 @@ class SogDataGenerator
     {
         logger.fine("Generating SOG colors");
 
-        IntFloatFunction cx = i -> splats.get(i).getShX(0);
-        IntFloatFunction cy = i -> splats.get(i).getShY(0);
-        IntFloatFunction cz = i -> splats.get(i).getShZ(0);
-        IntFloatFunction columns[] =
+        IntDoubleFunction cx = i -> splats.get(i).getShX(0);
+        IntDoubleFunction cy = i -> splats.get(i).getShY(0);
+        IntDoubleFunction cz = i -> splats.get(i).getShZ(0);
+        IntDoubleFunction columns[] =
         { cx, cy, cz };
 
         int numRows = splats.size();
@@ -396,11 +396,11 @@ class SogDataGenerator
             SogClustering.cluster1d(numRows, columns);
 
         // generate and store sigmoid(opacity) [0..1]
-        IntFloatFunction opacity = i -> splats.get(i).getOpacity();
+        IntDoubleFunction opacity = i -> splats.get(i).getOpacity();
         byte opacityData[] = new byte[numRows];
         for (int i = 0; i < numRows; ++i)
         {
-            float alpha = Splats.opacityToAlpha(opacity.apply(i));
+            double alpha = Splats.opacityToAlpha(opacity.apply(i));
             opacityData[i] = (byte) Math.max(0, Math.min(255, alpha * 255));
         }
 
@@ -468,11 +468,11 @@ class SogDataGenerator
         // Compute the clustering on the SH data
         ClusteringResult clusteringResult =
             Clustering.compute(shDataTable, paletteSize);
-        float[][] centroids = clusteringResult.centroids;
+        double[][] centroids = clusteringResult.centroids;
         int[] labels = clusteringResult.labels;
 
         // Create some sort of a "data table" from the SH centroids
-        IntFloatFunction columns[] = new IntFloatFunction[shCoeffs * 3];
+        IntDoubleFunction columns[] = new IntDoubleFunction[shCoeffs * 3];
         for (int i = 0; i < columns.length; i++)
         {
             int c = i;
@@ -484,7 +484,7 @@ class SogDataGenerator
         // Perform the clustering in the centroids
         ClusteringResult1D clusteringResult1D =
             SogClustering.cluster1d(centroids.length, columns);
-        float codebookCentroids[] = clusteringResult1D.centroids;
+        double codebookCentroids[] = clusteringResult1D.centroids;
         byte codebookLabels[][] = clusteringResult1D.labels;
 
         // Convert the centroids into the pixel representation
@@ -570,21 +570,21 @@ class SogDataGenerator
      * @param columns The colums
      * @return The result
      */
-    private static float[][] computeMinMax(int numRows,
-        IntFloatFunction columns[])
+    private static double[][] computeMinMax(int numRows,
+        IntDoubleFunction columns[])
     {
-        float minMax[][] = new float[columns.length][2];
+        double minMax[][] = new double[columns.length][2];
         for (int j = 0; j < columns.length; ++j)
         {
-            minMax[j][0] = Float.POSITIVE_INFINITY;
-            minMax[j][1] = Float.NEGATIVE_INFINITY;
+            minMax[j][0] = Double.POSITIVE_INFINITY;
+            minMax[j][1] = Double.NEGATIVE_INFINITY;
         }
 
         for (int i = 0; i < numRows; ++i)
         {
             for (int j = 0; j < columns.length; ++j)
             {
-                float value = columns[j].apply(i);
+                double value = columns[j].apply(i);
                 if (value < minMax[j][0])
                 {
                     minMax[j][0] = value;
@@ -609,7 +609,7 @@ class SogDataGenerator
      * @param index The index inside the quats array
      * @param width The image width
      */
-    private static void encodeQuaternion(float q[], byte quats[], int index,
+    private static void encodeQuaternion(double q[], byte quats[], int index,
         int width)
     {
         double len =
@@ -661,13 +661,13 @@ class SogDataGenerator
      * @param a The array
      * @return The result
      */
-    private static int indexOfMaxAbs(float a[])
+    private static int indexOfMaxAbs(double a[])
     {
         int index = -1;
-        float maxAbs = Float.NEGATIVE_INFINITY;
+        double maxAbs = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < a.length; i++)
         {
-            float m = Math.abs(a[i]);
+            double m = Math.abs(a[i]);
             if (m > maxAbs)
             {
                 index = i;
@@ -683,9 +683,9 @@ class SogDataGenerator
      * @param value The input
      * @return The result
      */
-    private static float logTransform(float value)
+    private static double logTransform(double value)
     {
-        return (float) (Math.signum(value) * Math.log(Math.abs(value) + 1));
+        return Math.signum(value) * Math.log(Math.abs(value) + 1);
     }
 
     /**

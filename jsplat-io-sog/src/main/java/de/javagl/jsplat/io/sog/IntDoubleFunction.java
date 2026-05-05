@@ -27,9 +27,9 @@
 package de.javagl.jsplat.io.sog;
 
 /**
- * Interface for a function that receives an int, and returns a float.
+ * Interface for a function that receives an int, and returns a double.
  */
-interface IntFloatFunction
+interface IntDoubleFunction
 {
     /**
      * Apply this function to the given value
@@ -37,5 +37,5 @@ interface IntFloatFunction
      * @param i The value
      * @return The result
      */
-    float apply(int i);
+    double apply(int i);
 }

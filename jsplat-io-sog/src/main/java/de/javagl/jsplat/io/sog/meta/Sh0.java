@@ -34,7 +34,7 @@ public class Sh0
     /**
      * 256 floats; maps quantized DC to linear color (§3.4)
      */
-    public float codebook[];
+    public double codebook[];
 
     /**
      * The files

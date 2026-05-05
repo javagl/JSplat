@@ -46,7 +46,7 @@ class Clustering
         /**
          * The centroids
          */
-        float centroids[][];
+        double centroids[][];
         
         /**
          * The labels

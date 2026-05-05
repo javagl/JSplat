@@ -44,7 +44,7 @@ public class ShN
     /**
      * 256 floats; shared for all AC coefficients (§3.5)
      */
-    public float codebook[];
+    public double codebook[];
 
     /**
      * The files

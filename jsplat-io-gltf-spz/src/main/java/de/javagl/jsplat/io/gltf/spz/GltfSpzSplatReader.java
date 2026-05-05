@@ -100,8 +100,13 @@ public final class GltfSpzSplatReader implements SplatListReader
             List<NodeModel> nodeModels = sceneModel.getNodeModels();
             for (NodeModel nodeModel : nodeModels)
             {
-                float[] globalTransform =
+                float[] globalTransformF =
                     nodeModel.computeGlobalTransform(null);
+                double globalTransform[] = new double[16];
+                for (int i=0; i<16; i++)
+                {
+                    globalTransform[i] = globalTransformF[i];
+                }
                 List<MeshModel> meshModels = nodeModel.getMeshModels();
                 for (MeshModel meshModel : meshModels)
                 {

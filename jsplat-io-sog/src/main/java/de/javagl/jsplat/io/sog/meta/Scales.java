@@ -34,7 +34,7 @@ public class Scales
     /**
      * 256 floats; see §3.3
      */
-    public float codebook[];
+    public double codebook[];
 
     /**
      * The files

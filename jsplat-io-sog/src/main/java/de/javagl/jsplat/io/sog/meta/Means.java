@@ -34,12 +34,12 @@ public class Means
     /**
      * min of nx,ny,nz (log-domain)
      */
-    public float mins[];
+    public double mins[];
 
     /**
      * max of nx,ny,nz (log-domain)
      */
-    public float maxs[];
+    public double maxs[];
 
     /**
      * The files

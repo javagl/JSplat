@@ -69,58 +69,58 @@ public class SplatFilteringExample
      */
     private static boolean allValuesValid(Splat splat)
     {
-        if (!Float.isFinite(splat.getPositionX()))
+        if (!Double.isFinite(splat.getPositionX()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getPositionY()))
+        if (!Double.isFinite(splat.getPositionY()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getPositionZ()))
+        if (!Double.isFinite(splat.getPositionZ()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getScaleX()))
+        if (!Double.isFinite(splat.getScaleX()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getScaleY()))
+        if (!Double.isFinite(splat.getScaleY()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getScaleZ()))
+        if (!Double.isFinite(splat.getScaleZ()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getRotationX()))
+        if (!Double.isFinite(splat.getRotationX()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getRotationY()))
+        if (!Double.isFinite(splat.getRotationY()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getRotationZ()))
+        if (!Double.isFinite(splat.getRotationZ()))
         {
             return false;
         }
 
-        if (!Float.isFinite(splat.getRotationW()))
+        if (!Double.isFinite(splat.getRotationW()))
         {
             return false;
         }
 
         // Note: The opacity may be infinite! (But not NaN)
-        if (Float.isNaN(splat.getOpacity()))
+        if (Double.isNaN(splat.getOpacity()))
         {
             return false;
         }
@@ -128,15 +128,15 @@ public class SplatFilteringExample
         int dims = splat.getShDimensions();
         for (int d = 0; d < dims; d++)
         {
-            if (!Float.isFinite(splat.getShX(d)))
+            if (!Double.isFinite(splat.getShX(d)))
             {
                 return false;
             }
-            if (!Float.isFinite(splat.getShY(d)))
+            if (!Double.isFinite(splat.getShY(d)))
             {
                 return false;
             }
-            if (!Float.isFinite(splat.getShZ(d)))
+            if (!Double.isFinite(splat.getShZ(d)))
             {
                 return false;
             }
@@ -155,19 +155,19 @@ public class SplatFilteringExample
         List<MutableSplat> splats = new ArrayList<MutableSplat>();
         for (int c = 0; c < 8; c++)
         {
-            float x = -0.5f + ((c & 1) == 0 ? 0.0f : 1.0f);
-            float y = -0.5f + ((c & 2) == 0 ? 0.0f : 1.0f);
-            float z = -0.5f + ((c & 4) == 0 ? 0.0f : 1.0f);
-            add(splats, 0, 100.0f, x, y, z);
+            double x = -0.5 + ((c & 1) == 0 ? 0.0 : 1.0);
+            double y = -0.5 + ((c & 2) == 0 ? 0.0 : 1.0);
+            double z = -0.5 + ((c & 4) == 0 ? 0.0 : 1.0);
+            add(splats, 0, 100.0, x, y, z);
         }
 
-        add(splats, 0, 100.0f, Float.NaN, 0.0f, 0.0f);
-        add(splats, 0, 100.0f, 0.0f, Float.NaN, 0.0f);
-        add(splats, 0, 100.0f, 0.0f, 0.0f, Float.NaN);
+        add(splats, 0, 100.0, Double.NaN, 0.0, 0.0);
+        add(splats, 0, 100.0, 0.0, Double.NaN, 0.0);
+        add(splats, 0, 100.0, 0.0, 0.0, Double.NaN);
 
-        add(splats, 0, 100.0f, Float.POSITIVE_INFINITY, 0.0f, 0.0f);
-        add(splats, 0, 100.0f, 0.0f, Float.POSITIVE_INFINITY, 0.0f);
-        add(splats, 0, 100.0f, 0.0f, 0.0f, Float.POSITIVE_INFINITY);
+        add(splats, 0, 100.0, Double.POSITIVE_INFINITY, 0.0, 0.0);
+        add(splats, 0, 100.0, 0.0, Double.POSITIVE_INFINITY, 0.0);
+        add(splats, 0, 100.0, 0.0, 0.0, Double.POSITIVE_INFINITY);
 
         return Collections.unmodifiableList(splats);
     }
@@ -182,8 +182,8 @@ public class SplatFilteringExample
      * @param npy The normalized position in y-direction
      * @param npz The normalized position in z-direction
      */
-    private static void add(List<MutableSplat> splats, int degree, float size,
-        float npx, float npy, float npz)
+    private static void add(List<MutableSplat> splats, int degree, double size,
+        double npx, double npy, double npz)
     {
         MutableSplat splat = Splats.create(degree);
 

@@ -141,9 +141,9 @@ public class SplatDatas
         int i = 0;
         for (Splat s : splats)
         {
-            b.put(i * 3 + 0, s.getPositionX());
-            b.put(i * 3 + 1, s.getPositionY());
-            b.put(i * 3 + 2, s.getPositionZ());
+            b.put(i * 3 + 0, (float)s.getPositionX());
+            b.put(i * 3 + 1, (float)s.getPositionY());
+            b.put(i * 3 + 2, (float)s.getPositionZ());
             i++;
         }
         return b;
@@ -176,9 +176,9 @@ public class SplatDatas
         int i = 0;
         for (Splat s : splats)
         {
-            b.put(i * 3 + 0, s.getScaleX());
-            b.put(i * 3 + 1, s.getScaleY());
-            b.put(i * 3 + 2, s.getScaleZ());
+            b.put(i * 3 + 0, (float)s.getScaleX());
+            b.put(i * 3 + 1, (float)s.getScaleY());
+            b.put(i * 3 + 2, (float)s.getScaleZ());
             i++;
         }
         return b;
@@ -246,10 +246,10 @@ public class SplatDatas
         int i = 0;
         for (Splat s : splats)
         {
-            b.put(i * 4 + 0, s.getRotationX());
-            b.put(i * 4 + 1, s.getRotationY());
-            b.put(i * 4 + 2, s.getRotationZ());
-            b.put(i * 4 + 3, s.getRotationW());
+            b.put(i * 4 + 0, (float)s.getRotationX());
+            b.put(i * 4 + 1, (float)s.getRotationY());
+            b.put(i * 4 + 2, (float)s.getRotationZ());
+            b.put(i * 4 + 3, (float)s.getRotationW());
             i++;
         }
         return b;
@@ -282,7 +282,7 @@ public class SplatDatas
         int i = 0;
         for (Splat s : splats)
         {
-            b.put(i, s.getOpacity());
+            b.put(i, (float)s.getOpacity());
             i++;
         }
         return b;
@@ -291,7 +291,7 @@ public class SplatDatas
     /**
      * Read the alpha values from the given splats and write them into the 
      * given target buffer. The alpha values are the {@link Splat#getOpacity()}
-     * values, transformed with {@link Splats#opacityToAlpha(float)}.
+     * values, transformed with {@link Splats#opacityToAlpha(double)}.
      * 
      * The position of the given buffer will not be modified.
      * 
@@ -316,9 +316,9 @@ public class SplatDatas
         int i = 0;
         for (Splat s : splats)
         {
-            float opacity = s.getOpacity();
-            float alpha = Splats.opacityToAlpha(opacity);
-            b.put(i, alpha);
+            double opacity = s.getOpacity();
+            double alpha = Splats.opacityToAlpha(opacity);
+            b.put(i, (float)alpha);
             i++;
         }
         return b;
@@ -354,9 +354,9 @@ public class SplatDatas
         int i = 0;
         for (Splat s : splats)
         {
-            b.put(i * 3 + 0, s.getShX(index));
-            b.put(i * 3 + 1, s.getShY(index));
-            b.put(i * 3 + 2, s.getShZ(index));
+            b.put(i * 3 + 0, (float)s.getShX(index));
+            b.put(i * 3 + 1, (float)s.getShY(index));
+            b.put(i * 3 + 2, (float)s.getShZ(index));
             i++;
         }
         return b;
@@ -393,9 +393,9 @@ public class SplatDatas
         {
             for (int d = 0; d < shDimensions; d++)
             {
-                b.put(((i * shDimensions) + d) * 3 + 0, s.getShX(d));
-                b.put(((i * shDimensions) + d) * 3 + 1, s.getShY(d));
-                b.put(((i * shDimensions) + d) * 3 + 2, s.getShZ(d));
+                b.put(((i * shDimensions) + d) * 3 + 0, (float)s.getShX(d));
+                b.put(((i * shDimensions) + d) * 3 + 1, (float)s.getShY(d));
+                b.put(((i * shDimensions) + d) * 3 + 2, (float)s.getShZ(d));
             }
             i++;
         }
@@ -507,8 +507,8 @@ public class SplatDatas
     /**
      * Write the alpha values from the given buffer with
      * <code>splats.size()</code> elements into the given splats. The alpha
-     * values are transformed with {@link Splats#alphaToOpacity(float)} before
-     * assigning them as the {@link MutableSplat#setOpacity(float)} of the
+     * values are transformed with {@link Splats#alphaToOpacity(double)} before
+     * assigning them as the {@link MutableSplat#setOpacity(double)} of the
      * splats.
      * 
      * @param b The buffer
@@ -520,8 +520,8 @@ public class SplatDatas
         int i = 0;
         for (MutableSplat s : splats)
         {
-            float alpha = b.get(i);
-            float opacity = Splats.alphaToOpacity(alpha);
+            double alpha = b.get(i);
+            double opacity = Splats.alphaToOpacity(alpha);
             s.setOpacity(opacity);
             i++;
         }

@@ -162,9 +162,9 @@ class BasicSplatSorter implements SplatSorter
         for (int i = 0; i < numSplats; i++)
         {
             Splat s = splats.get(i);
-            float px = s.getPositionX();
-            float py = s.getPositionY();
-            float pz = s.getPositionZ();
+            float px = (float)s.getPositionX();
+            float py = (float)s.getPositionY();
+            float pz = (float)s.getPositionZ();
             float depth = mx * px + my * py + mz * pz + mw;
             DepthEntry depthEntry = depthEntries[i];
             depthEntry.index = i;
