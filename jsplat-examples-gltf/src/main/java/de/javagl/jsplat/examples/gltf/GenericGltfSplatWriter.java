@@ -97,7 +97,7 @@ class GenericGltfSplatWriter
         /**
          * The matrix for the node
          */
-        private float[] matrix;
+        private double[] matrix;
     }
 
     /**
@@ -113,7 +113,7 @@ class GenericGltfSplatWriter
     /**
      * The list of matrices that are associated with the mesh primitives
      */
-    private final List<float[]> meshPrimitiveMatrices;
+    private final List<double[]> meshPrimitiveMatrices;
 
     /**
      * Creates a new instance, using an unspecified default color space
@@ -122,7 +122,7 @@ class GenericGltfSplatWriter
     {
         instantiations = new LinkedHashMap<MeshKey, List<Instantiation>>();
         meshPrimitiveModels = new ArrayList<MeshPrimitiveModel>();
-        meshPrimitiveMatrices = new ArrayList<float[]>();
+        meshPrimitiveMatrices = new ArrayList<double[]>();
     }
 
     /**
@@ -132,7 +132,7 @@ class GenericGltfSplatWriter
      * @param matrix Do not use
      */
     public void addMeshPrimitive(MeshPrimitiveModel meshPrimitiveModel,
-        float matrix[])
+        double matrix[])
     {
         Objects.requireNonNull(meshPrimitiveModel,
             "The meshPrimitiveModel may not be null");
@@ -161,7 +161,7 @@ class GenericGltfSplatWriter
      * @throws IllegalArgumentException If the given matrix is not
      *         <code>null</code> and has a length that is not 16
      */
-    public void addSplats(List<? extends Splat> splats, float matrix[])
+    public void addSplats(List<? extends Splat> splats, double matrix[])
     {
         addSplats(splats, matrix, DEFAULT_COLOR_SPACE);
     }
@@ -178,7 +178,7 @@ class GenericGltfSplatWriter
      * @throws IllegalArgumentException If the given matrix is not
      *         <code>null</code> and has a length that is not 16
      */
-    public void addSplats(List<? extends Splat> splats, float matrix[],
+    public void addSplats(List<? extends Splat> splats, double matrix[],
         String colorSpace)
     {
         Objects.requireNonNull(splats, "The splats may not be null");
@@ -248,10 +248,10 @@ class GenericGltfSplatWriter
             List<Instantiation> instantiationsList = entry.getValue();
             for (Instantiation instantiation : instantiationsList)
             {
-                float matrix[] = instantiation.matrix;
+                double matrix[] = instantiation.matrix;
 
                 DefaultNodeModel nodeModel = new DefaultNodeModel();
-                nodeModel.setMatrix(matrix);
+                nodeModel.setMatrix(toFloat(matrix));
                 nodeModel.addMeshModel(meshModel);
                 sceneModel.addNode(nodeModel);
             }
@@ -261,13 +261,13 @@ class GenericGltfSplatWriter
         for (int i = 0; i < meshPrimitiveModels.size(); i++)
         {
             MeshPrimitiveModel meshPrimitiveModel = meshPrimitiveModels.get(i);
-            float matrix[] = meshPrimitiveMatrices.get(i);
+            double matrix[] = meshPrimitiveMatrices.get(i);
 
             DefaultMeshModel meshModel = new DefaultMeshModel();
             meshModel.addMeshPrimitiveModel(meshPrimitiveModel);
 
             DefaultNodeModel nodeModel = new DefaultNodeModel();
-            nodeModel.setMatrix(matrix);
+            nodeModel.setMatrix(toFloat(matrix));
             nodeModel.addMeshModel(meshModel);
             sceneModel.addNode(nodeModel);
         }
@@ -281,6 +281,26 @@ class GenericGltfSplatWriter
 
         GltfModelWriter w = new GltfModelWriter();
         w.writeBinary(gltfModel, outputStream);
+    }
+
+    /**
+     * Convert the given array into a float array
+     * 
+     * @param array The array
+     * @return The result
+     */
+    private static float[] toFloat(double array[])
+    {
+        if (array == null)
+        {
+            return null;
+        }
+        float result[] = new float[array.length];
+        for (int i = 0; i < array.length; i++)
+        {
+            result[i] = (float) array[i];
+        }
+        return result;
     }
 
 }

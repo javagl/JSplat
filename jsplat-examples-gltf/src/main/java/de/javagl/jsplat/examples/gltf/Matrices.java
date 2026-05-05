@@ -44,38 +44,38 @@ class Matrices
      * @param tz The translation along z
      * @return The matrix
      */
-    static float[] createMatrixX(float angleDeg, float tx, float ty,
-        float tz)
+    static double[] createMatrixX(double angleDeg, double tx, double ty,
+        double tz)
     {
-        float matrix[] = new float[16];
+        double matrix[] = new double[16];
 
         double angleRad = Math.toRadians(angleDeg);
-        float c = (float) Math.cos(angleRad);
-        float s = (float) Math.sin(angleRad);
+        double c = Math.cos(angleRad);
+        double s = Math.sin(angleRad);
 
         // Column 0
-        matrix[0] = 1.0f;
-        matrix[1] = 0.0f;
-        matrix[2] = 0.0f;
-        matrix[3] = 0.0f;
+        matrix[0] = 1.0;
+        matrix[1] = 0.0;
+        matrix[2] = 0.0;
+        matrix[3] = 0.0;
 
         // Column 1
-        matrix[4] = 0.0f;
+        matrix[4] = 0.0;
         matrix[5] = c;
         matrix[6] = s;
-        matrix[7] = 0.0f;
+        matrix[7] = 0.0;
 
         // Column 2
-        matrix[8] = 0.0f;
+        matrix[8] = 0.0;
         matrix[9] = -s;
         matrix[10] = c;
-        matrix[11] = 0.0f;
+        matrix[11] = 0.0;
 
         // Column 3 (Translation)
         matrix[12] = tx;
         matrix[13] = ty;
         matrix[14] = tz;
-        matrix[15] = 1.0f;
+        matrix[15] = 1.0;
 
         return matrix;
     }
@@ -90,38 +90,38 @@ class Matrices
      * @param tz The translation along z
      * @return The matrix
      */
-    static float[] createMatrixY(float angleDeg, float tx, float ty,
-        float tz)
+    static double[] createMatrixY(double angleDeg, double tx, double ty,
+        double tz)
     {
-        float matrix[] = new float[16];
+        double matrix[] = new double[16];
 
         double angleRad = Math.toRadians(angleDeg);
-        float c = (float) Math.cos(angleRad);
-        float s = (float) Math.sin(angleRad);
+        double c = Math.cos(angleRad);
+        double s = Math.sin(angleRad);
 
         // Column 0
         matrix[0] = c;
-        matrix[1] = 0.0f;
+        matrix[1] = 0.0;
         matrix[2] = -s;
-        matrix[3] = 0.0f;
+        matrix[3] = 0.0;
 
         // Column 1
-        matrix[4] = 0.0f;
-        matrix[5] = 1.0f;
-        matrix[6] = 0.0f;
-        matrix[7] = 0.0f;
+        matrix[4] = 0.0;
+        matrix[5] = 1.0;
+        matrix[6] = 0.0;
+        matrix[7] = 0.0;
 
         // Column 2
         matrix[8] = s;
-        matrix[9] = 0.0f;
+        matrix[9] = 0.0;
         matrix[10] = c;
-        matrix[11] = 0.0f;
+        matrix[11] = 0.0;
 
         // Column 3 (Translation)
         matrix[12] = tx;
         matrix[13] = ty;
         matrix[14] = tz;
-        matrix[15] = 1.0f;
+        matrix[15] = 1.0;
 
         return matrix;
     }
@@ -132,13 +132,13 @@ class Matrices
      * @param s The scaling factor
      * @return The matrix
      */
-    static float[] createMatrixScale(float s)
+    static double[] createMatrixScale(double s)
     {
-        float[] m = new float[16];
+        double[] m = new double[16];
         m[0] = s;
         m[5] = s;
         m[10] = s;
-        m[15] = 1.0f;
+        m[15] = 1.0;
         return m;
     }
 
@@ -150,13 +150,13 @@ class Matrices
      * @param z The translation in z-direction
      * @return The matrix
      */
-    static float[] createMatrixTranslation(float x, float y, float z)
+    static double[] createMatrixTranslation(double x, double y, double z)
     {
-        float[] m = new float[16];
-        m[0] = 1.0f;
-        m[5] = 1.0f;
-        m[10] = 1.0f;
-        m[15] = 1.0f;
+        double[] m = new double[16];
+        m[0] = 1.0;
+        m[5] = 1.0;
+        m[10] = 1.0;
+        m[15] = 1.0;
         m[12] = x;
         m[13] = y;
         m[14] = z;

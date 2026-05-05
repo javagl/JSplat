@@ -188,7 +188,7 @@ public class CreateSplatGltfExamples
         w.addSplats(splats, null);
 
         DefaultMeshPrimitiveModel p = GltfModelElements.createUnitCube();
-        float[] matrix = Matrices.createMatrixScale(20.0f);
+        double[] matrix = Matrices.createMatrixScale(20.0f);
         w.addMeshPrimitive(p, matrix);
 
     }
@@ -205,7 +205,7 @@ public class CreateSplatGltfExamples
         w.addSplats(splats, null);
 
         DefaultMeshPrimitiveModel p = GltfModelElements.createUnitCube();
-        float[] matrix = Matrices.createMatrixScale(5.0f);
+        double[] matrix = Matrices.createMatrixScale(5.0f);
         w.addMeshPrimitive(p, matrix);
     }
 
@@ -228,28 +228,28 @@ public class CreateSplatGltfExamples
     {
         List<MutableSplat> splats = UnitShSplats.createDeg3();
         {
-            float[] matrix = Matrices.createMatrixX(0, -150, -75, 0);
+            double[] matrix = Matrices.createMatrixX(0, -150, -75, 0);
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix = Matrices.createMatrixX(90, -0, -75, 0);
+            double[] matrix = Matrices.createMatrixX(90, -0, -75, 0);
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix = Matrices.createMatrixX(180, 150, -75, 0);
+            double[] matrix = Matrices.createMatrixX(180, 150, -75, 0);
             w.addSplats(splats, matrix);
         }
 
         {
-            float[] matrix = Matrices.createMatrixY(-90, -150, 75, 0);
+            double[] matrix = Matrices.createMatrixY(-90, -150, 75, 0);
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix = Matrices.createMatrixY(90, -0, 75, 0);
+            double[] matrix = Matrices.createMatrixY(90, -0, 75, 0);
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix = Matrices.createMatrixX(270, 150, 75, 0);
+            double[] matrix = Matrices.createMatrixX(270, 150, 75, 0);
             w.addSplats(splats, matrix);
         }
     }
@@ -263,13 +263,13 @@ public class CreateSplatGltfExamples
     private static void createMixedDegrees(GenericGltfSplatWriter w)
     {
         {
-            float[] matrix =
+            double[] matrix =
                 Matrices.createMatrixTranslation(-75.0f, 0.0f, 0.0f);
             List<MutableSplat> splats = UnitShSplats.createDeg2();
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix =
+            double[] matrix =
                 Matrices.createMatrixTranslation(75.0f, 0.0f, 0.0f);
             List<MutableSplat> splats = UnitShSplats.createDeg3();
             w.addSplats(splats, matrix);
@@ -286,16 +286,16 @@ public class CreateSplatGltfExamples
     {
         List<MutableSplat> splats = SplatScaleTests.createScales();
         {
-            float[] matrix = Matrices.createMatrixScale(0.5f);
+            double[] matrix = Matrices.createMatrixScale(0.5f);
             matrix[12] = -200.0f;
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix = Matrices.createMatrixScale(1.0f);
+            double[] matrix = Matrices.createMatrixScale(1.0f);
             w.addSplats(splats, matrix);
         }
         {
-            float[] matrix = Matrices.createMatrixScale(5.0f);
+            double[] matrix = Matrices.createMatrixScale(5.0f);
             matrix[12] = 450.0f;
             w.addSplats(splats, matrix);
         }
