@@ -19,12 +19,12 @@ public class UnitShSplats
     /**
      * The size of the cube
      */
-    private static final float size = 100.0f;
+    private static final double size = 100.0;
 
     /**
      * The base scale factor for all splats
      */
-    private static final float baseScale = 1.0f;
+    private static final double baseScale = 1.0;
 
     /**
      * Create a list of splats, representing a cube.
@@ -39,9 +39,9 @@ public class UnitShSplats
         List<MutableSplat> splats = new ArrayList<MutableSplat>();
         for (int c = 0; c < 8; c++)
         {
-            float x = -0.5f + ((c & 1) == 0 ? 0.0f : 1.0f);
-            float y = -0.5f + ((c & 2) == 0 ? 0.0f : 1.0f);
-            float z = -0.5f + ((c & 4) == 0 ? 0.0f : 1.0f);
+            double x = -0.5 + ((c & 1) == 0 ? 0.0f : 1.0f);
+            double y = -0.5 + ((c & 2) == 0 ? 0.0f : 1.0f);
+            double z = -0.5 + ((c & 4) == 0 ? 0.0f : 1.0f);
             add(splats, degree, x, y, z);
         }
         return splats;
@@ -72,77 +72,77 @@ public class UnitShSplats
     {
         MutableSplat splat = Splats.create(2);
 
-        splat.setPositionX(0.0f);
-        splat.setPositionY(0.0f);
-        splat.setPositionZ(0.0f);
+        splat.setPositionX(0.0);
+        splat.setPositionY(0.0);
+        splat.setPositionZ(0.0);
 
-        splat.setScaleX(3.0f * baseScale);
-        splat.setScaleY(3.0f * baseScale);
-        splat.setScaleZ(3.0f * baseScale);
+        splat.setScaleX(3.0 * baseScale);
+        splat.setScaleY(3.0 * baseScale);
+        splat.setScaleZ(3.0 * baseScale);
 
-        splat.setRotationX(0.0f);
-        splat.setRotationY(0.0f);
-        splat.setRotationZ(0.0f);
-        splat.setRotationW(1.0f);
+        splat.setRotationX(0.0);
+        splat.setRotationY(0.0);
+        splat.setRotationZ(0.0);
+        splat.setRotationW(1.0);
 
-        splat.setOpacity(Splats.alphaToOpacity(1.0f));
+        splat.setOpacity(Splats.alphaToOpacity(1.0));
 
         // One day, someone will read this, and wonder where
         // these values are coming from.
         
         int d = 0;
 
-        splat.setShX(d, 0.1476983315919267f);
-        splat.setShY(d, 0.14769703694704606f);
-        splat.setShZ(d, 0.14771121930450226f);
+        splat.setShX(d, 0.1476983315919267);
+        splat.setShY(d, 0.14769703694704606);
+        splat.setShZ(d, 0.14771121930450226);
         d++;
 
         // Dim 1
-        splat.setShX(d, -0.7830568718641374f);
-        splat.setShY(d, 1.054372367029317f);
-        splat.setShZ(d, -0.7830538122533596f);
+        splat.setShX(d, -0.7830568718641374);
+        splat.setShY(d, 1.054372367029317);
+        splat.setShZ(d, -0.7830538122533596);
         d++;
 
         // Dim 2
-        splat.setShX(d, 0.7830484620033045f);
-        splat.setShY(d, 0.7830548598697407f);
-        splat.setShZ(d, -1.054407314935455f);
+        splat.setShX(d, 0.7830484620033045);
+        splat.setShY(d, 0.7830548598697407);
+        splat.setShZ(d, -1.054407314935455);
         d++;
 
         // Dim 3
-        splat.setShX(d, 1.05434329450671f);
-        splat.setShY(d, -0.7829838731344525f);
-        splat.setShZ(d, -0.7830519155090939f);
+        splat.setShX(d, 1.05434329450671);
+        splat.setShY(d, -0.7829838731344525);
+        splat.setShZ(d, -0.7830519155090939);
         d++;
 
         // Dim 4
-        splat.setShX(d, 0.22883454327537334f);
-        splat.setShY(d, 0.22881694536762498f);
-        splat.setShZ(d, -7.2464152314211105E-6f);
+        splat.setShX(d, 0.22883454327537334);
+        splat.setShY(d, 0.22881694536762498);
+        splat.setShZ(d, -7.2464152314211105E-6);
         d++;
 
         // Dim 5
-        splat.setShX(d, -1.1875671158900758E-5f);
-        splat.setShY(d, -0.22880031503889064f);
-        splat.setShZ(d, -0.22880974771043117f);
+        splat.setShX(d, -1.1875671158900758E-5);
+        splat.setShY(d, -0.22880031503889064);
+        splat.setShZ(d, -0.22880974771043117);
         d++;
 
         // Dim 6
-        splat.setShX(d, -0.026421538828617974f);
-        splat.setShY(d, -0.02640910542972641f);
-        splat.setShZ(d, 0.05283968482224943f);
+        splat.setShX(d, -0.026421538828617974);
+        splat.setShY(d, -0.02640910542972641);
+        splat.setShZ(d, 0.05283968482224943);
         d++;
 
         // Dim 7
-        splat.setShX(d, -0.2289855776512113f);
-        splat.setShY(d, -1.917440275245319E-5f);
-        splat.setShZ(d, -0.2288323230516771f);
+        splat.setShX(d, -0.2289855776512113);
+        splat.setShY(d, -1.917440275245319E-5);
+        splat.setShZ(d, -0.2288323230516771);
         d++;
 
         // Dim 8
-        splat.setShX(d, 0.04575373638021474f);
-        splat.setShY(d, -0.045751875002436826f);
-        splat.setShZ(d, -8.16414088511408E-6f);
+        splat.setShX(d, 0.04575373638021474);
+        splat.setShY(d, -0.045751875002436826);
+        splat.setShZ(d, -8.16414088511408E-6);
 
         return splat;
     }
@@ -172,119 +172,119 @@ public class UnitShSplats
     {
         MutableSplat splat = Splats.create(3);
 
-        splat.setPositionX(0.0f);
-        splat.setPositionY(0.0f);
-        splat.setPositionZ(0.0f);
+        splat.setPositionX(0.0);
+        splat.setPositionY(0.0);
+        splat.setPositionZ(0.0);
 
-        splat.setScaleX(3.0f * baseScale);
-        splat.setScaleY(3.0f * baseScale);
-        splat.setScaleZ(3.0f * baseScale);
+        splat.setScaleX(3.0 * baseScale);
+        splat.setScaleY(3.0 * baseScale);
+        splat.setScaleZ(3.0 * baseScale);
 
-        splat.setRotationX(0.0f);
-        splat.setRotationY(0.0f);
-        splat.setRotationZ(0.0f);
-        splat.setRotationW(1.0f);
+        splat.setRotationX(0.0);
+        splat.setRotationY(0.0);
+        splat.setRotationZ(0.0);
+        splat.setRotationW(1.0);
 
-        splat.setOpacity(Splats.alphaToOpacity(1.0f));
+        splat.setOpacity(Splats.alphaToOpacity(1.0));
 
         // One day, someone will read this, and wonder where
         // these values are coming from.
 
         int d = 0;
 
-        splat.setShX(d, 0.19689117349855656f);
-        splat.setShY(d, 0.19701742462465832f);
-        splat.setShZ(d, 0.1968082144814114f);
+        splat.setShX(d, 0.19689117349855656);
+        splat.setShY(d, 0.19701742462465832);
+        splat.setShZ(d, 0.1968082144814114);
         d++;
 
         // Dim 1
-        splat.setShX(d, -0.6390529124621291f);
-        splat.setShY(d, 1.0730615144907147f);
-        splat.setShZ(d, -0.6388168750684198f);
+        splat.setShX(d, -0.6390529124621291);
+        splat.setShY(d, 1.0730615144907147);
+        splat.setShZ(d, -0.6388168750684198);
         d++;
 
         // Dim 2
-        splat.setShX(d, 0.6387493239628561f);
-        splat.setShY(d, 0.6386066087881057f);
-        splat.setShZ(d, -1.0728855189454842f);
+        splat.setShX(d, 0.6387493239628561);
+        splat.setShY(d, 0.6386066087881057);
+        splat.setShZ(d, -1.0728855189454842);
         d++;
 
         // Dim 3
-        splat.setShX(d, 1.0728635469386794f);
-        splat.setShY(d, -0.6389343617744989f);
-        splat.setShZ(d, -0.6387102939070701f);
+        splat.setShX(d, 1.0728635469386794);
+        splat.setShY(d, -0.6389343617744989);
+        splat.setShZ(d, -0.6387102939070701);
         d++;
 
         // Dim 4
-        splat.setShX(d, 0.2288865409514229f);
-        splat.setShY(d, 0.22883301398721945f);
-        splat.setShZ(d, -5.788200187595294E-6f);
+        splat.setShX(d, 0.2288865409514229);
+        splat.setShY(d, 0.22883301398721945);
+        splat.setShZ(d, -5.788200187595294E-6);
         d++;
 
         // Dim 5
-        splat.setShX(d, -2.5718827998844063E-5f);
-        splat.setShY(d, -0.22887600094296534f);
-        splat.setShZ(d, -0.22883277467319174f);
+        splat.setShX(d, -2.5718827998844063E-5);
+        splat.setShY(d, -0.22887600094296534);
+        splat.setShZ(d, -0.22883277467319174);
         d++;
 
         // Dim 6
-        splat.setShX(d, -0.04403047602516996f);
-        splat.setShY(d, -0.04397372941428612f);
-        splat.setShZ(d, 0.08799531361390533f);
+        splat.setShX(d, -0.04403047602516996);
+        splat.setShY(d, -0.04397372941428612);
+        splat.setShZ(d, 0.08799531361390533);
         d++;
 
         // Dim 7
-        splat.setShX(d, -0.22888164895998098f);
-        splat.setShY(d, -5.907535404192643E-6f);
-        splat.setShZ(d, -0.22906249045635607f);
+        splat.setShX(d, -0.22888164895998098);
+        splat.setShY(d, -5.907535404192643E-6);
+        splat.setShZ(d, -0.22906249045635607);
         d++;
 
         // Dim 8
-        splat.setShX(d, 0.07618985703501813f);
-        splat.setShY(d, -0.07637156357642105f);
-        splat.setShZ(d, -2.1415442069683266E-5f);
+        splat.setShX(d, 0.07618985703501813);
+        splat.setShY(d, -0.07637156357642105);
+        splat.setShZ(d, -2.1415442069683266E-5);
         d++;
 
         // Dim 9
-        splat.setShX(d, 0.2739307455019897f);
-        splat.setShY(d, 0.02589419616012356f);
-        splat.setShZ(d, 0.12407953674212568f);
+        splat.setShX(d, 0.2739307455019897);
+        splat.setShY(d, 0.02589419616012356);
+        splat.setShZ(d, 0.12407953674212568);
         d++;
 
         // Dim 10
-        splat.setShX(d, -1.285382433181138f);
-        splat.setShY(d, -1.3224151408611615f);
-        splat.setShZ(d, -1.3605540604623292f);
+        splat.setShX(d, -1.285382433181138);
+        splat.setShY(d, -1.3224151408611615);
+        splat.setShZ(d, -1.3605540604623292);
         d++;
 
         // Dim 11
-        splat.setShX(d, 0.05738138052643116f);
-        splat.setShY(d, 0.019969600263549214f);
-        splat.setShZ(d, 0.25077591195710025f);
+        splat.setShX(d, 0.05738138052643116);
+        splat.setShY(d, 0.019969600263549214);
+        splat.setShZ(d, 0.25077591195710025);
         d++;
 
         // Dim 12
-        splat.setShX(d, 0.2520360451989494f);
-        splat.setShY(d, 0.2517234445249994f);
-        splat.setShZ(d, 0.03241969076161055f);
+        splat.setShX(d, 0.2520360451989494);
+        splat.setShY(d, 0.2517234445249994);
+        splat.setShZ(d, 0.03241969076161055);
         d++;
 
         // Dim 13
-        splat.setShX(d, 0.019920206825017717f);
-        splat.setShY(d, 0.057338277160965845f);
-        splat.setShZ(d, 0.25081388794113546f);
+        splat.setShX(d, 0.019920206825017717);
+        splat.setShY(d, 0.057338277160965845);
+        splat.setShZ(d, 0.25081388794113546);
         d++;
 
         // Dim 14
-        splat.setShX(d, -0.12233861767199117f);
-        splat.setShY(d, 0.12225649047975251f);
-        splat.setShZ(d, 8.455848014232714E-6f);
+        splat.setShX(d, -0.12233861767199117);
+        splat.setShY(d, 0.12225649047975251);
+        splat.setShZ(d, 8.455848014232714E-6);
         d++;
 
         // Dim 15
-        splat.setShX(d, -0.02563393584434004f);
-        splat.setShY(d, -0.2737727007701105f);
-        splat.setShZ(d, -0.12410133512136956f);
+        splat.setShX(d, -0.02563393584434004);
+        splat.setShY(d, -0.2737727007701105);
+        splat.setShZ(d, -0.12410133512136956);
 
         return splat;
     }
@@ -299,8 +299,8 @@ public class UnitShSplats
      * @param npy The normalized y-coordinate
      * @param npz The normalized z-coordinate
      */
-    private static void add(List<MutableSplat> splats, int degree, float npx,
-        float npy, float npz)
+    private static void add(List<MutableSplat> splats, int degree, double npx,
+        double npy, double npz)
     {
         MutableSplat splat = Splats.create(degree);
 
@@ -312,24 +312,24 @@ public class UnitShSplats
         splat.setScaleY(baseScale);
         splat.setScaleZ(baseScale);
 
-        splat.setRotationX(0.0f);
-        splat.setRotationY(0.0f);
-        splat.setRotationZ(0.0f);
-        splat.setRotationW(1.0f);
+        splat.setRotationX(0.0);
+        splat.setRotationY(0.0);
+        splat.setRotationZ(0.0);
+        splat.setRotationW(1.0);
 
-        splat.setOpacity(Splats.alphaToOpacity(1.0f));
+        splat.setOpacity(Splats.alphaToOpacity(1.0));
 
-        if (npx == -0.5f && npy == -0.5f && npz == -0.5f)
+        if (npx == -0.5 && npy == -0.5 && npz == -0.5)
         {
-            splat.setShX(0, Splats.colorToDirectCurrent(0.1f));
-            splat.setShY(0, Splats.colorToDirectCurrent(0.1f));
-            splat.setShZ(0, Splats.colorToDirectCurrent(0.1f));
+            splat.setShX(0, Splats.colorToDirectCurrent(0.1));
+            splat.setShY(0, Splats.colorToDirectCurrent(0.1));
+            splat.setShZ(0, Splats.colorToDirectCurrent(0.1));
         }
         else
         {
-            splat.setShX(0, Splats.colorToDirectCurrent(npx + 0.5f));
-            splat.setShY(0, Splats.colorToDirectCurrent(npy + 0.5f));
-            splat.setShZ(0, Splats.colorToDirectCurrent(npz + 0.5f));
+            splat.setShX(0, Splats.colorToDirectCurrent(npx + 0.5));
+            splat.setShY(0, Splats.colorToDirectCurrent(npy + 0.5));
+            splat.setShZ(0, Splats.colorToDirectCurrent(npz + 0.5));
         }
 
         splats.add(splat);
