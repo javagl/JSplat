@@ -27,13 +27,10 @@
 package de.javagl.jsplat.app;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.util.AbstractList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -61,16 +58,9 @@ class DataSetsPanel extends JPanel
     private DefaultListModel<DataSet> listModel;
     
     /**
-     * The button to remove the selected data set
-     */
-    private JButton removeSelectedButton;
-    
-    /**
      * Creates a new instance
-     * 
-     * @param removalCallback A callback that will receive removed data sets
      */
-    DataSetsPanel(Consumer<DataSet> removalCallback)
+    DataSetsPanel()
     {
         super(new BorderLayout());
         listModel = new DefaultListModel<DataSet>();
@@ -78,18 +68,6 @@ class DataSetsPanel extends JPanel
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scrollPane = new JScrollPane(list);
         add(scrollPane, BorderLayout.CENTER);
-        
-        JPanel p = new JPanel(new FlowLayout());
-        removeSelectedButton = new JButton("Remove");
-        removeSelectedButton.setEnabled(false);
-        removeSelectedButton.addActionListener(e ->
-        {
-            DataSet removedDataSet = getSelectedDataSet();
-            removeDataSet(removedDataSet);
-            removalCallback.accept(removedDataSet);
-        });
-        p.add(removeSelectedButton);
-        add(p, BorderLayout.SOUTH);
     }
     
     /**
@@ -111,7 +89,6 @@ class DataSetsPanel extends JPanel
     {
         listModel.addElement(dataSet);
         list.setSelectedIndex(listModel.size() - 1);
-        removeSelectedButton.setEnabled(true);
     }
     
     /**
@@ -130,10 +107,6 @@ class DataSetsPanel extends JPanel
         else
         {
             list.setSelectedIndex(oldIndex - 1);
-        }
-        if (listModel.getSize() == 0)
-        {
-            removeSelectedButton.setEnabled(false);
         }
     }
     

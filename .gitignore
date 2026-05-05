@@ -2,6 +2,7 @@
 
 /jsplat-experiments
 /jsplat-experiments-tilesets
+/jsplat-examples-gltf
 
 /jsplat-examples/target
 /jsplat-examples/.project
@@ -68,3 +69,8 @@
 /jsplat-processing/.project
 /jsplat-processing/.settings
 /jsplat-processing/.classpath
+
+/jsplat-simplification/target
+/jsplat-simplification/.project
+/jsplat-simplification/.settings
+/jsplat-simplification/.classpath

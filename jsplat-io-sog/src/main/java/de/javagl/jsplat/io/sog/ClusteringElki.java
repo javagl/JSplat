@@ -178,7 +178,7 @@ class ClusteringElki
     {
         // Disable logging to not warn about empty clusters
         System.setProperty("java.util.logging.config.file",
-            "ElkiIsMessingWithLoging");
+            "ElkiIsMessingWithLogging");
         Logger logger = Logger.getLogger("elki");
         logger.setLevel(Level.OFF);
         LoggingConfiguration.setLevelFor("elki.clustering.kmeans", "SEVERE");
