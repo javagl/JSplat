@@ -44,7 +44,7 @@ class DefaultSplat implements MutableSplat
     /**
      * The actual data
      */
-    private float data[];
+    private double data[];
 
     /**
      * Creates a new instance
@@ -62,7 +62,7 @@ class DefaultSplat implements MutableSplat
         }
         this.shDegree = shDegree;
         this.shDimensions = Splats.dimensionsForDegree(shDegree);
-        this.data = new float[3 + 3 + 4 + 1 + shDimensions * 3];
+        this.data = new double[3 + 3 + 4 + 1 + shDimensions * 3];
     }
 
     @Override
@@ -78,169 +78,169 @@ class DefaultSplat implements MutableSplat
     }
 
     @Override
-    public float getPositionX()
+    public double getPositionX()
     {
         return data[0];
     }
 
     @Override
-    public float getPositionY()
+    public double getPositionY()
     {
         return data[1];
     }
 
     @Override
-    public float getPositionZ()
+    public double getPositionZ()
     {
         return data[2];
     }
 
     @Override
-    public float getScaleX()
+    public double getScaleX()
     {
         return data[3];
     }
 
     @Override
-    public float getScaleY()
+    public double getScaleY()
     {
         return data[4];
     }
 
     @Override
-    public float getScaleZ()
+    public double getScaleZ()
     {
         return data[5];
     }
 
     @Override
-    public float getRotationX()
+    public double getRotationX()
     {
         return data[6];
     }
 
     @Override
-    public float getRotationY()
+    public double getRotationY()
     {
         return data[7];
     }
 
     @Override
-    public float getRotationZ()
+    public double getRotationZ()
     {
         return data[8];
     }
 
     @Override
-    public float getRotationW()
+    public double getRotationW()
     {
         return data[9];
     }
 
     @Override
-    public float getOpacity()
+    public double getOpacity()
     {
         return data[10];
     }
 
     @Override
-    public float getShX(int dimension)
+    public double getShX(int dimension)
     {
         return data[11 + dimension * 3 + 0];
     }
 
     @Override
-    public float getShY(int dimension)
+    public double getShY(int dimension)
     {
         return data[11 + dimension * 3 + 1];
     }
 
     @Override
-    public float getShZ(int dimension)
+    public double getShZ(int dimension)
     {
         return data[11 + dimension * 3 + 2];
     }
 
     @Override
-    public void setPositionX(float v)
+    public void setPositionX(double v)
     {
         data[0] = v;
     }
 
     @Override
-    public void setPositionY(float v)
+    public void setPositionY(double v)
     {
         data[1] = v;
     }
 
     @Override
-    public void setPositionZ(float v)
+    public void setPositionZ(double v)
     {
         data[2] = v;
     }
 
     @Override
-    public void setScaleX(float v)
+    public void setScaleX(double v)
     {
         data[3] = v;
     }
 
     @Override
-    public void setScaleY(float v)
+    public void setScaleY(double v)
     {
         data[4] = v;
     }
 
     @Override
-    public void setScaleZ(float v)
+    public void setScaleZ(double v)
     {
         data[5] = v;
     }
 
     @Override
-    public void setRotationX(float v)
+    public void setRotationX(double v)
     {
         data[6] = v;
     }
 
     @Override
-    public void setRotationY(float v)
+    public void setRotationY(double v)
     {
         data[7] = v;
     }
 
     @Override
-    public void setRotationZ(float v)
+    public void setRotationZ(double v)
     {
         data[8] = v;
     }
 
     @Override
-    public void setRotationW(float v)
+    public void setRotationW(double v)
     {
         data[9] = v;
     }
 
     @Override
-    public void setOpacity(float v)
+    public void setOpacity(double v)
     {
         data[10] = v;
     }
 
     @Override
-    public void setShX(int dimension, float v)
+    public void setShX(int dimension, double v)
     {
         data[11 + dimension * 3 + 0] = v;
     }
 
     @Override
-    public void setShY(int dimension, float v)
+    public void setShY(int dimension, double v)
     {
         data[11 + dimension * 3 + 1] = v;
     }
 
     @Override
-    public void setShZ(int dimension, float v)
+    public void setShZ(int dimension, double v)
     {
         data[11 + dimension * 3 + 2] = v;
     }

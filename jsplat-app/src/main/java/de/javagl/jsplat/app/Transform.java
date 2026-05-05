@@ -24,18 +24,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.sog;
+package de.javagl.jsplat.app;
 
 /**
- * Interface for a function that receives an int, and returns a float.
+ * A class representing a transform in a {@link TransformPanel}.
+ * 
+ * No comments for now...
  */
-interface IntFloatFunction
+@SuppressWarnings("javadoc")
+class Transform
 {
-    /**
-     * Apply this function to the given value
-     * 
-     * @param i The value
-     * @return The result
-     */
-    float apply(int i);
+    float translationX = 0.0f;
+    float translationY = 0.0f;
+    float translationZ = 0.0f;
+    float rotationRadX = 0.0f;
+    float rotationRadY = 0.0f;
+    float rotationRadZ = 0.0f;
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+    float scaleZ = 1.0f;
 }

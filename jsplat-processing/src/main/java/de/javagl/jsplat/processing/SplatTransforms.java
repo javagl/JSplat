@@ -42,14 +42,17 @@ public class SplatTransforms
      * Transform all splats in the given list with the given matrix.
      * 
      * The matrix is assumed to be a 16-element array representing a 4x4 matrix
-     * in column-major order
+     * in column-major order.
+     * 
+     * The rotation quaternion of the given splats will be normalized in this
+     * operation.
      * 
      * @param list The list
      * @param matrix4 The matrix
      * @return The given list
      */
     public static <T extends MutableSplat> List<T> transformList(List<T> list,
-        float matrix4[])
+        double matrix4[])
     {
         if (list.isEmpty()) 
         {
@@ -57,7 +60,7 @@ public class SplatTransforms
         }
         int dims = list.get(0).getShDimensions();
         Consumer<MutableSplat> transform = createTransform(matrix4, dims);
-        list.forEach(transform);
+        list.stream().parallel().forEach(transform);
         return list;
     }
 
@@ -71,21 +74,23 @@ public class SplatTransforms
      * @param dims The splat dimensions
      * @return The transform
      */
-    public static Consumer<MutableSplat> createTransform(float matrix4[],
+    public static Consumer<MutableSplat> createTransform(double matrix4[],
         int dims)
     {
-        float scales[] = VecMath.computeScales(matrix4, null);
-        float matrix3[] = VecMath.extractRotation(matrix4, scales, null);
-        float rotation[] =
+        double scales[] = VecMath.computeScales(matrix4, null);
+        double matrix3[] = VecMath.extractRotation(matrix4, scales, null);
+        double rotation[] =
             VecMath.rotationMatrixToScalarLastQuaternion(matrix3, null);
         SplatPositionTransformer pt = new SplatPositionTransformer(matrix4);
         SplatRotationRotator rr = new SplatRotationRotator(rotation);
         SplatShRotator sr = new SplatShRotator(matrix3, dims);
         SplatScaleScaler ss =
             new SplatScaleScaler(scales[0], scales[1], scales[2]);
+        
         Consumer<MutableSplat> transform = s ->
         {
             sr.rotateSh(s);
+            normalizeRotationQuaternion(s);
             rr.rotate(s);
             pt.transform(s);
             ss.scale(s);
@@ -103,12 +108,36 @@ public class SplatTransforms
      * @return The given list
      */
     public static <T extends MutableSplat> List<T> translateList(List<T> list,
-        float dx, float dy, float dz)
+        double dx, double dy, double dz)
     {
-        list.forEach(s -> translate(s, dx, dy, dz));
+        list.stream().parallel().forEach(s -> translate(s, dx, dy, dz));
         return list;
     }
 
+    /**
+     * Normalize the rotation quaternion of the given splat.
+     * 
+     * @param s The splat
+     */
+    private static void normalizeRotationQuaternion(MutableSplat s)
+    {
+        double rX = s.getRotationX();
+        double rY = s.getRotationY();
+        double rZ = s.getRotationZ();
+        double rW = s.getRotationW();
+        double lenSquared = rX * rX + rY * rY + rZ * rZ + rW * rW;
+        if (Math.abs(1.0 - lenSquared) < 1e-6)
+        {
+            return;
+        }
+        double len = Math.sqrt(lenSquared);
+        double invLen = 1.0 / len;
+        s.setRotationX(rX * invLen);
+        s.setRotationY(rY * invLen);
+        s.setRotationZ(rZ * invLen);
+        s.setRotationW(rW * invLen);
+    }
+    
     /**
      * Translate the given splat by the given amount
      * 
@@ -117,7 +146,7 @@ public class SplatTransforms
      * @param dy The translation in y-direction
      * @param dz The translation in z-direction
      */
-    private static void translate(MutableSplat s, float dx, float dy, float dz)
+    private static void translate(MutableSplat s, double dx, double dy, double dz)
     {
         s.setPositionX(s.getPositionX() + dx);
         s.setPositionY(s.getPositionY() + dy);
@@ -133,10 +162,10 @@ public class SplatTransforms
      * @param sz The scale in z-direction
      * @return The given list
      */
-    static <T extends MutableSplat> List<T> scaleList(List<T> list, float sx,
-        float sy, float sz)
+    static <T extends MutableSplat> List<T> scaleList(List<T> list, double sx,
+        double sy, double sz)
     {
-        list.forEach(s -> scale(s, sx, sy, sz));
+        list.stream().parallel().forEach(s -> scale(s, sx, sy, sz));
         return list;
     }
 
@@ -148,11 +177,11 @@ public class SplatTransforms
      * @param sy The scale in y-direction
      * @param sz The scale in z-direction
      */
-    private static void scale(MutableSplat s, float sx, float sy, float sz)
+    private static void scale(MutableSplat s, double sx, double sy, double sz)
     {
-        s.setScaleX((float) Math.log(Math.exp(s.getScaleX()) * sx));
-        s.setScaleY((float) Math.log(Math.exp(s.getScaleY()) * sy));
-        s.setScaleZ((float) Math.log(Math.exp(s.getScaleZ()) * sz));
+        s.setScaleX(Math.log(Math.exp(s.getScaleX()) * sx));
+        s.setScaleY(Math.log(Math.exp(s.getScaleY()) * sy));
+        s.setScaleZ(Math.log(Math.exp(s.getScaleZ()) * sz));
     }
 
     /**

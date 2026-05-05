@@ -47,7 +47,7 @@ import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatReader;
  * checks whether this asset uses the SPZ compression extension, and either
  * dispatches to a {@link GltfSplatReader} or {@link GltfSpzSplatReader}.
  */
-class GlbSplatListReader implements SplatListReader
+public class GlbSplatListReader implements SplatListReader
 {
     @Override
     public List<MutableSplat> readList(InputStream inputStream)

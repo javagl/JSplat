@@ -94,15 +94,18 @@ class BasicSplatSorter implements SplatSorter
     public void init(List<? extends Splat> splats)
     {
         this.splats = splats;
-        depthEntries = new DepthEntry[splats.size()];
-        for (int i = 0; i < splats.size(); i++)
+        if (depthEntries == null || depthEntries.length < splats.size())
         {
-            DepthEntry depthEntry = new DepthEntry();
-            depthEntry.index = i;
-            depthEntry.depth = 0.0f;
-            depthEntries[i] = depthEntry;
+            depthEntries = new DepthEntry[splats.size()];
+            for (int i = 0; i < splats.size(); i++)
+            {
+                DepthEntry depthEntry = new DepthEntry();
+                depthEntry.index = i;
+                depthEntry.depth = 0.0f;
+                depthEntries[i] = depthEntry;
+            }
+            indices = new int[splats.size()];
         }
-        indices = new int[splats.size()];
         Arrays.fill(previousViewMatrixRow, Float.NaN);
     }
 
@@ -159,15 +162,15 @@ class BasicSplatSorter implements SplatSorter
         for (int i = 0; i < numSplats; i++)
         {
             Splat s = splats.get(i);
-            float px = s.getPositionX();
-            float py = s.getPositionY();
-            float pz = s.getPositionZ();
+            float px = (float)s.getPositionX();
+            float py = (float)s.getPositionY();
+            float pz = (float)s.getPositionZ();
             float depth = mx * px + my * py + mz * pz + mw;
             DepthEntry depthEntry = depthEntries[i];
             depthEntry.index = i;
             depthEntry.depth = depth;
         }
-        Arrays.parallelSort(depthEntries, (e0, e1) ->
+        Arrays.parallelSort(depthEntries, 0, numSplats, (e0, e1) ->
         {
             if (e0.depth < e1.depth)
             {

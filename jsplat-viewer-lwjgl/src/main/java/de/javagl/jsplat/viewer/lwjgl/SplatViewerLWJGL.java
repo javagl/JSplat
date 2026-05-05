@@ -25,13 +25,14 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 package de.javagl.jsplat.viewer.lwjgl;
+
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_ONE;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
@@ -47,8 +48,6 @@ import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glUnmapBuffer;
 import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_INFO_LOG_LENGTH;
@@ -74,15 +73,10 @@ import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL20.glValidateProgram;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.GL_MAP_INVALIDATE_BUFFER_BIT;
-import static org.lwjgl.opengl.GL30.GL_MAP_WRITE_BIT;
 import static org.lwjgl.opengl.GL30.glBindBufferBase;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glMapBufferRange;
 import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
-import static org.lwjgl.opengl.GL42.glMemoryBarrier;
 import static org.lwjgl.opengl.GL43.GL_MAX_SHADER_STORAGE_BLOCK_SIZE;
-import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 import static org.lwjgl.opengl.GL45.glCreateBuffers;
 import static org.lwjgl.opengl.GL45.glCreateVertexArrays;
@@ -90,8 +84,6 @@ import static org.lwjgl.opengl.GL45.glCreateVertexArrays;
 import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -125,9 +117,9 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     /**
      * The logger used in this class
      */
-    private static final Logger logger = 
+    private static final Logger logger =
         Logger.getLogger(SplatViewerLWJGL.class.getName());
-    
+
     /**
      * A direct float buffer for up to 3 elements
      */
@@ -209,39 +201,30 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     private int positionsVBO;
 
     /**
-     * The shader storage buffer object for the 'gaussian_data' of the vertex
-     * shader
+     * The splat data that is currently rendered
      */
-    private int gaussianDataSSBO;
+    private final SplatData splatData;
 
     /**
-     * The shader storage buffer object for the 'gaussian_order' of the vertex
-     * shader
+     * Whether the content of the splat data was modified
      */
-    private int gaussianOrderSSBO;
+    private volatile boolean splatContentModified = true;
 
     /**
-     * The splats that are currently displayed
+     * Whether the first sorting pass for a modified set of splats is currently
+     * pending, and the current sort order should not be used for rendering.
      */
-    private List<? extends Splat> splats;
+    private volatile boolean firstSortPending = false;
+
+    // ------------------------------------------------------------------------
+    // The uniforms for the vertex shader
 
     /**
      * The spherical harmonics dimensions AS NEEDED BY THE SHADER, for the
      * <code>sh_dim</code> uniform. This means that it is the
      * {@link Splat#getShDimensions()} multiplied by 3.
      */
-    private int shDim;
-
-    /**
-     * The sorter for the splats, which computes the {@link #gaussianOrderData}
-     * values
-     */
-    private SplatSorter splatSorter;
-
-    /**
-     * A buffer for the sorted indices, used for filling the gaussianOrderSSBO.
-     */
-    private IntBuffer gaussianOrderData;
+    private int shDimForShader;
 
     /**
      * The scale modifier, for the <code>scale_modifier</code> uniform
@@ -253,17 +236,20 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
      */
     private final int renderMode = 4;
 
+    // ------------------------------------------------------------------------
+
     /**
      * Creates a new instance
      */
     SplatViewerLWJGL()
     {
-        splatSorter = new ThreadedSplatSorter(() ->
+        Runnable sortDoneCallback = () ->
         {
+            firstSortPending = false;
             getRenderComponent().repaint();
-        });
+        };
+        this.splatData = new SplatData(sortDoneCallback);
         createCanvas();
-
     }
 
     /**
@@ -282,7 +268,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
             public void initGL()
             {
                 GL.createCapabilities();
-                // GLUtil.setupDebugMessageCallback(System.out);
+                //GLUtil.setupDebugMessageCallback(System.out);
                 performInitGL();
             }
 
@@ -320,7 +306,7 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     @Override
     protected List<? extends Splat> getSplats()
     {
-        return splats;
+        return splatData.getSplats();
     }
 
     @Override
@@ -356,11 +342,11 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
 
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        int maxSSBOSize = glGetInteger(GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
-        logger.fine("Maximum SSBO size: " + maxSSBOSize);
-        
+        int maxSsboSize = glGetInteger(GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
+        logger.fine("Maximum Ssbo size: " + maxSsboSize);
+
         initialized = true;
         setupView();
     }
@@ -482,164 +468,75 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
     @Override
     public void setSplats(List<? extends Splat> splats)
     {
-        addPreRenderCommand(() ->
+        addPreRenderCommand(() -> 
         {
-            setSplatsInternal(splats);
+            splatData.setSplats(splats);
+            splatContentModified = true;
+            firstSortPending = true;
         });
     }
 
-    /**
-     * Private version of {@link #setSplats(List)}, to be called within a
-     * pre-render command
-     * 
-     * @param splats The splats
-     */
-    private void setSplatsInternal(List<? extends Splat> splats)
+    @Override
+    public void addSplats(List<? extends Splat> splats)
     {
-        this.splats = splats;
-        if (splats == null || splats.isEmpty())
+        addPreRenderCommand(() -> 
         {
-            return;
-        }
-        int shDimensions = splats.get(0).getShDimensions();
-        this.shDim = shDimensions * 3;
-        int numSplats = splats.size();
+            splatData.addSplats(splats);
+            splatContentModified = true;
+            firstSortPending = true;
+        });
+    }
 
-        // Prepare the buffer that will contain the 'gaussian_data' that
-        // will be sent to the shader via a Shader Storage Buffer Object
-        FloatBuffer gaussianData =
-            BufferUtils.createFloatBuffer(numSplats * (11 + shDim));
-        int j = 0;
-        for (int i = 0; i < numSplats; i++)
+    @Override
+    public void addSplatLists(List<? extends List<? extends Splat>> splatLists)
+    {
+        addPreRenderCommand(() -> 
         {
-            Splat s = splats.get(i);
-            gaussianData.put(j++, s.getPositionX());
-            gaussianData.put(j++, s.getPositionY());
-            gaussianData.put(j++, s.getPositionZ());
-
-            gaussianData.put(j++, s.getRotationW());
-            gaussianData.put(j++, s.getRotationX());
-            gaussianData.put(j++, s.getRotationY());
-            gaussianData.put(j++, s.getRotationZ());
-
-            gaussianData.put(j++, (float) Math.exp(s.getScaleX()));
-            gaussianData.put(j++, (float) Math.exp(s.getScaleY()));
-            gaussianData.put(j++, (float) Math.exp(s.getScaleZ()));
-
-            gaussianData.put(j++, Splats.opacityToAlpha(s.getOpacity()));
-
-            for (int d = 0; d < shDimensions; d++)
-            {
-                gaussianData.put(j++, s.getShX(d));
-                gaussianData.put(j++, s.getShY(d));
-                gaussianData.put(j++, s.getShZ(d));
-            }
-        }
-
-        // Initialize an fill the SSBO for the Gaussian data
-        initGaussianDataSSBO(numSplats);
-        fillGaussianDataSSBO(gaussianData);
-
-        // Initialize the SSBO that will store the Gaussian order data
-        initGaussianOrderSSBO(numSplats);
-
-        initGaussianOrderData();
+            splatData.addSplatLists(splatLists);
+            splatContentModified = true;
+            firstSortPending = true;
+        });
     }
 
-    /**
-     * Initialize the SSBO for the Gaussian data, for the given number of splats
-     * 
-     * @param numSplats The number of splats
-     */
-    private void initGaussianDataSSBO(int numSplats)
+    @Override
+    public void removeSplats(List<? extends Splat> splats)
     {
-        if (gaussianDataSSBO != 0)
+        addPreRenderCommand(() -> 
         {
-            glDeleteBuffers(gaussianDataSSBO);
-            gaussianDataSSBO = 0;
-        }
-        gaussianDataSSBO = glCreateBuffers();
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianDataSSBO);
-        int sizeInBytes = numSplats * (11 + shDim) * Float.BYTES;
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeInBytes, GL_STATIC_DRAW);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+            splatData.removeSplats(splats);
+            splatContentModified = true;
+            firstSortPending = true;
+        });
     }
 
-    /**
-     * Fill the SSBO for the Gaussian data with the given data
-     * 
-     * @param gaussianData The data
-     */
-    private void fillGaussianDataSSBO(FloatBuffer gaussianData)
+    @Override
+    public void clearSplats()
     {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianDataSSBO);
-        ByteBuffer br = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0,
-            gaussianData.capacity() * Float.BYTES,
-            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-        br.order(ByteOrder.nativeOrder()).asFloatBuffer()
-            .put(gaussianData.slice());
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    }
-
-    /**
-     * Initialize the SSBO for the Gaussian order, for the given number of
-     * splats
-     * 
-     * @param numSplats The number of splats
-     */
-    private void initGaussianOrderSSBO(int numSplats)
-    {
-        if (gaussianOrderSSBO != 0)
+        addPreRenderCommand(() -> 
         {
-            glDeleteBuffers(gaussianOrderSSBO);
-            gaussianOrderSSBO = 0;
+            splatData.clearSplats();
+            splatContentModified = true;
+            firstSortPending = true;
+        });
+    }
+
+    @Override
+    public void updateSplats()
+    {
+        splatContentModified = true;
+        triggerRepaint();
+    }
+
+    /**
+     * Trigger a repaint
+     */
+    private void triggerRepaint()
+    {
+        Component c = getRenderComponent();
+        if (c != null)
+        {
+            c.repaint();
         }
-        gaussianOrderSSBO = glCreateBuffers();
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianOrderSSBO);
-        int sizeInBytes = numSplats * Integer.BYTES;
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeInBytes, GL_STATIC_DRAW);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    }
-
-    /**
-     * Fill the SSBO for the Gaussian order with the given data
-     * 
-     * @param gaussianOrder The data
-     */
-    private void fillGaussianOrderSSBO(IntBuffer gaussianOrder)
-    {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianOrderSSBO);
-        ByteBuffer br = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0,
-            gaussianOrder.capacity() * Integer.BYTES,
-            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-        br.order(ByteOrder.nativeOrder()).asIntBuffer()
-            .put(gaussianOrder.slice());
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    }
-
-    /**
-     * Initialize the data that is required for sorting the splats by their
-     * distance from the viewer.
-     */
-    private void initGaussianOrderData()
-    {
-        splatSorter.init(splats);
-        gaussianOrderData = BufferUtils.createIntBuffer(splats.size());
-    }
-
-    /**
-     * Update the buffer that stores the indices of the splats, sorted by their
-     * distance to the viewer, based on the current view matrix.
-     */
-    private void updateGaussianOrderData()
-    {
-        FloatBuffer viewMatrix = obtainCurrentViewMatrixBuffer();
-        splatSorter.sort(viewMatrix);
     }
 
     /**
@@ -653,29 +550,55 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
         }
         processPreRenderCommands();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        splatData.validateStructures();
 
-        if (splats == null || splats.isEmpty())
+        if (splatContentModified)
         {
+            splatData.validateGaussianData();;
+            splatContentModified = false;
+        }
+        CompoundList<Splat> splats = splatData.getSplats();
+        int shDegree = splatData.getShDegree();
+        int gaussianDataSsbo = splatData.getGaussianDataSsbo();
+        int gaussianOrderSsbo = splatData.getGaussianOrderSsbo();
+        int numSplats = splats.size();
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+        if (numSplats == 0)
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
             return;
         }
-        int numSplats = splats.size();
+        
+        FloatBuffer viewMatrix = obtainCurrentViewMatrixBuffer();
+        splatData.validateGaussianOrderCpu(viewMatrix);
+        if (firstSortPending)
+        {
+            logger.fine("Not rendering, first sort pending");
+            return;
+        }
+        else 
+        {
+            logger.fine("Rendering, first sort NOT pending");
+        }
+       
+        splatData.validateGaussianOrderGpu();
+
+        int shDimensions = Splats.dimensionsForDegree(shDegree);
+        shDimForShader = shDimensions * 3;
+
+        glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(program);
 
         // Set the uniforms
         glUniform1f(scale_modifier_Location, scaleModifier);
         glUniform1i(render_mod_Location, renderMode);
-        glUniform1i(sh_dim_Location, shDim);
+        glUniform1i(sh_dim_Location, shDimForShader);
 
         // Set the camera uniforms
         updateCameraData();
-
-        // Update the 'gaussian_order' data for the shader
-        updateGaussianOrderData();
-        splatSorter.apply(gaussianOrderData);
-        fillGaussianOrderSSBO(gaussianOrderData);
 
         // Bind the required arrays and buffers, and draw the splats
         glBindVertexArray(vao);
@@ -683,11 +606,11 @@ public class SplatViewerLWJGL extends AbstractSplatViewer implements SplatViewer
 
         int gaussian_data_Binding = 0;
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, gaussian_data_Binding,
-            gaussianDataSSBO);
+            gaussianDataSsbo);
 
         int gaussian_order_Binding = 1;
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, gaussian_order_Binding,
-            gaussianOrderSSBO);
+            gaussianOrderSsbo);
 
         glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, numSplats);
 

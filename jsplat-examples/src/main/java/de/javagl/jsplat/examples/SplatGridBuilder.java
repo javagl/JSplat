@@ -16,15 +16,15 @@ import de.javagl.jsplat.MutableSplat;
 /**
  * Utility class for creating splat test data
  */
-class SplatGridBuilder
+public class SplatGridBuilder
 {
     /**
-     * Interface for classes that can receive an object and three floating
-     * point values
+     * Interface for classes that can receive an object and three double
+     * values
      * 
      * @param <T> The object type
      */
-    static interface Consumer3D<T>
+    public static interface Consumer3D<T>
     {
         /**
          * Accept the given object and values
@@ -34,7 +34,7 @@ class SplatGridBuilder
          * @param y The y value
          * @param z The z value
          */
-        void accept(T t, float x, float y, float z);
+        void accept(T t, double x, double y, double z);
     }
 
     /**
@@ -60,17 +60,17 @@ class SplatGridBuilder
     /**
      * The consumers for the x-values
      */
-    private final List<BiConsumer<MutableSplat, Float>> consumersX;
+    private final List<BiConsumer<MutableSplat, Double>> consumersX;
 
     /**
      * The consumers for the y-values
      */
-    private final List<BiConsumer<MutableSplat, Float>> consumersY;
+    private final List<BiConsumer<MutableSplat, Double>> consumersY;
 
     /**
      * The consumers for the z-values
      */
-    private final List<BiConsumer<MutableSplat, Float>> consumersZ;
+    private final List<BiConsumer<MutableSplat, Double>> consumersZ;
 
     /**
      * The consumers for the 3D values
@@ -85,7 +85,7 @@ class SplatGridBuilder
      * @param sizeZ The size of the grid in z-direction
      * @param supplier The supplier for the splat instances
      */
-    SplatGridBuilder(int sizeX, int sizeY, int sizeZ,
+    public SplatGridBuilder(int sizeX, int sizeY, int sizeZ,
         Supplier<? extends MutableSplat> supplier)
     {
         if (sizeX < 1 || sizeY < 1 || sizeZ < 1)
@@ -99,9 +99,9 @@ class SplatGridBuilder
         this.sizeZ = sizeZ;
         this.supplier =
             Objects.requireNonNull(supplier, "The supplier may not be null");
-        this.consumersX = new ArrayList<BiConsumer<MutableSplat, Float>>();
-        this.consumersY = new ArrayList<BiConsumer<MutableSplat, Float>>();
-        this.consumersZ = new ArrayList<BiConsumer<MutableSplat, Float>>();
+        this.consumersX = new ArrayList<BiConsumer<MutableSplat, Double>>();
+        this.consumersY = new ArrayList<BiConsumer<MutableSplat, Double>>();
+        this.consumersZ = new ArrayList<BiConsumer<MutableSplat, Double>>();
         this.consumers3D = new ArrayList<Consumer3D<MutableSplat>>();
     }
 
@@ -110,7 +110,7 @@ class SplatGridBuilder
      * 
      * @param consumer The consumer
      */
-    void registerX(BiConsumer<MutableSplat, Float> consumer)
+    void registerX(BiConsumer<MutableSplat, Double> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         consumersX.add(consumer);
@@ -121,7 +121,7 @@ class SplatGridBuilder
      * 
      * @param consumer The consumer
      */
-    void registerY(BiConsumer<MutableSplat, Float> consumer)
+    void registerY(BiConsumer<MutableSplat, Double> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         consumersY.add(consumer);
@@ -132,7 +132,7 @@ class SplatGridBuilder
      * 
      * @param consumer The consumer
      */
-    void registerZ(BiConsumer<MutableSplat, Float> consumer)
+    void registerZ(BiConsumer<MutableSplat, Double> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         consumersZ.add(consumer);
@@ -146,13 +146,13 @@ class SplatGridBuilder
      * @param max The maximum
      * @param consumer The consumer
      */
-    void registerX(float min, float max,
-        BiConsumer<MutableSplat, Float> consumer)
+    public void registerX(double min, double max,
+        BiConsumer<MutableSplat, Double> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         registerX((s, x) ->
         {
-            float fx = min + x * (max - min);
+            double fx = min + x * (max - min);
             consumer.accept(s, fx);
         });
     }
@@ -165,13 +165,13 @@ class SplatGridBuilder
      * @param max The maximum
      * @param consumer The consumer
      */
-    void registerY(float min, float max,
-        BiConsumer<MutableSplat, Float> consumer)
+    public void registerY(double min, double max,
+        BiConsumer<MutableSplat, Double> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         registerY((s, y) ->
         {
-            float fy = min + y * (max - min);
+            double fy = min + y * (max - min);
             consumer.accept(s, fy);
         });
     }
@@ -184,13 +184,13 @@ class SplatGridBuilder
      * @param max The maximum
      * @param consumer The consumer
      */
-    void registerZ(float min, float max,
-        BiConsumer<MutableSplat, Float> consumer)
+    public void registerZ(double min, double max,
+        BiConsumer<MutableSplat, Double> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         registerZ((s, z) ->
         {
-            float fz = min + z * (max - min);
+            double fz = min + z * (max - min);
             consumer.accept(s, fz);
         });
     }
@@ -200,7 +200,7 @@ class SplatGridBuilder
      * 
      * @param consumer The consumer
      */
-    void register(Consumer3D<MutableSplat> consumer)
+    public void register(Consumer3D<MutableSplat> consumer)
     {
         Objects.requireNonNull(consumer, "The consumer may not be null");
         consumers3D.add(consumer);
@@ -211,7 +211,7 @@ class SplatGridBuilder
      * 
      * @return The splats
      */
-    List<MutableSplat> generate()
+    public List<MutableSplat> generate()
     {
         List<MutableSplat> result = new ArrayList<MutableSplat>();
         for (int x = 0; x < sizeX; x++)
@@ -220,20 +220,20 @@ class SplatGridBuilder
             {
                 for (int z = 0; z < sizeZ; z++)
                 {
-                    float fx = 0.0f;
-                    float fy = 0.0f;
-                    float fz = 0.0f;
+                    double fx = 0.0;
+                    double fy = 0.0;
+                    double fz = 0.0;
                     if (sizeX > 1)
                     {
-                        fx = x / (float) (sizeX - 1);
+                        fx = (double)x / (sizeX - 1);
                     }
                     if (sizeY > 1)
                     {
-                        fy = y / (float) (sizeY - 1);
+                        fy = (double)y / (sizeY - 1);
                     }
                     if (sizeZ > 1)
                     {
-                        fz = z / (float) (sizeZ - 1);
+                        fz = (double)z / (sizeZ - 1);
                     }
 
                     MutableSplat s = generate(fx, fy, fz);
@@ -252,18 +252,18 @@ class SplatGridBuilder
      * @param fz The z-coordinate
      * @return The splat
      */
-    private MutableSplat generate(float fx, float fy, float fz)
+    private MutableSplat generate(double fx, double fy, double fz)
     {
         MutableSplat s = supplier.get();
-        for (BiConsumer<MutableSplat, Float> consumer : consumersX)
+        for (BiConsumer<MutableSplat, Double> consumer : consumersX)
         {
             consumer.accept(s, fx);
         }
-        for (BiConsumer<MutableSplat, Float> consumer : consumersY)
+        for (BiConsumer<MutableSplat, Double> consumer : consumersY)
         {
             consumer.accept(s, fy);
         }
-        for (BiConsumer<MutableSplat, Float> consumer : consumersZ)
+        for (BiConsumer<MutableSplat, Double> consumer : consumersZ)
         {
             consumer.accept(s, fz);
         }

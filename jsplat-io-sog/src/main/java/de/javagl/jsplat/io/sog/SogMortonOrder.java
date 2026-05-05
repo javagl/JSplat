@@ -32,6 +32,7 @@
  */
 package de.javagl.jsplat.io.sog;
 
+import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,24 +47,24 @@ import java.util.List;
 @SuppressWarnings("javadoc")
 class SogMortonOrder
 {
-    static void generate(IntBuffer indices, IntFloatFunction cx,
-        IntFloatFunction cy, IntFloatFunction cz)
+    static void generate(IntBuffer indices, IntDoubleFunction cx,
+        IntDoubleFunction cy, IntDoubleFunction cz)
     {
-        float mx = 0.0f;
-        float my = 0.0f;
-        float mz = 0.0f;
-        float Mx = 0.0f;
-        float My = 0.0f;
-        float Mz = 0.0f;
+        double mx = 0.0;
+        double my = 0.0;
+        double mz = 0.0;
+        double Mx = 0.0;
+        double My = 0.0;
+        double Mz = 0.0;
 
         // calculate scene extents across all splats (using sort
         // centers, because they're in world space)
         for (int i = 0; i < indices.capacity(); ++i)
         {
             int ri = indices.get(i);
-            float x = cx.apply(ri);
-            float y = cy.apply(ri);
-            float z = cz.apply(ri);
+            double x = cx.apply(ri);
+            double y = cy.apply(ri);
+            double z = cz.apply(ri);
 
             if (i == 0)
             {
@@ -100,12 +101,12 @@ class SogMortonOrder
             }
         }
 
-        float xlen = Mx - mx;
-        float ylen = My - my;
-        float zlen = Mz - mz;
+        double xlen = Mx - mx;
+        double ylen = My - my;
+        double zlen = Mz - mz;
 
-        if (!Float.isFinite(xlen) || !Float.isFinite(ylen)
-            || !Float.isFinite(zlen))
+        if (!Double.isFinite(xlen) || !Double.isFinite(ylen)
+            || !Double.isFinite(zlen))
         {
             System.err
                 .println("invalid extents: " + xlen + " " + ylen + " " + zlen);
@@ -118,17 +119,17 @@ class SogMortonOrder
             return;
         }
 
-        float xmul = (xlen == 0.0f) ? 0.0f : 1024.0f / xlen;
-        float ymul = (ylen == 0.0f) ? 0.0f : 1024.0f / ylen;
-        float zmul = (zlen == 0.0f) ? 0.0f : 1024.0f / zlen;
+        double xmul = (xlen == 0.0f) ? 0.0 : 1024.0 / xlen;
+        double ymul = (ylen == 0.0f) ? 0.0 : 1024.0 / ylen;
+        double zmul = (zlen == 0.0f) ? 0.0 : 1024.0 / zlen;
 
         int morton[] = new int[indices.capacity()];
         for (int i = 0; i < indices.capacity(); ++i)
         {
             int ri = indices.get(i);
-            float x = cx.apply(ri);
-            float y = cy.apply(ri);
-            float z = cz.apply(ri);
+            double x = cx.apply(ri);
+            double y = cy.apply(ri);
+            double z = cz.apply(ri);
 
             int ix = (int) Math.min(1023, (x - mx) * xmul);
             int iy = (int) Math.min(1023, (y - my) * ymul);
@@ -170,8 +171,8 @@ class SogMortonOrder
             {
                 // logger.debug('sorting', end - start);
                 IntBuffer s = indices.slice();
-                s.position(start);
-                s.limit(start + end);
+                ((Buffer)s).position(start);
+                ((Buffer)s).limit(start + end);
                 IntBuffer subarray = s.slice();
                 generate(subarray, cx, cy, cz);
             }

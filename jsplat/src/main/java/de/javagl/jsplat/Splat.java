@@ -36,77 +36,77 @@ public interface Splat
      * 
      * @return The value
      */
-    float getPositionX();
+    double getPositionX();
 
     /**
      * Returns the y-coordinate of the position
      * 
      * @return The value
      */
-    float getPositionY();
+    double getPositionY();
 
     /**
      * Returns the z-coordinate of the position
      * 
      * @return The value
      */
-    float getPositionZ();
+    double getPositionZ();
 
     /**
      * Returns the scale factor in x-direction
      * 
      * @return The value
      */
-    float getScaleX();
+    double getScaleX();
 
     /**
      * Returns the scale factor in y-direction
      * 
      * @return The value
      */
-    float getScaleY();
+    double getScaleY();
 
     /**
      * Returns the scale factor in z-direction
      * 
      * @return The value
      */
-    float getScaleZ();
+    double getScaleZ();
 
     /**
      * Returns the x-component of the rotation quaternion
      * 
      * @return The value
      */
-    float getRotationX();
+    double getRotationX();
 
     /**
      * Returns the y-component of the rotation quaternion
      * 
      * @return The value
      */
-    float getRotationY();
+    double getRotationY();
 
     /**
      * Returns the z-component of the rotation quaternion
      * 
      * @return The value
      */
-    float getRotationZ();
+    double getRotationZ();
 
     /**
      * Returns the w-component of the rotation quaternion
      * 
      * @return The value
      */
-    float getRotationW();
+    double getRotationW();
 
     /**
      * Returns the opacity value
      * 
      * @return The value
      */
-    float getOpacity();
+    double getOpacity();
 
     /**
      * Returns the spherical harmonics degree
@@ -128,7 +128,7 @@ public interface Splat
      * @param dimension The dimension
      * @return The value
      */
-    float getShX(int dimension);
+    double getShX(int dimension);
 
     /**
      * Returns the y-component of the spherical harmonic for the given dimension
@@ -136,7 +136,7 @@ public interface Splat
      * @param dimension The dimension
      * @return The value
      */
-    float getShY(int dimension);
+    double getShY(int dimension);
 
     /**
      * Returns the z-component of the spherical harmonic for the given dimension
@@ -144,5 +144,5 @@ public interface Splat
      * @param dimension The dimension
      * @return The value
      */
-    float getShZ(int dimension);
+    double getShZ(int dimension);
 }

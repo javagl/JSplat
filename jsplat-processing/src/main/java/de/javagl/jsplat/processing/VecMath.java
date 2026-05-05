@@ -29,14 +29,17 @@ package de.javagl.jsplat.processing;
 import java.util.Arrays;
 
 /**
- * Internal vector math utility functions
+ * Internal vector math utility functions.
+ * 
+ * <b>Note:</b> This class is currently public, but it is NOT part of the
+ * public API!
  */
-class VecMath
+public class VecMath
 {
     /**
      * Epsilon for quaternion computations
      */
-    private static final float EPSILON = 1e-6f;
+    private static final double EPSILON = 1e-6;
 
     /**
      * Compute the scaling factors from the given 4x4 matrix.
@@ -48,23 +51,23 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] computeScales(float matrix4[], float result[])
+    static double[] computeScales(double matrix4[], double result[])
     {
-        float r[] = validate(result, 3);
+        double r[] = validate(result, 3);
 
-        float m00 = matrix4[0];
-        float m10 = matrix4[1];
-        float m20 = matrix4[2];
-        float m01 = matrix4[4];
-        float m11 = matrix4[5];
-        float m21 = matrix4[6];
-        float m02 = matrix4[8];
-        float m12 = matrix4[9];
-        float m22 = matrix4[10];
+        double m00 = matrix4[0];
+        double m10 = matrix4[1];
+        double m20 = matrix4[2];
+        double m01 = matrix4[4];
+        double m11 = matrix4[5];
+        double m21 = matrix4[6];
+        double m02 = matrix4[8];
+        double m12 = matrix4[9];
+        double m22 = matrix4[10];
 
-        r[0] = (float) Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
-        r[1] = (float) Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
-        r[2] = (float) Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);
+        r[0] = Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
+        r[1] = Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
+        r[2] = Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);
         return r;
     }
 
@@ -83,10 +86,10 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] extractRotation(float[] matrix4, float[] scales,
-        float result[])
+    static double[] extractRotation(double[] matrix4, double[] scales,
+        double result[])
     {
-        float r[] = validate(result, 9);
+        double r[] = validate(result, 9);
 
         r[0] = matrix4[0] / scales[0];
         r[1] = matrix4[1] / scales[0];
@@ -113,35 +116,35 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] rotationMatrixToScalarLastQuaternion(float[] matrix3,
-        float result[])
+    static double[] rotationMatrixToScalarLastQuaternion(double[] matrix3,
+        double result[])
     {
-        float r[] = validate(result, 4);
+        double r[] = validate(result, 4);
 
-        float m00 = matrix3[0];
-        float m01 = matrix3[3];
-        float m02 = matrix3[6];
-        float m10 = matrix3[1];
-        float m11 = matrix3[4];
-        float m12 = matrix3[7];
-        float m20 = matrix3[2];
-        float m21 = matrix3[5];
-        float m22 = matrix3[8];
+        double m00 = matrix3[0];
+        double m01 = matrix3[3];
+        double m02 = matrix3[6];
+        double m10 = matrix3[1];
+        double m11 = matrix3[4];
+        double m12 = matrix3[7];
+        double m20 = matrix3[2];
+        double m21 = matrix3[5];
+        double m22 = matrix3[8];
 
-        float trace = m00 + m11 + m22;
-        if (trace > 0.0f)
+        double trace = m00 + m11 + m22;
+        if (trace > 0.0)
         {
-            float S = (float) Math.sqrt(trace + 1.0f) * 2f;
+            double S = Math.sqrt(trace + 1.0) * 2.0;
             r[0] = (m21 - m12) / S;
             r[1] = (m02 - m20) / S;
             r[2] = (m10 - m01) / S;
-            r[3] = 0.25f * S;
+            r[3] = 0.25 * S;
             return r;
         }
         if ((m00 > m11) && (m00 > m22))
         {
-            float S = (float) Math.sqrt(1.0f + m00 - m11 - m22) * 2f;
-            r[0] = 0.25f * S;
+            double S = Math.sqrt(1.0 + m00 - m11 - m22) * 2.0;
+            r[0] = 0.25 * S;
             r[1] = (m01 + m10) / S;
             r[2] = (m02 + m20) / S;
             r[3] = (m21 - m12) / S;
@@ -149,17 +152,17 @@ class VecMath
         }
         if (m11 > m22)
         {
-            float S = (float) Math.sqrt(1.0f + m11 - m00 - m22) * 2f;
+            double S = Math.sqrt(1.0 + m11 - m00 - m22) * 2.0;
             r[0] = (m01 + m10) / S;
-            r[1] = 0.25f * S;
+            r[1] = 0.25 * S;
             r[2] = (m12 + m21) / S;
             r[3] = (m02 - m20) / S;
             return r;
         }
-        float S = (float) Math.sqrt(1.0f + m22 - m00 - m11) * 2f;
+        double S = Math.sqrt(1.0 + m22 - m00 - m11) * 2.0;
         r[0] = (m02 + m20) / S;
         r[1] = (m12 + m21) / S;
-        r[2] = 0.25f * S;
+        r[2] = 0.25 * S;
         r[3] = (m10 - m01) / S;
         return r;
     }
@@ -175,25 +178,25 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] scalarLastQuaternionToRotationMatrix(float q[],
-        float result[])
+    static double[] scalarLastQuaternionToRotationMatrix(double q[],
+        double result[])
     {
-        float r[] = validate(result, 9);
+        double r[] = validate(result, 9);
 
-        float qx = q[0];
-        float qy = q[1];
-        float qz = q[2];
-        float qw = q[3];
+        double qx = q[0];
+        double qy = q[1];
+        double qz = q[2];
+        double qw = q[3];
 
-        float xx = qx * qx;
-        float yy = qy * qy;
-        float zz = qz * qz;
-        float xy = qx * qy;
-        float xz = qx * qz;
-        float xw = qx * qw;
-        float yz = qy * qz;
-        float yw = qy * qw;
-        float zw = qz * qw;
+        double xx = qx * qx;
+        double yy = qy * qy;
+        double zz = qz * qz;
+        double xy = qx * qy;
+        double xz = qx * qz;
+        double xw = qx * qw;
+        double yz = qy * qz;
+        double yw = qy * qw;
+        double zw = qz * qw;
 
         r[0] = 1 - 2 * (yy + zz);
         r[1] = 2 * (xy + zw);
@@ -220,19 +223,19 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] multiplyScalarLastQuaternions(float[] q0, float[] q1,
-        float result[])
+    static double[] multiplyScalarLastQuaternions(double[] q0, double[] q1,
+        double result[])
     {
-        float r[] = validate(result, 4);
+        double r[] = validate(result, 4);
 
-        float q0x = q0[0];
-        float q0y = q0[1];
-        float q0z = q0[2];
-        float q0w = q0[3];
-        float q1x = q1[0];
-        float q1y = q1[1];
-        float q1z = q1[2];
-        float q1w = q1[3];
+        double q0x = q0[0];
+        double q0y = q0[1];
+        double q0z = q0[2];
+        double q0w = q0[3];
+        double q1x = q1[0];
+        double q1y = q1[1];
+        double q1z = q1[2];
+        double q1w = q1[3];
 
         r[0] = q0w * q1x + q0x * q1w + q0y * q1z - q0z * q1y;
         r[1] = q0w * q1y - q0x * q1z + q0y * q1w + q0z * q1x;
@@ -255,17 +258,45 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] multiplyMatrix4WithPoint(float matrix4[], float point[],
-        float result[])
+    static double[] multiplyMatrix4WithPoint(double matrix4[], double point[],
+        double result[])
     {
-        float r[] = validate(result, 3);
+        double r[] = validate(result, 3);
 
-        float x = point[0];
-        float y = point[1];
-        float z = point[2];
+        double x = point[0];
+        double y = point[1];
+        double z = point[2];
         r[0] = matrix4[0] * x + matrix4[4] * y + matrix4[8] * z + matrix4[12];
         r[1] = matrix4[1] * x + matrix4[5] * y + matrix4[9] * z + matrix4[13];
         r[2] = matrix4[2] * x + matrix4[6] * y + matrix4[10] * z + matrix4[14];
+        return r;
+    }
+
+    /**
+     * Multiply the given 4x4 matrix with the given 3D vector.
+     * 
+     * The matrix is assumed to be a 16-element array representing a 4x4 matrix
+     * in column-major order
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param matrix4 The matrix
+     * @param vector The 3D point
+     * @param result The result
+     * @return The result
+     */
+    static double[] multiplyMatrix4WithVector(double matrix4[], double vector[],
+        double result[])
+    {
+        double r[] = validate(result, 3);
+
+        double x = vector[0];
+        double y = vector[1];
+        double z = vector[2];
+        r[0] = matrix4[0] * x + matrix4[4] * y + matrix4[8] * z;
+        r[1] = matrix4[1] * x + matrix4[5] * y + matrix4[9] * z;
+        r[2] = matrix4[2] * x + matrix4[6] * y + matrix4[10] * z;
         return r;
     }
 
@@ -281,32 +312,32 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] createScalarLastQuaternionFromAxisAngleRad(float axis[],
-        float angleRad, float result[])
+    static double[] createScalarLastQuaternionFromAxisAngleRad(double axis[],
+        double angleRad, double result[])
     {
-        float r[] = validate(result, 4);
+        double r[] = validate(result, 4);
 
-        float halfAngleRad = angleRad * 0.5f;
-        float s = (float) Math.sin(halfAngleRad);
+        double halfAngleRad = angleRad * 0.5;
+        double s = Math.sin(halfAngleRad);
 
-        float x = axis[0];
-        float y = axis[1];
-        float z = axis[2];
-        float lenSquared = x * x + y * y + z * z;
+        double x = axis[0];
+        double y = axis[1];
+        double z = axis[2];
+        double lenSquared = x * x + y * y + z * z;
         if (lenSquared < EPSILON)
         {
-            r[0] = 0.0f;
-            r[1] = 0.0f;
-            r[2] = 0.0f;
-            r[3] = 1.0f;
+            r[0] = 0.0;
+            r[1] = 0.0;
+            r[2] = 0.0;
+            r[3] = 1.0;
             return r;
         }
 
-        float invLen = (float) (1.0 / Math.sqrt(lenSquared));
+        double invLen = 1.0 / Math.sqrt(lenSquared);
         r[0] = x * invLen * s;
         r[1] = y * invLen * s;
         r[2] = z * invLen * s;
-        r[3] = (float) Math.cos(halfAngleRad);
+        r[3] = Math.cos(halfAngleRad);
         return r;
     }
 
@@ -321,22 +352,22 @@ class VecMath
      * @param result The result
      * @return The the result
      */
-    static float[] createAxisAngleRadFromScalarLastQuaternion(float q[],
-        float result[])
+    static double[] createAxisAngleRadFromScalarLastQuaternion(double q[],
+        double result[])
     {
-        float r[] = validate(result, 4);
+        double r[] = validate(result, 4);
 
-        float qx = q[0];
-        float qy = q[1];
-        float qz = q[2];
-        float qw = q[3];
-        float x = 1.0f;
-        float y = 0.0f;
-        float z = 0.0f;
-        float angleRad = 0.0f;
+        double qx = q[0];
+        double qy = q[1];
+        double qz = q[2];
+        double qw = q[3];
+        double x = 1.0;
+        double y = 0.0;
+        double z = 0.0;
+        double angleRad = 0.0;
         if (Math.abs(qw - 1.0) >= EPSILON && Math.abs(qw + 1.0) >= EPSILON)
         {
-            float f = (float) (1.0 / Math.sqrt(1.0 - qw * qw));
+            double f = 1.0 / Math.sqrt(1.0 - qw * qw);
             x = qx * f;
             y = qy * f;
             z = qz * f;
@@ -344,7 +375,7 @@ class VecMath
         }
         if (Math.abs(qw - 1.0) >= EPSILON)
         {
-            angleRad = (float) (2.0 * Math.acos(qw));
+            angleRad = 2.0 * Math.acos(qw);
         }
         r[0] = x;
         r[1] = y;
@@ -368,30 +399,30 @@ class VecMath
      * @param result The inverse matrix
      * @return The result
      */
-    static float[] invert4x4(float m[], float result[])
+    static double[] invert4x4(double m[], double result[])
     {
-        float r[] = validate(result, 16);
+        double r[] = validate(result, 16);
 
         // Adapted from The Mesa 3-D graphics library.
         // Copyright (C) 1999-2007 Brian Paul All Rights Reserved.
         // Published under the MIT license (see the header of this file)
         // @formatter:off
-        float m0 = m[ 0];
-        float m1 = m[ 1];
-        float m2 = m[ 2];
-        float m3 = m[ 3];
-        float m4 = m[ 4];
-        float m5 = m[ 5];
-        float m6 = m[ 6];
-        float m7 = m[ 7];
-        float m8 = m[ 8];
-        float m9 = m[ 9];
-        float mA = m[10];
-        float mB = m[11];
-        float mC = m[12];
-        float mD = m[13];
-        float mE = m[14];
-        float mF = m[15];
+        double m0 = m[ 0];
+        double m1 = m[ 1];
+        double m2 = m[ 2];
+        double m3 = m[ 3];
+        double m4 = m[ 4];
+        double m5 = m[ 5];
+        double m6 = m[ 6];
+        double m7 = m[ 7];
+        double m8 = m[ 8];
+        double m9 = m[ 9];
+        double mA = m[10];
+        double mB = m[11];
+        double mC = m[12];
+        double mD = m[13];
+        double mE = m[14];
+        double mF = m[15];
 
         r[ 0] =  m5 * mA * mF - m5 * mB * mE - m9 * m6 * mF + 
                  m9 * m7 * mE + mD * m6 * mB - mD * m7 * mA;
@@ -428,13 +459,13 @@ class VecMath
         // (Ain't that pretty?)
         // @formatter:on
 
-        float det = m0 * r[0] + m1 * r[4] + m2 * r[8] + m3 * r[12];
+        double det = m0 * r[0] + m1 * r[4] + m2 * r[8] + m3 * r[12];
         if (Math.abs(det) <= EPSILON)
         {
             identity4x4(r);
             return r;
         }
-        float invDet = 1.0f / det;
+        double invDet = 1.0 / det;
         for (int i = 0; i < 16; i++)
         {
             r[i] *= invDet;
@@ -456,63 +487,63 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    public static float[] mul4x4(float a[], float b[], float result[])
+    public static double[] mul4x4(double a[], double b[], double result[])
     {
-        float r[] = validate(result, 16);
+        double r[] = validate(result, 16);
 
-        float a00 = a[0];
-        float a10 = a[1];
-        float a20 = a[2];
-        float a30 = a[3];
-        float a01 = a[4];
-        float a11 = a[5];
-        float a21 = a[6];
-        float a31 = a[7];
-        float a02 = a[8];
-        float a12 = a[9];
-        float a22 = a[10];
-        float a32 = a[11];
-        float a03 = a[12];
-        float a13 = a[13];
-        float a23 = a[14];
-        float a33 = a[15];
+        double a00 = a[0];
+        double a10 = a[1];
+        double a20 = a[2];
+        double a30 = a[3];
+        double a01 = a[4];
+        double a11 = a[5];
+        double a21 = a[6];
+        double a31 = a[7];
+        double a02 = a[8];
+        double a12 = a[9];
+        double a22 = a[10];
+        double a32 = a[11];
+        double a03 = a[12];
+        double a13 = a[13];
+        double a23 = a[14];
+        double a33 = a[15];
 
-        float b00 = b[0];
-        float b10 = b[1];
-        float b20 = b[2];
-        float b30 = b[3];
-        float b01 = b[4];
-        float b11 = b[5];
-        float b21 = b[6];
-        float b31 = b[7];
-        float b02 = b[8];
-        float b12 = b[9];
-        float b22 = b[10];
-        float b32 = b[11];
-        float b03 = b[12];
-        float b13 = b[13];
-        float b23 = b[14];
-        float b33 = b[15];
+        double b00 = b[0];
+        double b10 = b[1];
+        double b20 = b[2];
+        double b30 = b[3];
+        double b01 = b[4];
+        double b11 = b[5];
+        double b21 = b[6];
+        double b31 = b[7];
+        double b02 = b[8];
+        double b12 = b[9];
+        double b22 = b[10];
+        double b32 = b[11];
+        double b03 = b[12];
+        double b13 = b[13];
+        double b23 = b[14];
+        double b33 = b[15];
 
-        float m00 = a00 * b00 + a01 * b10 + a02 * b20 + a03 * b30;
-        float m01 = a00 * b01 + a01 * b11 + a02 * b21 + a03 * b31;
-        float m02 = a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32;
-        float m03 = a00 * b03 + a01 * b13 + a02 * b23 + a03 * b33;
+        double m00 = a00 * b00 + a01 * b10 + a02 * b20 + a03 * b30;
+        double m01 = a00 * b01 + a01 * b11 + a02 * b21 + a03 * b31;
+        double m02 = a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32;
+        double m03 = a00 * b03 + a01 * b13 + a02 * b23 + a03 * b33;
 
-        float m10 = a10 * b00 + a11 * b10 + a12 * b20 + a13 * b30;
-        float m11 = a10 * b01 + a11 * b11 + a12 * b21 + a13 * b31;
-        float m12 = a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32;
-        float m13 = a10 * b03 + a11 * b13 + a12 * b23 + a13 * b33;
+        double m10 = a10 * b00 + a11 * b10 + a12 * b20 + a13 * b30;
+        double m11 = a10 * b01 + a11 * b11 + a12 * b21 + a13 * b31;
+        double m12 = a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32;
+        double m13 = a10 * b03 + a11 * b13 + a12 * b23 + a13 * b33;
 
-        float m20 = a20 * b00 + a21 * b10 + a22 * b20 + a23 * b30;
-        float m21 = a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31;
-        float m22 = a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32;
-        float m23 = a20 * b03 + a21 * b13 + a22 * b23 + a23 * b33;
+        double m20 = a20 * b00 + a21 * b10 + a22 * b20 + a23 * b30;
+        double m21 = a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31;
+        double m22 = a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32;
+        double m23 = a20 * b03 + a21 * b13 + a22 * b23 + a23 * b33;
 
-        float m30 = a30 * b00 + a31 * b10 + a32 * b20 + a33 * b30;
-        float m31 = a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31;
-        float m32 = a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32;
-        float m33 = a30 * b03 + a31 * b13 + a32 * b23 + a33 * b33;
+        double m30 = a30 * b00 + a31 * b10 + a32 * b20 + a33 * b30;
+        double m31 = a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31;
+        double m32 = a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32;
+        double m33 = a30 * b03 + a31 * b13 + a32 * b23 + a33 * b33;
 
         r[0] = m00;
         r[1] = m10;
@@ -546,9 +577,9 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] createMatrix4FromMatrix3(float matrix3[], float result[])
+    static double[] createMatrix4FromMatrix3(double matrix3[], double result[])
     {
-        float r[] = validate(result, 16);
+        double r[] = validate(result, 16);
 
         r[0] = matrix3[0];
         r[1] = matrix3[1];
@@ -562,7 +593,7 @@ class VecMath
         r[9] = matrix3[7];
         r[10] = matrix3[8];
 
-        r[15] = 1.0f;
+        r[15] = 1.0;
 
         return r;
 
@@ -578,15 +609,15 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    static float[] identity4x4(float result[])
+    public static double[] identity4x4(double result[])
     {
-        float r[] = validate(result, 16);
+        double r[] = validate(result, 16);
 
-        Arrays.fill(r, 0.0f);
-        r[0] = 1.0f;
-        r[5] = 1.0f;
-        r[10] = 1.0f;
-        r[15] = 1.0f;
+        Arrays.fill(r, 0.0);
+        r[0] = 1.0;
+        r[5] = 1.0;
+        r[10] = 1.0;
+        r[15] = 1.0;
         return r;
     }
 
@@ -607,10 +638,10 @@ class VecMath
      * @param result The result
      * @return The result
      */
-    public static float[] translate4x4(float m[], float x, float y, float z,
-        float result[])
+    public static double[] translate4x4(double m[], double x, double y, double z,
+        double result[])
     {
-        float r[] = validate(result, 16);
+        double r[] = validate(result, 16);
         set(m, r);
         r[12] += x;
         r[13] += y;
@@ -618,6 +649,183 @@ class VecMath
         return r;
     }
 
+    
+    /**
+     * Create a matrix describing a rotation around the x-axis, and the given
+     * translation
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param angleRad The angle, in radians
+     * @param result The result
+     * @return The matrix
+     */
+    public static double[] rotationX(double angleRad, double result[])
+    {
+        double matrix[] = validate(result, 16);
+
+        double c = Math.cos(angleRad);
+        double s = Math.sin(angleRad);
+
+        // Column 0
+        matrix[0] = 1.0;
+        matrix[1] = 0.0;
+        matrix[2] = 0.0;
+        matrix[3] = 0.0;
+
+        // Column 1
+        matrix[4] = 0.0;
+        matrix[5] = c;
+        matrix[6] = s;
+        matrix[7] = 0.0;
+
+        // Column 2
+        matrix[8] = 0.0;
+        matrix[9] = -s;
+        matrix[10] = c;
+        matrix[11] = 0.0;
+
+        // Column 3
+        matrix[12] = 0.0;
+        matrix[13] = 0.0;
+        matrix[14] = 0.0;
+        matrix[15] = 1.0;
+
+        return matrix;
+    }
+
+    /**
+     * Create a matrix describing a rotation around the y-axis
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param angleRad The angle, in radians
+     * @param result The result
+     * @return The matrix
+     */
+    public static double[] rotationY(double angleRad, double result[])
+    {
+        double matrix[] = validate(result, 16);
+
+        double c = Math.cos(angleRad);
+        double s = Math.sin(angleRad);
+
+        // Column 0
+        matrix[0] = c;
+        matrix[1] = 0.0;
+        matrix[2] = -s;
+        matrix[3] = 0.0;
+
+        // Column 1
+        matrix[4] = 0.0;
+        matrix[5] = 1.0;
+        matrix[6] = 0.0;
+        matrix[7] = 0.0;
+
+        // Column 2
+        matrix[8] = s;
+        matrix[9] = 0.0;
+        matrix[10] = c;
+        matrix[11] = 0.0;
+
+        // Column 3
+        matrix[12] = 0.0;
+        matrix[13] = 0.0;
+        matrix[14] = 0.0;
+        matrix[15] = 1.0;
+
+        return matrix;
+    }
+    
+    
+    /**
+     * Create a matrix describing a rotation around the z-axis
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param angleRad The angle, in radians
+     * @param result The result
+     * @return The matrix
+     */
+    public static double[] rotationZ(double angleRad, double result[])
+    {
+        double matrix[] = validate(result, 16);
+
+        double c = Math.cos(angleRad);
+        double s = Math.sin(angleRad);
+
+        // Column 0
+        matrix[0] = c;
+        matrix[1] = s;
+        matrix[2] = 0.0;
+        matrix[3] = 0.0;
+
+        // Column 1
+        matrix[4] = -s;
+        matrix[5] = c;
+        matrix[6] = 0.0;
+        matrix[7] = 0.0;
+
+        // Column 2
+        matrix[8] = 0.0;
+        matrix[9] = 0.0;
+        matrix[10] = 1.0;
+        matrix[11] = 0.0;
+
+        // Column 3
+        matrix[12] = 0.0;
+        matrix[13] = 0.0;
+        matrix[14] = 0.0;
+        matrix[15] = 1.0;
+
+        return matrix;
+    }
+    
+    /**
+     * Create a matrix with a uniform scale.
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param s The scaling
+     * @param result The result 
+     * @return The result
+     */
+    public static double[] scale4x4(double s, double result[])
+    {
+        double[] r = identity4x4(result);
+        r[0] = s;
+        r[5] = s;
+        r[10] = s;
+        r[15] = 1.0;
+        return r;
+    }
+    
+    /**
+     * Create a matrix with a given scale.
+     * 
+     * If the given result is <code>null</code>, a new array will be created and
+     * returned.
+     * 
+     * @param sx The scaling along x
+     * @param sy The scaling along y
+     * @param sz The scaling along z
+     * @param result The result 
+     * @return The result
+     */
+    public static double[] scale4x4(double sx, double sy, double sz, double result[])
+    {
+        double[] r = identity4x4(result);
+        r[0] = sx;
+        r[5] = sy;
+        r[10] = sz;
+        r[15] = 1.0;
+        return r;
+    }
+    
     /**
      * Copy the contents of the source array to the given target array. The
      * length of the shorter array will determine how many elements are copied.
@@ -625,7 +833,7 @@ class VecMath
      * @param source The source array
      * @param target The target array
      */
-    private static void set(float source[], float target[])
+    private static void set(double source[], double target[])
     {
         System.arraycopy(source, 0, target, 0,
             Math.min(source.length, target.length));
@@ -640,15 +848,15 @@ class VecMath
      * @param length The length
      * @return The result
      */
-    private static float[] validate(float array[], int length)
+    private static double[] validate(double array[], int length)
     {
         if (array == null)
         {
-            return new float[length];
+            return new double[length];
         }
         if (array.length != length)
         {
-            return new float[length];
+            return new double[length];
         }
         return array;
     }

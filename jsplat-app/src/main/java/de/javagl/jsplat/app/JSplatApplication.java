@@ -29,6 +29,7 @@ package de.javagl.jsplat.app;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,6 +39,8 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -54,6 +57,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListReader;
 import de.javagl.jsplat.SplatListWriter;
@@ -200,11 +204,6 @@ class JSplatApplication
     private JSplatApplicationPanel applicationPanel;
 
     /**
-     * The splats that are currently displayed in the application panel
-     */
-    private List<? extends Splat> currentSplats;
-
-    /**
      * Default constructor
      */
     JSplatApplication()
@@ -213,7 +212,7 @@ class JSplatApplication
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         UriTransferHandler transferHandler =
-            new UriTransferHandler(uri -> openUriInBackground(uri));
+            new UriTransferHandler(uris -> openUrisInBackground(uris));
         frame.setTransferHandler(transferHandler);
 
         menuBar = new JMenuBar();
@@ -222,8 +221,8 @@ class JSplatApplication
 
         openFileChooser = new JFileChooser(".");
         openFileChooser.setFileFilter(new FileNameExtensionFilter(
-            "Splat Files (.splat, .ply, .spz, .glb)", "splat", "ply", "spz",
-            "glb"));
+            "Splat Files (.splat, .ply, .spz, .sog, .glb)", "splat", "ply",
+            "spz", "sog", "glb"));
 
         saveFileChooser = new JFileChooser(".");
 
@@ -235,9 +234,8 @@ class JSplatApplication
         saveFileChooser.setAccessory(accessory);
 
         saveFileChooser.setFileFilter(new FileNameExtensionFilter(
-            "Splat Files (.splat, .ply, .spz, .glb)", "splat", "ply", "spz",
-            "glb"));
-        saveFileAction.setEnabled(false);
+            "Splat Files (.splat, .ply, .spz, .sog, .glb)", "splat", "ply",
+            "spz", "sog", "glb"));
 
         applicationPanel = new JSplatApplicationPanel();
         frame.getContentPane().add(applicationPanel);
@@ -331,7 +329,7 @@ class JSplatApplication
         if (returnState == JFileChooser.APPROVE_OPTION)
         {
             File file = openFileChooser.getSelectedFile();
-            openUriInBackground(file.toURI());
+            openUrisInBackground(Collections.singletonList(file.toURI()));
         }
     }
 
@@ -339,12 +337,13 @@ class JSplatApplication
      * Execute the task of loading the data in a background thread, showing a
      * modal dialog.
      *
-     * @param uri The URI to load from
+     * @param uris The URIs to load from
      */
-    void openUriInBackground(URI uri)
+    void openUrisInBackground(List<? extends URI> uris)
     {
-        logger.info("Loading " + uri);
+        logger.info("Loading " + uris);
 
+        URI uri = uris.get(0);
         if (UriUtils.isLocalFile(uri))
         {
             URI directory = UriUtils.getParent(uri);
@@ -361,26 +360,43 @@ class JSplatApplication
         {
             try
             {
-                return reader.readList(inputStream);
+                long beforeNs = System.nanoTime();
+                List<MutableSplat> result = reader.readList(inputStream);
+                long afterNs = System.nanoTime();
+                double ms = (afterNs - beforeNs) / 1e6;
+                logger.info(
+                    "Loaded " + result.size() + " splats in " + ms + " ms");
+                return result;
             }
             catch (IOException e)
             {
                 throw new UncheckedIOException(e);
             }
         };
-        UriLoading.loadInBackground(uri, loader, (resultUri, resultSplats) ->
+        UriLoading.loadAllInBackground(uris, loader,
+            (resultUris, resultSplatLists) ->
+            {
+                processLoadedSplats(resultUris, resultSplatLists);
+            });
+    }
+
+    /**
+     * Process the given splats that have been loaded from a URI
+     * 
+     * @param uris The URIs
+     * @param splatLists The splat lists
+     */
+    private void processLoadedSplats(List<? extends URI> uris,
+        List<? extends List<? extends Splat>> splatLists)
+    {
+        List<String> names = new ArrayList<String>();
+        for (int i = 0; i < uris.size(); i++)
         {
-            currentSplats = resultSplats;
-            if (currentSplats != null)
-            {
-                saveFileAction.setEnabled(true);
-                applicationPanel.setSplats(currentSplats);
-            }
-            else
-            {
-                saveFileAction.setEnabled(false);
-            }
-        });
+            URI uri = uris.get(i);
+            String fileName = Paths.get(uri).getFileName().toString();
+            names.add(fileName);
+        }
+        applicationPanel.addSplatLists(names, splatLists);
     }
 
     /**
@@ -558,9 +574,24 @@ class JSplatApplication
      */
     private void save(SplatListWriter w, File file) throws IOException
     {
-        OutputStream outputStream = new FileOutputStream(file);
-        w.writeList(currentSplats, outputStream);
+        List<? extends Splat> allSplats = applicationPanel.getAllSplats();
+        if (allSplats.isEmpty())
+        {
+            logger.severe("No splats are currently loaded");
+            return;
+        }
+
+        long beforeNs = System.nanoTime();
+
+        OutputStream outputStream =
+            new BufferedOutputStream(new FileOutputStream(file));
+        w.writeList(allSplats, outputStream);
         outputStream.close();
+
+        long afterNs = System.nanoTime();
+        double ms = (afterNs - beforeNs) / 1e6;
+        logger.info("Wrote " + allSplats.size() + " splats in " + ms + " ms");
+
     }
 
     /**

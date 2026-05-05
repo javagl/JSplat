@@ -34,6 +34,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import de.javagl.jsplat.app.common.ExtensionBasedSaveOptions;
+
 /**
  * A panel that serves as an accessory for the save file chooser, to select the
  * compression that should be applied in GLB files

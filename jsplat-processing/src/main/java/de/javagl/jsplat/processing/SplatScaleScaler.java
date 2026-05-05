@@ -36,17 +36,17 @@ class SplatScaleScaler
     /**
      * The scale factor along x
      */
-    private final float sx;
+    private final double sx;
 
     /**
      * The scale factor along y
      */
-    private final float sy;
+    private final double sy;
 
     /**
      * The scale factor along z
      */
-    private final float sz;
+    private final double sz;
 
     /**
      * Creates a new instance
@@ -55,7 +55,7 @@ class SplatScaleScaler
      * @param sy The scaling along y
      * @param sz The scaling along z
      */
-    SplatScaleScaler(float sx, float sy, float sz)
+    SplatScaleScaler(double sx, double sy, double sz)
     {
         this.sx = sx;
         this.sy = sy;
@@ -69,9 +69,9 @@ class SplatScaleScaler
      */
     void scale(MutableSplat s)
     {
-        s.setScaleX((float)Math.log(Math.exp(s.getScaleX()) * sx));
-        s.setScaleY((float)Math.log(Math.exp(s.getScaleY()) * sy));
-        s.setScaleZ((float)Math.log(Math.exp(s.getScaleZ()) * sz));
+        s.setScaleX(Math.log(Math.exp(s.getScaleX()) * sx));
+        s.setScaleY(Math.log(Math.exp(s.getScaleY()) * sy));
+        s.setScaleZ(Math.log(Math.exp(s.getScaleZ()) * sz));
     }
 
 }

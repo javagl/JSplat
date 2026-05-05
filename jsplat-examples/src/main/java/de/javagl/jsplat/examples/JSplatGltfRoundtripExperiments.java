@@ -44,7 +44,7 @@ public class JSplatGltfRoundtripExperiments
         
         // The huge epsilon is required for the 'scales', where a value
         // of 0.1 becomes 0.125 due to quantization
-        float epsilon = 0.03f;
+        double epsilon = 0.03;
         for (int i=0; i<splatsA.size(); i++)
         {
             Splat splatA = splatsA.get(i);

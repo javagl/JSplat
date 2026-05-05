@@ -134,8 +134,13 @@ public final class GltfSplatReader implements SplatListReader
             List<NodeModel> nodeModels = sceneModel.getNodeModels();
             for (NodeModel nodeModel : nodeModels)
             {
-                float[] globalTransform =
+                float[] globalTransformF =
                     nodeModel.computeGlobalTransform(null);
+                double globalTransform[] = new double[16];
+                for (int i=0; i<16; i++)
+                {
+                    globalTransform[i] = globalTransformF[i];
+                }
                 List<MeshModel> meshModels = nodeModel.getMeshModels();
                 for (MeshModel meshModel : meshModels)
                 {
@@ -344,7 +349,7 @@ public final class GltfSplatReader implements SplatListReader
         SplatDatas.writePositions(positionBuffer, splats);
 
         FloatBuffer scaleBuffer = readAsFloatBuffer(scaleAccessor);
-        SplatDatas.writeScales(scaleBuffer, splats);
+        SplatDatas.writeScalesFromLinear(scaleBuffer, splats);
 
         FloatBuffer rotationBuffer = readAsFloatBuffer(rotationAccessor);
         SplatDatas.writeRotations(rotationBuffer, splats);

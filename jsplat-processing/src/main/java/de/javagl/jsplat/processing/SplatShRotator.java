@@ -26,7 +26,7 @@
  */
 package de.javagl.jsplat.processing;
 
-import java.nio.FloatBuffer;
+import java.nio.DoubleBuffer;
 
 import de.javagl.jsplat.MutableSplat;
 
@@ -36,14 +36,14 @@ import de.javagl.jsplat.MutableSplat;
 class SplatShRotator
 {
     /**
-     * A buffer for the coefficients in the input
+     * A thread-local buffer for the input coefficients
      */
-    private final FloatBuffer coeffsIn;
+    private final ThreadLocal<DoubleBuffer> threadLocalCoeffsIn;
 
     /**
-     * A buffer for the coefficients in the output
+     * A thread-local buffer for the coefficients
      */
-    private final FloatBuffer coeffs;
+    private final ThreadLocal<DoubleBuffer> threadLocalCoeffs;
     
     /**
      * The {@link SphericalHarmonicsRotator}
@@ -60,10 +60,12 @@ class SplatShRotator
      * @param matrix The matrix
      * @param dims The dimensions
      */
-    SplatShRotator(float matrix[], int dims)
+    SplatShRotator(double matrix[], int dims)
     {
-        this.coeffsIn = FloatBuffer.allocate(dims - 1);
-        this.coeffs = FloatBuffer.allocate(dims - 1);
+        this.threadLocalCoeffsIn =
+            ThreadLocal.withInitial(() -> DoubleBuffer.allocate(dims - 1));
+        this.threadLocalCoeffs =
+            ThreadLocal.withInitial(() -> DoubleBuffer.allocate(dims - 1));
         this.sr = new SphericalHarmonicsRotator(matrix);
     }
     
@@ -102,6 +104,9 @@ class SplatShRotator
         
         int dims = s.getShDimensions();
         
+        DoubleBuffer coeffsIn = threadLocalCoeffsIn.get();
+        DoubleBuffer coeffs = threadLocalCoeffs.get();
+
         // Coefficients for X
         for (int d = 0; d < dims - 1; d++)
         {

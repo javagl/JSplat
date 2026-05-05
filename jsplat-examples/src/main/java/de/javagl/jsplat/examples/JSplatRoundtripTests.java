@@ -37,9 +37,9 @@ public class JSplatRoundtripTests
      */
     public static void main(String[] args) throws IOException
     {
-        runTestWith(GltfSplatWriter::new, GltfSplatReader::new, 1e-6f);
-        runTestWith(SpzSplatWriter::new, SpzSplatReader::new, 0.08f);
-        runTestWith(GltfSpzSplatWriter::new, GltfSpzSplatReader::new, 0.08f);
+        runTestWith(GltfSplatWriter::new, GltfSplatReader::new, 1e-6);
+        runTestWith(SpzSplatWriter::new, SpzSplatReader::new, 0.08);
+        runTestWith(GltfSpzSplatWriter::new, GltfSpzSplatReader::new, 0.08);
     }
 
     /**
@@ -54,7 +54,7 @@ public class JSplatRoundtripTests
      * @throws IOException If an IO error occurs
      */
     private static void runTestWith(Supplier<? extends SplatListWriter> ws,
-        Supplier<? extends SplatListReader> rs, float epsilon)
+        Supplier<? extends SplatListReader> rs, double epsilon)
         throws IOException
     {
         int numSplats = 1;
@@ -118,31 +118,31 @@ public class JSplatRoundtripTests
      * @param offset An offset for the values
      * @return The splat
      */
-    static MutableSplat createDummySplat(float offset)
+    static MutableSplat createDummySplat(double offset)
     {
         MutableSplat s = Splats.create(3);
-        s.setPositionX(offset + 1.1f);
-        s.setPositionY(offset + 1.2f);
-        s.setPositionZ(offset + 1.3f);
+        s.setPositionX(offset + 1.1);
+        s.setPositionY(offset + 1.2);
+        s.setPositionZ(offset + 1.3);
 
-        s.setScaleX(offset + 2.1f);
-        s.setScaleY(offset + 2.2f);
-        s.setScaleZ(offset + 2.3f);
+        s.setScaleX(offset + 2.1);
+        s.setScaleY(offset + 2.2);
+        s.setScaleZ(offset + 2.3);
 
         // Some formats assume unit quaternions.
         // I'm looking at you, SPZ.
-        float rx = offset;
-        float ry = 0.2f;
-        float rz = 0.3f;
-        float rw = 0.4f;
-        float invLen =
-            1.0f / (float) Math.sqrt(rx * rx + ry * ry + rz * rz + rw * rw);
+        double rx = offset;
+        double ry = 0.2;
+        double rz = 0.3;
+        double rw = 0.4;
+        double invLen =
+            1.0f / Math.sqrt(rx * rx + ry * ry + rz * rz + rw * rw);
         s.setRotationX(rx * invLen);
         s.setRotationY(ry * invLen);
         s.setRotationZ(rz * invLen);
         s.setRotationW(rw * invLen);
 
-        s.setOpacity(offset + 4.1f);
+        s.setOpacity(offset + 4.1);
 
         // Some formats are performing a quantization on the
         // spherical harmonics components that assumes the
@@ -151,15 +151,15 @@ public class JSplatRoundtripTests
         int dims = s.getShDimensions();
         for (int i = 0; i < dims; i++)
         {
-            float index0 = (i * 3 + 0);
-            float index1 = (i * 3 + 1);
-            float index2 = (i * 3 + 2);
-            float a0 = (float)index0 / 47.0f;
-            float a1 = (float)index1 / 47.0f;
-            float a2 = (float)index2 / 47.0f;
-            float shx = -1.0f + a0 * 2.0f;
-            float shy = -1.0f + a1 * 2.0f;
-            float shz = -1.0f + a2 * 2.0f;
+            double index0 = (i * 3 + 0);
+            double index1 = (i * 3 + 1);
+            double index2 = (i * 3 + 2);
+            double a0 = index0 / 47.0;
+            double a1 = index1 / 47.0;
+            double a2 = index2 / 47.0;
+            double shx = -1.0 + a0 * 2.0;
+            double shy = -1.0 + a1 * 2.0;
+            double shz = -1.0 + a2 * 2.0;
             s.setShX(i, shx);
             s.setShY(i, shy);
             s.setShZ(i, shz);
