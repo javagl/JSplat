@@ -478,7 +478,8 @@ public class Splats
         double bnw = bw * bInvLen; 
         
         double dot = anx * bnx + any * bny + anz * bnz + anw * bnw;
-        if (Math.abs(Math.abs(dot) - 1.0f) > epsilon)
+        double absDotError = Math.abs(Math.abs(dot) - 1.0f);
+        if (absDotError > epsilon)
         {
             return false;
         }
