@@ -60,7 +60,7 @@ public class JSplatRoundtrips
 
         //roundtripAll("unitCube");
 
-        //float epsilon = 1e-5f;
+        //double epsilon = 1e-5;
         //verifySingle(SplatGrids.createRotations(), SplatFormat.PLY_ASCII, epsilon);
     }
 

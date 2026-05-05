@@ -19,7 +19,7 @@ public class SplatSetters
     /**
      * Epsilon for quaternion computations
      */
-    private static final float EPSILON = 1e-6f;
+    private static final double EPSILON = 1e-6f;
     
     /**
      * Set some default values for the given splat
@@ -42,7 +42,7 @@ public class SplatSetters
      * @param y The y-component
      * @param z The z-component
      */
-    public static void setPosition(MutableSplat s, float x, float y, float z)
+    public static void setPosition(MutableSplat s, double x, double y, double z)
     {
         s.setPositionX(x);
         s.setPositionY(y);
@@ -58,7 +58,7 @@ public class SplatSetters
      * @param g The green component
      * @param b The blue component
      */
-    public static void setColor(MutableSplat s, float r, float g, float b)
+    public static void setColor(MutableSplat s, double r, double g, double b)
     {
         s.setShX(0, Splats.colorToDirectCurrent(r));
         s.setShY(0, Splats.colorToDirectCurrent(g));
@@ -76,9 +76,9 @@ public class SplatSetters
      * @param angleRad The angle, in radians
      */
     public static void setRotationAxisAngleRad(
-        MutableSplat s, float x, float y, float z, float angleRad)
+        MutableSplat s, double x, double y, double z, double angleRad)
     {
-        float q[] = createScalarLastQuaternionFromAxisAngleRad(x, y, z, angleRad);
+        double q[] = createScalarLastQuaternionFromAxisAngleRad(x, y, z, angleRad);
         s.setRotationX(q[0]);
         s.setRotationY(q[1]);
         s.setRotationZ(q[2]);
@@ -93,7 +93,7 @@ public class SplatSetters
      * @param y The scale in y-direction
      * @param z The scale in z-direction
      */
-    public static void setScale(MutableSplat s, float x, float y, float z)
+    public static void setScale(MutableSplat s, double x, double y, double z)
     {
         s.setScaleX(x);
         s.setScaleY(y);
@@ -109,11 +109,11 @@ public class SplatSetters
      * @param y The linear scale in y-direction
      * @param z The linear scale in z-direction
      */
-    public static void setScaleLinear(MutableSplat s, float x, float y, float z)
+    public static void setScaleLinear(MutableSplat s, double x, double y, double z)
     {
-        s.setScaleX((float)Math.log(x));
-        s.setScaleY((float)Math.log(y));
-        s.setScaleZ((float)Math.log(z));
+        s.setScaleX(Math.log(x));
+        s.setScaleY(Math.log(y));
+        s.setScaleZ(Math.log(z));
     }
     
     /**
@@ -126,26 +126,26 @@ public class SplatSetters
      * @param angleRad The angle, in radians
      * @return The quaternion, in scalar-last representation
      */
-    private static float[] createScalarLastQuaternionFromAxisAngleRad(float x,
-        float y, float z, float angleRad)
+    private static double[] createScalarLastQuaternionFromAxisAngleRad(double x,
+        double y, double z, double angleRad)
     {
-        float halfAngleRad = angleRad * 0.5f;
-        float s = (float) Math.sin(halfAngleRad);
+        double halfAngleRad = angleRad * 0.5f;
+        double s = Math.sin(halfAngleRad);
 
-        float lenSquared = x * x + y * y + z * z;
+        double lenSquared = x * x + y * y + z * z;
         if (lenSquared < EPSILON)
         {
-            return new float[]
-            { 0.0f, 0.0f, 0.0f, 1.0f };
+            return new double[]
+            { 0.0, 0.0, 0.0, 1.0 };
         }
 
-        float invLen = (float) (1.0 / Math.sqrt(lenSquared));
-        float qx = x * invLen * s;
-        float qy = y * invLen * s;
-        float qz = z * invLen * s;
-        float qw = (float) Math.cos(halfAngleRad);
+        double invLen = 1.0 / Math.sqrt(lenSquared);
+        double qx = x * invLen * s;
+        double qy = y * invLen * s;
+        double qz = z * invLen * s;
+        double qw = Math.cos(halfAngleRad);
 
-        float q[] = new float[]
+        double q[] = new double[]
         { qx, qy, qz, qw };
         return q;
     }
@@ -160,16 +160,16 @@ public class SplatSetters
      * @param qw The w-element (scalar)
      * @return The array
      */
-    static float[] createAxisAngleRadFromScalarLastQuaternion(float qx,
-        float qy, float qz, float qw)
+    static double[] createAxisAngleRadFromScalarLastQuaternion(double qx,
+        double qy, double qz, double qw)
     {
-        float x = 1.0f;
-        float y = 0.0f;
-        float z = 0.0f;
-        float angleRad = 0.0f;
+        double x = 1.0;
+        double y = 0.0;
+        double z = 0.0;
+        double angleRad = 0.0;
         if (Math.abs(qw - 1.0) >= EPSILON && Math.abs(qw + 1.0) >= EPSILON)
         {
-            float f = (float) (1.0 / Math.sqrt(1.0 - qw * qw));
+            double f = 1.0 / Math.sqrt(1.0 - qw * qw);
             x = qx * f;
             y = qy * f;
             z = qz * f;
@@ -177,9 +177,9 @@ public class SplatSetters
         }
         if (Math.abs(qw - 1.0) >= EPSILON)
         {
-            angleRad = (float) (2.0 * Math.acos(qw));
+            angleRad = 2.0 * Math.acos(qw);
         }
-        float a[] =
+        double a[] =
         { x, y, z, angleRad };
         return a;
     }

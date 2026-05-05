@@ -19,22 +19,22 @@ public class UnitCubeSplats
     /**
      * The size of the cube
      */
-    private static final float size = 10.0f;
+    private static final double size = 10.0;
 
     /**
      * A scale factor so that the edges look nice
      */
-    private static final float edgeScale = 1.0f;
+    private static final double edgeScale = 1.0;
 
     /**
      * The base scale factor for all splats
      */
-    private static final float baseScale = 0.1f;
+    private static final double baseScale = 0.1;
 
     /**
      * The alpha value for all splats
      */
-    private static final float alpha = 1.0f;
+    private static final double alpha = 1.0;
     
     /**
      * Create a list of splats, representing a "unit cube".
@@ -49,27 +49,27 @@ public class UnitCubeSplats
 
         for (int c = 0; c < 8; c++)
         {
-            float x = (c & 1) == 0 ? 0.0f : 1.0f;
-            float y = (c & 2) == 0 ? 0.0f : 1.0f;
-            float z = (c & 4) == 0 ? 0.0f : 1.0f;
+            double x = (c & 1) == 0 ? 0.0 : 1.0;
+            double y = (c & 2) == 0 ? 0.0 : 1.0;
+            double z = (c & 4) == 0 ? 0.0 : 1.0;
 
-            add(splats, x, y, z, 1.0f, 1.0f, 1.0f);
+            add(splats, x, y, z, 1.0, 1.0, 1.0);
         }
 
-        add(splats, 0.5f, 0.0f, 0.0f, size, 1.0f, 1.0f);
-        add(splats, 0.5f, 1.0f, 0.0f, size, 1.0f, 1.0f);
-        add(splats, 0.5f, 0.0f, 1.0f, size, 1.0f, 1.0f);
-        add(splats, 0.5f, 1.0f, 1.0f, size, 1.0f, 1.0f);
+        add(splats, 0.5, 0.0, 0.0, size, 1.0, 1.0);
+        add(splats, 0.5, 1.0, 0.0, size, 1.0, 1.0);
+        add(splats, 0.5, 0.0, 1.0, size, 1.0, 1.0);
+        add(splats, 0.5, 1.0, 1.0, size, 1.0, 1.0);
 
-        add(splats, 0.0f, 0.5f, 0.0f, 1.0f, size, 1.0f);
-        add(splats, 0.0f, 0.5f, 1.0f, 1.0f, size, 1.0f);
-        add(splats, 1.0f, 0.5f, 0.0f, 1.0f, size, 1.0f);
-        add(splats, 1.0f, 0.5f, 1.0f, 1.0f, size, 1.0f);
+        add(splats, 0.0, 0.5, 0.0, 1.0, size, 1.0);
+        add(splats, 0.0, 0.5, 1.0, 1.0, size, 1.0);
+        add(splats, 1.0, 0.5, 0.0, 1.0, size, 1.0);
+        add(splats, 1.0, 0.5, 1.0, 1.0, size, 1.0);
 
-        add(splats, 0.0f, 0.0f, 0.5f, 1.0f, 1.0f, size);
-        add(splats, 0.0f, 1.0f, 0.5f, 1.0f, 1.0f, size);
-        add(splats, 1.0f, 0.0f, 0.5f, 1.0f, 1.0f, size);
-        add(splats, 1.0f, 1.0f, 0.5f, 1.0f, 1.0f, size);
+        add(splats, 0.0, 0.0, 0.5, 1.0, 1.0, size);
+        add(splats, 0.0, 1.0, 0.5, 1.0, 1.0, size);
+        add(splats, 1.0, 0.0, 0.5, 1.0, 1.0, size);
+        add(splats, 1.0, 1.0, 0.5, 1.0, 1.0, size);
 
         return splats;
     }
@@ -86,8 +86,8 @@ public class UnitCubeSplats
      * @param sy The scaling factor in y-direction
      * @param sz The scaling factor in z-direction
      */
-    private static void add(List<MutableSplat> splats, float npx, float npy,
-        float npz, float sx, float sy, float sz)
+    private static void add(List<MutableSplat> splats, double npx, double npy,
+        double npz, double sx, double sy, double sz)
     {
         MutableSplat splat = Splats.create(0);
         
@@ -99,10 +99,10 @@ public class UnitCubeSplats
         splat.setScaleY(sy * baseScale * edgeScale);
         splat.setScaleZ(sz * baseScale * edgeScale);
 
-        splat.setRotationX(0.0f);
-        splat.setRotationY(0.0f);
-        splat.setRotationZ(0.0f);
-        splat.setRotationW(1.0f);
+        splat.setRotationX(0.0);
+        splat.setRotationY(0.0);
+        splat.setRotationZ(0.0);
+        splat.setRotationW(1.0);
 
         splat.setOpacity(Splats.alphaToOpacity(alpha));
 
