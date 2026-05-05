@@ -359,20 +359,20 @@ class SplatData
         {
             int j = i * stride;
             Splat s = splats.get(i);
-            gaussianData.put(j++, s.getPositionX());
-            gaussianData.put(j++, s.getPositionY());
-            gaussianData.put(j++, s.getPositionZ());
+            gaussianData.put(j++, (float)s.getPositionX());
+            gaussianData.put(j++, (float)s.getPositionY());
+            gaussianData.put(j++, (float)s.getPositionZ());
 
-            gaussianData.put(j++, s.getRotationW());
-            gaussianData.put(j++, s.getRotationX());
-            gaussianData.put(j++, s.getRotationY());
-            gaussianData.put(j++, s.getRotationZ());
+            gaussianData.put(j++, (float)s.getRotationW());
+            gaussianData.put(j++, (float)s.getRotationX());
+            gaussianData.put(j++, (float)s.getRotationY());
+            gaussianData.put(j++, (float)s.getRotationZ());
 
             gaussianData.put(j++, (float) Math.exp(s.getScaleX()));
             gaussianData.put(j++, (float) Math.exp(s.getScaleY()));
             gaussianData.put(j++, (float) Math.exp(s.getScaleZ()));
 
-            gaussianData.put(j++, Splats.opacityToAlpha(s.getOpacity()));
+            gaussianData.put(j++, (float)Splats.opacityToAlpha(s.getOpacity()));
 
             for (int d = 0; d < shDimensions; d++)
             {
@@ -381,9 +381,9 @@ class SplatData
                 float shZ = 0.0f;
                 if (d < s.getShDimensions())
                 {
-                    shX = s.getShX(d);
-                    shY = s.getShY(d);
-                    shZ = s.getShZ(d);
+                    shX = (float)s.getShX(d);
+                    shY = (float)s.getShY(d);
+                    shZ = (float)s.getShZ(d);
                 }
                 gaussianData.put(j++, shX);
                 gaussianData.put(j++, shY);

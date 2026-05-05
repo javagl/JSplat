@@ -111,7 +111,7 @@ class ClusteringElki
         int desiredK, DBIDRange dbIds, Clustering<KMeansModel> clustering)
     {
         int labels[] = new int[numRows];
-        float centroids[][] = new float[desiredK][];
+        double centroids[][] = new double[desiredK][];
         List<Cluster<KMeansModel>> clusters = clustering.getAllClusters();
         for (int c = 0; c < desiredK; c++)
         {
@@ -119,7 +119,7 @@ class ClusteringElki
             // larger than the number of data points
             if (c >= clusters.size())
             {
-                centroids[c] = new float[numCols];
+                centroids[c] = new double[numCols];
                 continue;
             }
 
@@ -140,13 +140,7 @@ class ClusteringElki
 
             // Extract the means as the "centroids"
             KMeansModel model = cluster.getModel();
-            double[] mean = model.getMean();
-            float centroid[] = new float[mean.length];
-            for (int i = 0; i < mean.length; i++)
-            {
-                centroid[i] = (float) mean[i];
-            }
-            centroids[c] = centroid;
+            centroids[c] = model.getMean();
         }
 
         ClusteringResult clusteringResult = new ClusteringResult();

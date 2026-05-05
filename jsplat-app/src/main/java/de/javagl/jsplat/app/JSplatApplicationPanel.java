@@ -390,7 +390,7 @@ class JSplatApplicationPanel extends JPanel
             allSplats.add(dataSet.getCurrentSplats());
         }
         int count = allSplats.stream().mapToInt(t -> t.size()).sum();
-        float minMax[] = computeMinMax(allSplats);
+        double minMax[] = computeMinMax(allSplats);
         String b = boundsToString(minMax);
         statusLabel.setText(count + " splats, bounds: " + b);
     }
@@ -423,7 +423,7 @@ class JSplatApplicationPanel extends JPanel
      * @param minMax The bounds
      * @return The string
      */
-    private static String boundsToString(float minMax[])
+    private static String boundsToString(double minMax[])
     {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
         DecimalFormat df = new DecimalFormat("0.0###", symbols);
@@ -440,13 +440,13 @@ class JSplatApplicationPanel extends JPanel
      * @param splats The splats
      * @return The bounding box
      */
-    private static float[] computeMinMax(
-        Iterable<? extends Iterable<? extends Splat>> splats)
+    private static double[]
+        computeMinMax(Iterable<? extends Iterable<? extends Splat>> splats)
     {
-        float minMax[] = new float[]
-        { Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
-            Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
-            Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY };
+        double minMax[] = new double[]
+        { Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+            Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+            Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
         for (Iterable<? extends Splat> i : splats)
         {
             for (Splat s : i)

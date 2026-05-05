@@ -18,7 +18,7 @@ public class TestSplats
     @Test
     public void testSplatsEquals() throws IOException
     {
-        float epsilon = 1e-6f;
+        double epsilon = 1e-6;
 
         MutableSplat sa = Utils.createDummySplat();
         MutableSplat sb = Utils.createDummySplat();
@@ -36,50 +36,50 @@ public class TestSplats
 
         // Position
         sb = Utils.createDummySplat();
-        sb.setPositionX(-999.0f);
+        sb.setPositionX(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setPositionY(-999.0f);
+        sb.setPositionY(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setPositionZ(-999.0f);
+        sb.setPositionZ(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         // Scale
         sb = Utils.createDummySplat();
-        sb.setScaleX(-999.0f);
+        sb.setScaleX(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setScaleY(-999.0f);
+        sb.setScaleY(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setScaleZ(-999.0f);
+        sb.setScaleZ(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         // Rotation
         sb = Utils.createDummySplat();
-        sb.setRotationX(-999.0f);
+        sb.setRotationX(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setRotationY(-999.0f);
+        sb.setRotationY(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setRotationZ(-999.0f);
+        sb.setRotationZ(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         sb = Utils.createDummySplat();
-        sb.setRotationW(-999.0f);
+        sb.setRotationW(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         // Opacity
         sb = Utils.createDummySplat();
-        sb.setOpacity(-999.0f);
+        sb.setOpacity(-999.0);
         assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
         // Spherical harmonics
@@ -87,15 +87,15 @@ public class TestSplats
         for (int d = 0; d < dimensions; d++)
         {
             sb = Utils.createDummySplat();
-            sb.setShX(d, -999.0f);
+            sb.setShX(d, -999.0);
             assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
             sb = Utils.createDummySplat();
-            sb.setShY(d, -999.0f);
+            sb.setShY(d, -999.0);
             assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
 
             sb = Utils.createDummySplat();
-            sb.setShZ(d, -999.0f);
+            sb.setShZ(d, -999.0);
             assertFalse(Splats.equalsEpsilon(sa, sb, epsilon));
         }
     }
@@ -103,29 +103,29 @@ public class TestSplats
     @Test
     public void testSplatsRotationsEquals() throws IOException
     {
-        float epsilon = 1e-6f;
+        double epsilon = 1e-6;
 
         MutableSplat sa = Splats.create(0);
         MutableSplat sb = Splats.create(0);
         MutableSplat sc = Splats.create(0);
 
-        sa.setRotationX(0.9239f);
-        sa.setRotationY(0.1023f);
-        sa.setRotationZ(0.2046f);
-        sa.setRotationW(0.3068f);
+        sa.setRotationX(0.9239);
+        sa.setRotationY(0.1023);
+        sa.setRotationZ(0.2046);
+        sa.setRotationW(0.3068);
 
         // Equal when all components are negated
-        sb.setRotationX(-0.9239f);
-        sb.setRotationY(-0.1023f);
-        sb.setRotationZ(-0.2046f);
-        sb.setRotationW(-0.3068f);
+        sb.setRotationX(-0.9239);
+        sb.setRotationY(-0.1023);
+        sb.setRotationZ(-0.2046);
+        sb.setRotationW(-0.3068);
         assertTrue(Splats.equalsEpsilon(sa, sb, epsilon));
 
         // Not equal when only one component is negated
-        sc.setRotationX(0.9239f);
-        sc.setRotationY(0.1023f);
-        sc.setRotationZ(0.2046f);
-        sc.setRotationW(-0.3068f);
+        sc.setRotationX(0.9239);
+        sc.setRotationY(0.1023);
+        sc.setRotationZ(0.2046);
+        sc.setRotationW(-0.3068);
         assertFalse(Splats.equalsEpsilon(sa, sc, epsilon));
     }
 

@@ -39,14 +39,14 @@ public class TestUtils
      * @param random The random number generator
      * @return The matrix
      */
-    static float[] createRandomMatrix4(Random random)
+    static double[] createRandomMatrix4(Random random)
     {
-        float[] q = createRandomScalarLastQuaternion(random);
-        float[] m3 = VecMath.scalarLastQuaternionToRotationMatrix(q, null);
-        float[] m4 = VecMath.createMatrix4FromMatrix3(m3, null);
-        float tx = -10.0f + random.nextFloat() * 20.0f;
-        float ty = -10.0f + random.nextFloat() * 20.0f;
-        float tz = -10.0f + random.nextFloat() * 20.0f;
+        double[] q = createRandomScalarLastQuaternion(random);
+        double[] m3 = VecMath.scalarLastQuaternionToRotationMatrix(q, null);
+        double[] m4 = VecMath.createMatrix4FromMatrix3(m3, null);
+        double tx = -10.0 + random.nextDouble() * 20.0;
+        double ty = -10.0 + random.nextDouble() * 20.0;
+        double tz = -10.0 + random.nextDouble() * 20.0;
         VecMath.translate4x4(m4, tx, ty, tz, m4);
         return m4;
     }
@@ -57,14 +57,14 @@ public class TestUtils
      * @param random The random number generator
      * @return The quaternion
      */
-    static float[] createRandomScalarLastQuaternion(Random random)
+    static double[] createRandomScalarLastQuaternion(Random random)
     {
-        float axis[] = new float[3];
-        axis[0] = -1.0f + random.nextFloat() * 2.0f;
-        axis[1] = -1.0f + random.nextFloat() * 2.0f;
-        axis[2] = -1.0f + random.nextFloat() * 2.0f;
-        float angleRad = random.nextFloat() * (float) (Math.PI * 2.0);
-        float q[] = VecMath.createScalarLastQuaternionFromAxisAngleRad(axis,
+        double axis[] = new double[3];
+        axis[0] = -1.0 + random.nextDouble() * 2.0;
+        axis[1] = -1.0 + random.nextDouble() * 2.0;
+        axis[2] = -1.0 + random.nextDouble() * 2.0;
+        double angleRad = random.nextDouble() * (Math.PI * 2.0);
+        double q[] = VecMath.createScalarLastQuaternionFromAxisAngleRad(axis,
             angleRad, null);
         return q;
     }
@@ -89,25 +89,25 @@ public class TestUtils
      * @param epsilon The epsilon
      * @return The result
      */
-    static boolean rotationEqual(float ax, float ay, float az, float aw,
-        float bx, float by, float bz, float bw, float epsilon)
+    static boolean rotationEqual(double ax, double ay, double az, double aw,
+        double bx, double by, double bz, double bw, double epsilon)
     {
-        float aLenSquared = ax * ax + ay * ay + az * az + aw * aw;
-        float aInvLen = 1.0f / (float) Math.sqrt(aLenSquared);
-        float anx = ax * aInvLen;
-        float any = ay * aInvLen;
-        float anz = az * aInvLen;
-        float anw = aw * aInvLen;
+        double aLenSquared = ax * ax + ay * ay + az * az + aw * aw;
+        double aInvLen = 1.0f / Math.sqrt(aLenSquared);
+        double anx = ax * aInvLen;
+        double any = ay * aInvLen;
+        double anz = az * aInvLen;
+        double anw = aw * aInvLen;
 
-        float bLenSquared = bx * bx + by * by + bz * bz + bw * bw;
-        float bInvLen = 1.0f / (float) Math.sqrt(bLenSquared);
-        float bnx = bx * bInvLen;
-        float bny = by * bInvLen;
-        float bnz = bz * bInvLen;
-        float bnw = bw * bInvLen;
+        double bLenSquared = bx * bx + by * by + bz * bz + bw * bw;
+        double bInvLen = 1.0f / Math.sqrt(bLenSquared);
+        double bnx = bx * bInvLen;
+        double bny = by * bInvLen;
+        double bnz = bz * bInvLen;
+        double bnw = bw * bInvLen;
 
-        float dot = anx * bnx + any * bny + anz * bnz + anw * bnw;
-        boolean rotationEqual = Math.abs(Math.abs(dot) - 1.0f) <= epsilon;
+        double dot = anx * bnx + any * bny + anz * bnz + anw * bnw;
+        boolean rotationEqual = Math.abs(Math.abs(dot) - 1.0) <= epsilon;
         return rotationEqual;
     }
 

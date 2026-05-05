@@ -34,10 +34,10 @@ public class SplatGrids
         };
         SplatGridBuilder g = new SplatGridBuilder(2, 2, 2, supplier);
 
-        float maxPosition = 100.0f;
-        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
-        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
-        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+        double maxPosition = 100.0;
+        g.registerX(0.0, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0, maxPosition, MutableSplat::setPositionZ);
 
         return g.generate();
     }
@@ -59,8 +59,8 @@ public class SplatGrids
      */
     public static List<MutableSplat> createBox(
         int pointsX, int pointsY, int pointsZ,
-        float minX, float minY, float minZ, 
-        float maxX, float maxY, float maxZ)
+        double minX, double minY, double minZ, 
+        double maxX, double maxY, double maxZ)
     {
         int shDegree = 0;
         Supplier<MutableSplat> supplier = () ->
@@ -99,15 +99,15 @@ public class SplatGrids
         };
         SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
 
-        float maxPosition = 100.0f;
-        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
-        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
-        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+        double maxPosition = 100.0;
+        g.registerX(0.0, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0, maxPosition, MutableSplat::setPositionZ);
 
-        float maxScale = 2.0f;
-        g.registerX(0.0f, maxScale, MutableSplat::setScaleX);
-        g.registerY(0.0f, maxScale, MutableSplat::setScaleY);
-        g.registerZ(0.0f, maxScale, MutableSplat::setScaleZ);
+        double maxScale = 2.0;
+        g.registerX(0.0, maxScale, MutableSplat::setScaleX);
+        g.registerY(0.0, maxScale, MutableSplat::setScaleY);
+        g.registerZ(0.0, maxScale, MutableSplat::setScaleZ);
 
         return g.generate();
     }
@@ -128,7 +128,7 @@ public class SplatGrids
         };
         SplatGridBuilder g = new SplatGridBuilder(9, 9, 9, supplier);
 
-        float maxPosition = 100.0f;
+        double maxPosition = 100.0;
         g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
         g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
         g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
@@ -137,15 +137,15 @@ public class SplatGrids
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
         g.registerZ((s, z) -> s.setShZ(0, Splats.colorToDirectCurrent(z)));
 
-        float minOpacity = -20.f;
-        float maxOpacity = 20.0f;
+        double minOpacity = -20.0;
+        double maxOpacity = 20.0;
         g.register((s, x, y, z) ->
         {
-            float dx = 0.5f - x;
-            float dy = 0.5f - y;
-            float dz = 0.5f - z;
-            float d = 1.0f - (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-            float opacity = minOpacity + d * (maxOpacity - minOpacity);
+            double dx = 0.5 - x;
+            double dy = 0.5 - y;
+            double dz = 0.5 - z;
+            double d = 1.0 - Math.sqrt(dx * dx + dy * dy + dz * dz);
+            double opacity = minOpacity + d * (maxOpacity - minOpacity);
             s.setOpacity(opacity);
         });
 
@@ -168,10 +168,10 @@ public class SplatGrids
         };
         SplatGridBuilder g = new SplatGridBuilder(9, 9, 9, supplier);
 
-        float maxPosition = 100.0f;
-        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
-        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
-        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+        double maxPosition = 100.0;
+        g.registerX(0.0, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0, maxPosition, MutableSplat::setPositionZ);
 
         g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
@@ -196,15 +196,15 @@ public class SplatGrids
         };
         SplatGridBuilder g = new SplatGridBuilder(3, 3, 3, supplier);
 
-        float maxPosition = 100.0f;
-        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
-        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
-        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+        double maxPosition = 100.0f;
+        g.registerX(0.0, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0, maxPosition, MutableSplat::setPositionZ);
 
-        float maxScale = 2.0f;
-        g.registerX(0.0f, maxScale, MutableSplat::setScaleX);
-        g.registerY(0.0f, maxScale, MutableSplat::setScaleY);
-        g.registerZ(0.0f, maxScale, MutableSplat::setScaleZ);
+        double maxScale = 2.0;
+        g.registerX(0.0, maxScale, MutableSplat::setScaleX);
+        g.registerY(0.0, maxScale, MutableSplat::setScaleY);
+        g.registerZ(0.0, maxScale, MutableSplat::setScaleZ);
 
         g.registerX((s, x) -> s.setShX(0, Splats.colorToDirectCurrent(x)));
         g.registerY((s, y) -> s.setShY(0, Splats.colorToDirectCurrent(y)));
@@ -212,8 +212,8 @@ public class SplatGrids
 
         g.register((s, x, y, z) ->
         {
-            float max = Math.max(x, Math.max(y, z));
-            float angleRad = (float) (max * Math.PI * 0.5);
+            double max = Math.max(x, Math.max(y, z));
+            double angleRad = max * Math.PI * 0.5;
             SplatSetters.setRotationAxisAngleRad(s, x, y, z, angleRad);
         });
 
@@ -236,43 +236,43 @@ public class SplatGrids
         };
         SplatGridBuilder g = new SplatGridBuilder(7, 3, 1, supplier);
 
-        float maxPosition = 250.0f;
-        g.registerX(0.0f, maxPosition, MutableSplat::setPositionX);
-        g.registerY(0.0f, maxPosition, MutableSplat::setPositionY);
-        g.registerZ(0.0f, maxPosition, MutableSplat::setPositionZ);
+        double maxPosition = 250.0;
+        g.registerX(0.0, maxPosition, MutableSplat::setPositionX);
+        g.registerY(0.0, maxPosition, MutableSplat::setPositionY);
+        g.registerZ(0.0, maxPosition, MutableSplat::setPositionZ);
 
         g.registerY((s, y) ->
         {
-            if (y == 0.0f)
+            if (y == 0.0)
             {
-                SplatSetters.setScale(s, 3.0f, 1.0f, 1.0f);
-                SplatSetters.setColor(s, 1.0f, 0.0f, 0.0f);
+                SplatSetters.setScale(s, 3.0, 1.0, 1.0);
+                SplatSetters.setColor(s, 1.0, 0.0, 0.0);
             }
-            if (y == 0.5f)
+            if (y == 0.5)
             {
-                SplatSetters.setScale(s, 1.0f, 3.0f, 1.0f);
-                SplatSetters.setColor(s, 0.0f, 1.0f, 0.0f);
+                SplatSetters.setScale(s, 1.0, 3.0, 1.0);
+                SplatSetters.setColor(s, 0.0, 1.0, 0.0);
             }
-            if (y == 1.0f)
+            if (y == 1.0)
             {
-                SplatSetters.setScale(s, 1.0f, 1.0f, 3.0f);
-                SplatSetters.setColor(s, 0.0f, 0.0f, 1.0f);
+                SplatSetters.setScale(s, 1.0, 1.0, 3.0);
+                SplatSetters.setColor(s, 0.0, 0.0, 1.0);
             }
         });
         g.register((s, x, y, z) ->
         {
-            float aRad = (float) (x * Math.PI * 0.5);
-            if (y == 0.0f)
+            double aRad = x * Math.PI * 0.5;
+            if (y == 0.0)
             {
-                SplatSetters.setRotationAxisAngleRad(s, 0.0f, 1.0f, 0.0f, aRad);
+                SplatSetters.setRotationAxisAngleRad(s, 0.0, 1.0, 0.0, aRad);
             }
-            if (y == 0.5f)
+            if (y == 0.5)
             {
-                SplatSetters.setRotationAxisAngleRad(s, 0.0f, 0.0f, 1.0f, aRad);
+                SplatSetters.setRotationAxisAngleRad(s, 0.0, 0.0, 1.0, aRad);
             }
-            if (y == 1.0f)
+            if (y == 1.0)
             {
-                SplatSetters.setRotationAxisAngleRad(s, 1.0f, 0.0f, 0.0f, aRad);
+                SplatSetters.setRotationAxisAngleRad(s, 1.0, 0.0, 0.0, aRad);
             }
         });
 

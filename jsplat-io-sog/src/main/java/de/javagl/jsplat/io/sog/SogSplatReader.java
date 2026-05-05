@@ -331,14 +331,14 @@ public final class SogSplatReader implements SplatListReader
         int qz = (meansUb << 8) | meansLb;
 
         // Dequantize into log-domain nx,ny,nz using per-axis ranges from meta:
-        float nx = lerp(means.mins[0], means.maxs[0], qx / 65535.0f);
-        float ny = lerp(means.mins[1], means.maxs[1], qy / 65535.0f);
-        float nz = lerp(means.mins[2], means.maxs[2], qz / 65535.0f);
+        double nx = lerp(means.mins[0], means.maxs[0], qx / 65535.0);
+        double ny = lerp(means.mins[1], means.maxs[1], qy / 65535.0);
+        double nz = lerp(means.mins[2], means.maxs[2], qz / 65535.0);
 
         // Undo the symmetric log transform used at encode time:
-        float x = unlog(nx);
-        float y = unlog(ny);
-        float z = unlog(nz);
+        double x = unlog(nx);
+        double y = unlog(ny);
+        double z = unlog(nz);
 
         s.setPositionX(x);
         s.setPositionY(y);
@@ -363,42 +363,42 @@ public final class SogSplatReader implements SplatListReader
         int quatsa = Byte.toUnsignedInt(quats[index * 4 + 3]);
 
         // Dequantize the stored three components:
-        float a = toComp(quatsr);
-        float b = toComp(quatsg);
-        float c = toComp(quatsb);
+        double a = toComp(quatsr);
+        double b = toComp(quatsg);
+        double c = toComp(quatsb);
 
         // 0..3 (R,G,B,A is one of the four components)
         int mode = (int) (quatsa - 252);
 
         // Reconstruct the omitted component so that ||q|| = 1
         // and w.l.o.g. the omitted one is non-negative
-        float t = a * a + b * b + c * c;
-        float d = (float) Math.sqrt(Math.max(0, 1 - t));
+        double t = a * a + b * b + c * c;
+        double d = Math.sqrt(Math.max(0, 1 - t));
 
         // Place components according to mode
-        float q[];
+        double q[];
         switch (mode)
         {
             case 0:
-                q = new float[]
+                q = new double[]
                 { d, a, b, c };
                 break; // omitted = x
             case 1:
-                q = new float[]
+                q = new double[]
                 { a, d, b, c };
                 break; // omitted = y
             case 2:
-                q = new float[]
+                q = new double[]
                 { a, b, d, c };
                 break; // omitted = z
             case 3:
-                q = new float[]
+                q = new double[]
                 { a, b, c, d };
                 break; // omitted = w
             default:
                 System.err.println("Invalid quaternion mode");
-                q = new float[]
-                { 1.0f, 0.0f, 0.0f, 0.0f };
+                q = new double[]
+                { 1.0, 0.0, 0.0, 0.0 };
         }
         s.setRotationW(q[0]);
         s.setRotationX(q[1]);
@@ -417,15 +417,15 @@ public final class SogSplatReader implements SplatListReader
      * @throws IOException If an IO error occurs
      */
     private static void convertScales(MutableSplat s, int index,
-        float codebook[], byte[] scales) throws IOException
+        double codebook[], byte[] scales) throws IOException
     {
         int scalesr = Byte.toUnsignedInt(scales[index * 4 + 0]);
         int scalesg = Byte.toUnsignedInt(scales[index * 4 + 1]);
         int scalesb = Byte.toUnsignedInt(scales[index * 4 + 2]);
 
-        float sx = codebook[scalesr];
-        float sy = codebook[scalesg];
-        float sz = codebook[scalesb];
+        double sx = codebook[scalesr];
+        double sy = codebook[scalesg];
+        double sz = codebook[scalesb];
 
         s.setScaleX(sx);
         s.setScaleY(sy);
@@ -441,7 +441,7 @@ public final class SogSplatReader implements SplatListReader
      * @param sh0 The sh0 image
      * @throws IOException If an IO error occurs
      */
-    private static void convertSh0(MutableSplat s, int index, float codebook[],
+    private static void convertSh0(MutableSplat s, int index, double codebook[],
         byte[] sh0) throws IOException
     {
         int sh0r = Byte.toUnsignedInt(sh0[index * 4 + 0]);
@@ -450,10 +450,10 @@ public final class SogSplatReader implements SplatListReader
         int sh0a = Byte.toUnsignedInt(sh0[index * 4 + 3]);
 
         // Not converting to "color" here
-        float r = codebook[sh0r];
-        float g = codebook[sh0g];
-        float b = codebook[sh0b];
-        float a = sh0a / 255.0f;
+        double r = codebook[sh0r];
+        double g = codebook[sh0g];
+        double b = codebook[sh0b];
+        double a = sh0a / 255.0;
 
         s.setShX(0, r);
         s.setShY(0, g);
@@ -493,9 +493,9 @@ public final class SogSplatReader implements SplatListReader
             int centroidr = Byte.toUnsignedInt(shNCentroids[base * 4 + 0]);
             int centroidg = Byte.toUnsignedInt(shNCentroids[base * 4 + 1]);
             int centroidb = Byte.toUnsignedInt(shNCentroids[base * 4 + 2]);
-            float x = shN.codebook[centroidr];
-            float y = shN.codebook[centroidg];
-            float z = shN.codebook[centroidb];
+            double x = shN.codebook[centroidr];
+            double y = shN.codebook[centroidg];
+            double z = shN.codebook[centroidb];
             s.setShX(k + 1, x);
             s.setShY(k + 1, y);
             s.setShZ(k + 1, z);
@@ -510,7 +510,7 @@ public final class SogSplatReader implements SplatListReader
      * @param t The interpolation value
      * @return The result
      */
-    private static float lerp(float a, float b, float t)
+    private static double lerp(double a, double b, double t)
     {
         return a + (b - a) * t;
     }
@@ -521,9 +521,9 @@ public final class SogSplatReader implements SplatListReader
      * @param n The input
      * @return The result
      */
-    private static float unlog(float n)
+    private static double unlog(double n)
     {
-        return (float) (Math.signum(n) * (Math.exp(Math.abs(n)) - 1));
+        return Math.signum(n) * (Math.exp(Math.abs(n)) - 1);
     }
 
     /**
@@ -532,9 +532,9 @@ public final class SogSplatReader implements SplatListReader
      * @param c The input
      * @return The result
      */
-    private static float toComp(float c)
+    private static double toComp(double c)
     {
-        return (float) ((c / 255.0f - 0.5) * 2.0f / Math.sqrt(2.0));
+        return ((c / 255.0f - 0.5) * 2.0f / Math.sqrt(2.0));
     }
 
 }
