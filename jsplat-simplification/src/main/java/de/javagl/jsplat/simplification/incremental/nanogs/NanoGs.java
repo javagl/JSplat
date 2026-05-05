@@ -51,17 +51,17 @@ public class NanoGs
      * @return The result
      */
     public static List<Splat> simplify(List<? extends Splat> splats,
-        float ratio)
+        double ratio)
     {
         // All fixed parameters for now
-        float threshold = 0.1f;
+        double threshold = 0.1f;
         int k = 16;
         int nMc = 1;
         int seed = 0;
-        float epsCov = 1e-8f;
-        float lamGeo = 1.0f;
-        float lamSh = 1.0f;
-        float pCapRatio = 0.5f;
+        double epsCov = 1e-8f;
+        double lamGeo = 1.0f;
+        double lamSh = 1.0f;
+        double pCapRatio = 0.5f;
         
         logger.log(level, "Simplify " + splats.size() + " with ratio " + ratio);
         long beforeNs = System.nanoTime();
@@ -75,7 +75,7 @@ public class NanoGs
             () -> NanoGsPruning.pruneByOpacity(pruneCur, threshold));
         logger.log(level, "Pruning: " + cur.size() + " splats left");
 
-        float[][] Z = NanoGsSampling.makeGaussianSamples(nMc, seed);
+        double[][] Z = NanoGsSampling.makeGaussianSamples(nMc, seed);
 
         int iteration = 0;
         while (cur.size() > target)

@@ -32,26 +32,26 @@ class NanoGsSampling
      * @param seed The random seet
      * @return The points, as an array of 3-element arrays
      */
-    static float[][] makeGaussianSamples(int n, int seed)
+    static double[][] makeGaussianSamples(int n, int seed)
     {
         Random rand = new Random(seed);
-        float out[][] = new float[n][];
+        double out[][] = new double[n][];
         IntStream.range(0, n).parallel().forEach(i ->
         {
-            float u1 = Math.max(rand.nextFloat(), 1e-12f);
-            float u2 = rand.nextFloat();
-            float u3 = Math.max(rand.nextFloat(), 1e-12f);
-            float u4 = rand.nextFloat();
+            double u1 = Math.max(rand.nextDouble(), 1e-12);
+            double u2 = rand.nextDouble();
+            double u3 = Math.max(rand.nextDouble(), 1e-12);
+            double u4 = rand.nextDouble();
 
-            float r1 = (float) (Math.sqrt(-2.0 * Math.log(u1)));
-            float t1 = (float) (2.0 * Math.PI * u2);
-            float r2 = (float) (Math.sqrt(-2.0 * Math.log(u3)));
-            float t2 = (float) (2.0 * Math.PI * u4);
+            double r1 = Math.sqrt(-2.0 * Math.log(u1));
+            double t1 = 2.0 * Math.PI * u2;
+            double r2 = Math.sqrt(-2.0 * Math.log(u3));
+            double t2 = 2.0 * Math.PI * u4;
 
-            float x = (float) (r1 * Math.cos(t1));
-            float y = (float) (r1 * Math.sin(t1));
-            float z = (float) (r2 * Math.cos(t2));
-            out[i] = new float[]
+            double x = r1 * Math.cos(t1);
+            double y = r1 * Math.sin(t1);
+            double z = r2 * Math.cos(t2);
+            out[i] = new double[]
             { x, y, z, };
         });
         return out;

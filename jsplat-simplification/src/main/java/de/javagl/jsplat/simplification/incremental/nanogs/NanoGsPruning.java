@@ -38,26 +38,26 @@ class NanoGsPruning
      * @return The pruned list
      */
     static List<Splat> pruneByOpacity(List<Splat> state,
-        float threshold)
+        double threshold)
     {
         int N = state.size();
         if (N == 0)
         {
             return state;
         }
-        float ops[] = new float[N];
+        double ops[] = new double[N];
         IntStream.range(0, N).parallel().forEach(i ->
         {
-            float vo = state.get(i).getOpacity();
-            float v = Splats.opacityToAlpha(vo);
+            double vo = state.get(i).getOpacity();
+            double v = Splats.opacityToAlpha(vo);
             ops[i] = v;
         });
-        float median = NanoGsMath.percentileInPlace(ops, 0.5f);
-        float thr = Math.min(threshold, median);
+        double median = NanoGsMath.percentileInPlace(ops, 0.5);
+        double thr = Math.min(threshold, median);
         List<Splat> keep = state.stream().parallel().filter(s -> 
         {
-            float vo = s.getOpacity();
-            float v = Splats.opacityToAlpha(vo);
+            double vo = s.getOpacity();
+            double v = Splats.opacityToAlpha(vo);
             return v >= thr;            
         }).collect(Collectors.toList());
         return keep;

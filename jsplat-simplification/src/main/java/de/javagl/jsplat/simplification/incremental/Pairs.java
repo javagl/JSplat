@@ -56,7 +56,7 @@ public class Pairs
         int counter = 0;
         for (Edge edge : edges)
         {
-            if (Float.isFinite(edge.weight))
+            if (Double.isFinite(edge.weight))
             {
                 valid[counter] = edge;
                 counter++;

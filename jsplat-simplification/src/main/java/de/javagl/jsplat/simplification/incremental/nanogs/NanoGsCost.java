@@ -29,19 +29,19 @@ class NanoGsCost
     /**
      * Constant for (2*PI)^1.5
      */
-    private static final float TWO_PI_POW_1P5 =
-        (float) Math.pow(2.0 * Math.PI, 1.5);
+    private static final double TWO_PI_POW_1P5 =
+        Math.pow(2.0 * Math.PI, 1.5);
 
     /**
      * Constant for log(2*PI)
      */
-    private static float LOG2PI = (float) Math.log(2.0 * Math.PI);
+    private static double LOG2PI = Math.log(2.0 * Math.PI);
 
     /**
      * A thread-local 3x3 matrix for "Sigm"
      */
-    private static final ThreadLocal<float[]> THREAD_LOCAL_Sigm =
-        ThreadLocal.withInitial(() -> new float[9]);        
+    private static final ThreadLocal<double[]> THREAD_LOCAL_Sigm =
+        ThreadLocal.withInitial(() -> new double[9]);        
     
     /**
      * Compute the weights for the given edges
@@ -54,7 +54,7 @@ class NanoGsCost
      * @param lamSh The weight for the SH part
      */
     static void computeWeights(List<? extends Splat> cur, List<Edge> edges,
-        float Z[][], float epsCov, float lamGeo, float lamSh)
+        double Z[][], double epsCov, double lamGeo, double lamSh)
     {
         Cache cache = NanoGsCaching.buildPerSplatCache(cur, epsCov);
         int n = edges.size();
@@ -63,7 +63,7 @@ class NanoGsCost
             Edge edge = edges.get(i);
             Splat s0 = cur.get(edge.i0);
             Splat s1 = cur.get(edge.i1);
-            float distance = NanoGsCost.fullCostPairCached(edge.i0, s0, edge.i1,
+            double distance = NanoGsCost.fullCostPairCached(edge.i0, s0, edge.i1,
                 s1, cache, Z, lamGeo, lamSh);
             edge.weight = distance;
         });
@@ -84,59 +84,59 @@ class NanoGsCost
      * @param lamSh The weight for the SH part
      * @return The cost
      */
-    private static float fullCostPairCached(int i, Splat splatI, int j,
-        Splat splatJ, Cache cache, float[][] Z, float lamGeo, float lamSh)
+    private static double fullCostPairCached(int i, Splat splatI, int j,
+        Splat splatJ, Cache cache, double[][] Z, double lamGeo, double lamSh)
     {
         int i3 = i * 3;
         int j3 = j * 3;
         int i9 = i * 9;
         int j9 = j * 9;
 
-        float cpEpsCov = 1e-8f;
+        double cpEpsCov = 1e-8;
 
-        float mux = splatI.getPositionX();
-        float muy = splatI.getPositionY();
-        float muz = splatI.getPositionZ();
+        double mux = splatI.getPositionX();
+        double muy = splatI.getPositionY();
+        double muz = splatI.getPositionZ();
 
-        float mvx = splatJ.getPositionX();
-        float mvy = splatJ.getPositionY();
-        float mvz = splatJ.getPositionZ();
+        double mvx = splatJ.getPositionX();
+        double mvy = splatJ.getPositionY();
+        double mvz = splatJ.getPositionZ();
 
-        float scaleIx = cache.linearScale[i3 + 0];
-        float scaleIy = cache.linearScale[i3 + 1];
-        float scaleIz = cache.linearScale[i3 + 2];
+        double scaleIx = cache.linearScale[i3 + 0];
+        double scaleIy = cache.linearScale[i3 + 1];
+        double scaleIz = cache.linearScale[i3 + 2];
 
-        float scaleJx = cache.linearScale[j3 + 0];
-        float scaleJy = cache.linearScale[j3 + 1];
-        float scaleJz = cache.linearScale[j3 + 2];
+        double scaleJx = cache.linearScale[j3 + 0];
+        double scaleJy = cache.linearScale[j3 + 1];
+        double scaleJz = cache.linearScale[j3 + 2];
 
-        float alphaI = cache.alpha[i];
-        float alphaJ = cache.alpha[j];
-        float scaleI = scaleIx * scaleIy * scaleIz;
-        float scaleJ = scaleJx * scaleJy * scaleJz;
-        float wi = TWO_PI_POW_1P5 * alphaI * scaleI + 1e-12f;
-        float wj = TWO_PI_POW_1P5 * alphaJ * scaleJ + 1e-12f;
-        float W = wi + wj;
-        float Wsafe = W > 0 ? W : 1.0f;
+        double alphaI = cache.alpha[i];
+        double alphaJ = cache.alpha[j];
+        double scaleI = scaleIx * scaleIy * scaleIz;
+        double scaleJ = scaleJx * scaleJy * scaleJz;
+        double wi = TWO_PI_POW_1P5 * alphaI * scaleI + 1e-12;
+        double wj = TWO_PI_POW_1P5 * alphaJ * scaleJ + 1e-12;
+        double W = wi + wj;
+        double Wsafe = W > 0 ? W : 1.0;
 
-        float pi = wi / Wsafe;
-        pi = Math.min(1 - 1e-12f, Math.max(1e-12f, pi));
-        float pj = 1.0f - pi;
-        float logPi = (float) Math.log(pi);
-        float logPj = (float) Math.log(pj);
+        double pi = wi / Wsafe;
+        pi = Math.min(1 - 1e-12, Math.max(1e-12, pi));
+        double pj = 1.0 - pi;
+        double logPi = Math.log(pi);
+        double logPj = Math.log(pj);
 
-        float mmx = pi * mux + pj * mvx;
-        float mmy = pi * muy + pj * mvy;
-        float mmz = pi * muz + pj * mvz;
+        double mmx = pi * mux + pj * mvx;
+        double mmy = pi * muy + pj * mvy;
+        double mmz = pi * muz + pj * mvz;
 
-        float dix = mux - mmx;
-        float diy = muy - mmy;
-        float diz = muz - mmz;
-        float djx = mvx - mmx;
-        float djy = mvy - mmy;
-        float djz = mvz - mmz;
+        double dix = mux - mmx;
+        double diy = muy - mmy;
+        double diz = muz - mmz;
+        double djx = mvx - mmx;
+        double djy = mvy - mmy;
+        double djz = mvz - mmz;
 
-        float Sigm[] = THREAD_LOCAL_Sigm.get();
+        double Sigm[] = THREAD_LOCAL_Sigm.get();
         for (int a = 0; a < 9; a++)
         {
             Sigm[a] = pi * cache.sigma[i9 + a] + pj * cache.sigma[j9 + a];
@@ -152,9 +152,9 @@ class NanoGsCost
         Sigm[7] += pi * diz * diy + pj * djz * djy;
         Sigm[8] += pi * diz * diz + pj * djz * djz;
 
-        float s01 = 0.5f * (Sigm[1] + Sigm[3]);
-        float s02 = 0.5f * (Sigm[2] + Sigm[6]);
-        float s12 = 0.5f * (Sigm[5] + Sigm[7]);
+        double s01 = 0.5 * (Sigm[1] + Sigm[3]);
+        double s02 = 0.5 * (Sigm[2] + Sigm[6]);
+        double s12 = 0.5 * (Sigm[5] + Sigm[7]);
         Sigm[1] = Sigm[3] = s01;
         Sigm[2] = Sigm[6] = s02;
         Sigm[5] = Sigm[7] = s12;
@@ -162,71 +162,71 @@ class NanoGsCost
         Sigm[4] += cpEpsCov;
         Sigm[8] += cpEpsCov;
 
-        float detm = Math.max(NanoGsMath.det3Flat(Sigm), 1e-30f);
-        float logdetm = (float) Math.log(detm);
+        double detm = Math.max(NanoGsMath.det3Flat(Sigm), 1e-30);
+        double logdetm = Math.log(detm);
 
-        float EpNegLogQ = (float) (0.5 * (3.0 * LOG2PI + logdetm + 3.0));
+        double EpNegLogQ = 0.5 * (3.0 * LOG2PI + logdetm + 3.0);
 
-        float stdix = (float) Math.sqrt(Math.max(cache.v[i3 + 0], 0));
-        float stdiy = (float) Math.sqrt(Math.max(cache.v[i3 + 1], 0));
-        float stdiz = (float) Math.sqrt(Math.max(cache.v[i3 + 2], 0));
+        double stdix = Math.sqrt(Math.max(cache.v[i3 + 0], 0));
+        double stdiy = Math.sqrt(Math.max(cache.v[i3 + 1], 0));
+        double stdiz = Math.sqrt(Math.max(cache.v[i3 + 2], 0));
 
-        float stdjx = (float) Math.sqrt(Math.max(cache.v[j3 + 0], 0));
-        float stdjy = (float) Math.sqrt(Math.max(cache.v[j3 + 1], 0));
-        float stdjz = (float) Math.sqrt(Math.max(cache.v[j3 + 2], 0));
+        double stdjx = Math.sqrt(Math.max(cache.v[j3 + 0], 0));
+        double stdjy = Math.sqrt(Math.max(cache.v[j3 + 1], 0));
+        double stdjz = Math.sqrt(Math.max(cache.v[j3 + 2], 0));
 
-        float sumLogpOnI = 0.0f;
-        float sumLogpOnJ = 0.0f;
+        double sumLogpOnI = 0.0;
+        double sumLogpOnJ = 0.0;
 
         for (int s = 0; s < Z.length; s++)
         {
-            float z0 = Z[s][0];
-            float z1 = Z[s][1];
-            float z2 = Z[s][2];
+            double z0 = Z[s][0];
+            double z1 = Z[s][1];
+            double z2 = Z[s][2];
 
-            float xix = mux + z0 * stdix * cache.Rt[i9]
+            double xix = mux + z0 * stdix * cache.Rt[i9]
                 + z1 * stdiy * cache.Rt[i9 + 3] + z2 * stdiz * cache.Rt[i9 + 6];
-            float xiy = muy + z0 * stdix * cache.Rt[i9 + 1]
+            double xiy = muy + z0 * stdix * cache.Rt[i9 + 1]
                 + z1 * stdiy * cache.Rt[i9 + 4] + z2 * stdiz * cache.Rt[i9 + 7];
-            float xiz = muz + z0 * stdix * cache.Rt[i9 + 2]
+            double xiz = muz + z0 * stdix * cache.Rt[i9 + 2]
                 + z1 * stdiy * cache.Rt[i9 + 5] + z2 * stdiz * cache.Rt[i9 + 8];
 
-            float xjx = mvx + z0 * stdjx * cache.Rt[j9]
+            double xjx = mvx + z0 * stdjx * cache.Rt[j9]
                 + z1 * stdjy * cache.Rt[j9 + 3] + z2 * stdjz * cache.Rt[j9 + 6];
-            float xjy = mvy + z0 * stdjx * cache.Rt[j9 + 1]
+            double xjy = mvy + z0 * stdjx * cache.Rt[j9 + 1]
                 + z1 * stdjy * cache.Rt[j9 + 4] + z2 * stdjz * cache.Rt[j9 + 7];
-            float xjz = mvz + z0 * stdjx * cache.Rt[j9 + 2]
+            double xjz = mvz + z0 * stdjx * cache.Rt[j9 + 2]
                 + z1 * stdjy * cache.Rt[j9 + 5] + z2 * stdjz * cache.Rt[j9 + 8];
 
-            float logNiOnI = gaussLogpdfDiagrotFlat(xix, xiy, xiz, mux, muy,
+            double logNiOnI = gaussLogpdfDiagrotFlat(xix, xiy, xiz, mux, muy,
                 muz, cache.R, i9, cache.invdiag[i3], cache.invdiag[i3 + 1],
                 cache.invdiag[i3 + 2], cache.logdet[i]);
-            float logNjOnI = gaussLogpdfDiagrotFlat(xix, xiy, xiz, mvx, mvy,
+            double logNjOnI = gaussLogpdfDiagrotFlat(xix, xiy, xiz, mvx, mvy,
                 mvz, cache.R, j9, cache.invdiag[j3], cache.invdiag[j3 + 1],
                 cache.invdiag[j3 + 2], cache.logdet[j]);
             sumLogpOnI += logAddExp(logPi + logNiOnI, logPj + logNjOnI);
 
-            float logNiOnJ = gaussLogpdfDiagrotFlat(xjx, xjy, xjz, mux, muy,
+            double logNiOnJ = gaussLogpdfDiagrotFlat(xjx, xjy, xjz, mux, muy,
                 muz, cache.R, i9, cache.invdiag[i3], cache.invdiag[i3 + 1],
                 cache.invdiag[i3 + 2], cache.logdet[i]);
-            float logNjOnJ = gaussLogpdfDiagrotFlat(xjx, xjy, xjz, mvx, mvy,
+            double logNjOnJ = gaussLogpdfDiagrotFlat(xjx, xjy, xjz, mvx, mvy,
                 mvz, cache.R, j9, cache.invdiag[j3], cache.invdiag[j3 + 1],
                 cache.invdiag[j3 + 2], cache.logdet[j]);
             sumLogpOnJ += logAddExp(logPi + logNiOnJ, logPj + logNjOnJ);
         }
 
-        float Ei = sumLogpOnI / Z.length;
-        float Ej = sumLogpOnJ / Z.length;
-        float EpLogp = pi * Ei + pj * Ej;
-        float geo = EpLogp + EpNegLogQ;
+        double Ei = sumLogpOnI / Z.length;
+        double Ej = sumLogpOnJ / Z.length;
+        double EpLogp = pi * Ei + pj * Ej;
+        double geo = EpLogp + EpNegLogQ;
 
-        float cSh = 0.0f;
+        double cSh = 0.0;
         int shDim = splatI.getShDimensions();
         for (int k = 0; k < shDim; k++)
         {
-            float dX = splatI.getShX(k) - splatJ.getShX(k);
-            float dY = splatI.getShY(k) - splatJ.getShY(k);
-            float dZ = splatI.getShZ(k) - splatJ.getShZ(k);
+            double dX = splatI.getShX(k) - splatJ.getShX(k);
+            double dY = splatI.getShY(k) - splatJ.getShY(k);
+            double dZ = splatI.getShZ(k) - splatJ.getShZ(k);
             cSh += dX * dX;
             cSh += dY * dY;
             cSh += dZ * dZ;
@@ -245,10 +245,10 @@ class NanoGsCost
      * @param b The second value
      * @return The result
      */
-    private static float logAddExp(float a, float b)
+    private static double logAddExp(double a, double b)
     {
-        float m = Math.max(a, b);
-        return (float) (m + Math.log(Math.exp(a - m) + Math.exp(b - m)));
+        double m = Math.max(a, b);
+        return m + Math.log(Math.exp(a - m) + Math.exp(b - m));
     }
 
     /**
@@ -273,23 +273,23 @@ class NanoGsCost
      * @param logdet The logarithm of the determinant
      * @return The result
      */
-    private static float gaussLogpdfDiagrotFlat(float x, float y, float z,
-        float mx, float my, float mz, float R[], int rOffset, float invx,
-        float invy, float invz, float logdet)
+    private static double gaussLogpdfDiagrotFlat(double x, double y, double z,
+        double mx, double my, double mz, double R[], int rOffset, double invx,
+        double invy, double invz, double logdet)
     {
-        float dx = x - mx;
-        float dy = y - my;
-        float dz = z - mz;
+        double dx = x - mx;
+        double dy = y - my;
+        double dz = z - mz;
 
-        float y0 =
+        double y0 =
             dx * R[rOffset + 0] + dy * R[rOffset + 3] + dz * R[rOffset + 6];
-        float y1 =
+        double y1 =
             dx * R[rOffset + 1] + dy * R[rOffset + 4] + dz * R[rOffset + 7];
-        float y2 =
+        double y2 =
             dx * R[rOffset + 2] + dy * R[rOffset + 5] + dz * R[rOffset + 8];
 
-        float quad = y0 * y0 * invx + y1 * y1 * invy + y2 * y2 * invz;
-        return (float) (-0.5 * (3.0 * LOG2PI + logdet + quad));
+        double quad = y0 * y0 * invx + y1 * y1 * invy + y2 * y2 * invz;
+        return -0.5 * (3.0 * LOG2PI + logdet + quad);
     }
 
 }

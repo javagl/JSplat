@@ -28,8 +28,8 @@ class NanoGsCaching
     /**
      * Constant for (2*PI)^1.5
      */
-    private static final float TWO_PI_POW_1P5 =
-        (float) Math.pow(2.0 * Math.PI, 1.5);
+    private static final double TWO_PI_POW_1P5 =
+        Math.pow(2.0 * Math.PI, 1.5);
 
     /**
      * The cache that is passed to {@link NanoGsCost#fullCostPairCached}
@@ -39,48 +39,48 @@ class NanoGsCaching
         /**
          * The 3x3 rotation matrices
          */
-        float[] R;
+        double[] R;
 
         /**
          * The 3x3 rotation matrices, transposed
          */
-        float[] Rt;
+        double[] Rt;
 
         /**
          * The 3 variances
          */
-        float[] v;
+        double[] v;
 
         /**
          * The 3 inverse diagonals
          */
-        float[] invdiag;
+        double[] invdiag;
 
         /**
          * The 1 logarithm of the determinant
          */
-        float[] logdet;
+        double[] logdet;
 
         /**
          * The 3x3 covariance matrix
          */
-        float[] sigma;
+        double[] sigma;
 
         /**
          * The 1 "mass" (alpha times volume)
          */
-        float[] mass;
+        double[] mass;
 
         /**
          * The 3 linear scale values (Not present in the original NanoGS
          * implementation)
          */
-        float[] linearScale;
+        double[] linearScale;
 
         /**
          * The 1 alpha value (Not present in the original NanoGS implementation)
          */
-        float[] alpha;
+        double[] alpha;
 
         /**
          * Creates a new cache with the given size
@@ -89,15 +89,15 @@ class NanoGsCaching
          */
         Cache(int N)
         {
-            R = new float[N * 9];
-            Rt = new float[N * 9];
-            v = new float[N * 3];
-            invdiag = new float[N * 3];
-            logdet = new float[N];
-            sigma = new float[N * 9];
-            mass = new float[N];
-            linearScale = new float[N * 3];
-            alpha = new float[N];
+            R = new double[N * 9];
+            Rt = new double[N * 9];
+            v = new double[N * 3];
+            invdiag = new double[N * 3];
+            logdet = new double[N];
+            sigma = new double[N * 9];
+            mass = new double[N];
+            linearScale = new double[N * 3];
+            alpha = new double[N];
         }
     }
 
@@ -108,7 +108,7 @@ class NanoGsCaching
      * @param epsCov The epsilon to add for covariance computations
      * @return The cache
      */
-    static Cache buildPerSplatCache(List<? extends Splat> state, float epsCov)
+    static Cache buildPerSplatCache(List<? extends Splat> state, double epsCov)
     {
         int N = state.size();
 
@@ -120,17 +120,17 @@ class NanoGsCaching
 
             Splat s = state.get(i);
 
-            float sx = (float) Math.exp(s.getScaleX());
-            float sy = (float) Math.exp(s.getScaleY());
-            float sz = (float) Math.exp(s.getScaleZ());
+            double sx = Math.exp(s.getScaleX());
+            double sy = Math.exp(s.getScaleY());
+            double sz = Math.exp(s.getScaleZ());
 
             c.linearScale[i3 + 0] = sx;
             c.linearScale[i3 + 1] = sy;
             c.linearScale[i3 + 2] = sz;
 
-            float vx = sx * sx + epsCov;
-            float vy = sy * sy + epsCov;
-            float vz = sz * sz + epsCov;
+            double vx = sx * sx + epsCov;
+            double vy = sy * sy + epsCov;
+            double vz = sz * sz + epsCov;
 
             c.v[i3 + 0] = vx;
             c.v[i3 + 1] = vy;
@@ -140,25 +140,24 @@ class NanoGsCaching
             double cvy = Math.max(vy, 1e-30);
             double cvz = Math.max(vz, 1e-30);
 
-            c.invdiag[i3 + 0] = (float) (1.0 / cvx);
-            c.invdiag[i3 + 1] = (float) (1.0 / cvy);
-            c.invdiag[i3 + 2] = (float) (1.0 / cvz);
-            c.logdet[i] = (float) Math.log(cvx) + (float) Math.log(cvy)
-                + (float) Math.log(cvz);
+            c.invdiag[i3 + 0] = 1.0 / cvx;
+            c.invdiag[i3 + 1] = 1.0 / cvy;
+            c.invdiag[i3 + 2] = 1.0 / cvz;
+            c.logdet[i] = Math.log(cvx) + Math.log(cvy) + Math.log(cvz);
 
-            float qw = s.getRotationW();
-            float qx = s.getRotationX();
-            float qy = s.getRotationY();
-            float qz = s.getRotationZ();
+            double qw = s.getRotationW();
+            double qx = s.getRotationX();
+            double qy = s.getRotationY();
+            double qz = s.getRotationZ();
             NanoGsMath.quatToRotmatInto(qw, qx, qy, qz, c.R, i9);
             NanoGsMath.transpose3Into(c.R, i9, c.Rt, i9);
             NanoGsMath.sigmaFromRotVarInto(c.R, i9, vx, vy, vz, c.sigma, i9);
 
-            float op = s.getOpacity();
-            float alpha = Splats.opacityToAlpha(op);
+            double op = s.getOpacity();
+            double alpha = Splats.opacityToAlpha(op);
             c.alpha[i] = Splats.opacityToAlpha(s.getOpacity());
 
-            c.mass[i] = (float) (TWO_PI_POW_1P5 * alpha * sx * sy * sz + 1e-12);
+            c.mass[i] = TWO_PI_POW_1P5 * alpha * sx * sy * sz + 1e-12;
         });
 
         return c;

@@ -35,38 +35,38 @@ class NanoGsMerge
     /**
      * Constant for (2*PI)^1.5
      */
-    private static final float TWO_PI_POW_1P5 =
-        (float) Math.pow(2.0 * Math.PI, 1.5);
+    private static final double TWO_PI_POW_1P5 =
+        Math.pow(2.0 * Math.PI, 1.5);
 
     /**
      * A thread-local 3x3 matrix for "SigI"
      */
-    private static final ThreadLocal<float[]> THREAD_LOCAL_SigI =
-        ThreadLocal.withInitial(() -> new float[9]);        
+    private static final ThreadLocal<double[]> THREAD_LOCAL_SigI =
+        ThreadLocal.withInitial(() -> new double[9]);        
     
     /**
      * A thread-local 3x3 matrix for "SigJ"
      */
-    private static final ThreadLocal<float[]> THREAD_LOCAL_SigJ =
-        ThreadLocal.withInitial(() -> new float[9]);        
+    private static final ThreadLocal<double[]> THREAD_LOCAL_SigJ =
+        ThreadLocal.withInitial(() -> new double[9]);        
     
     /**
      * A thread-local 3x3 matrix for "Sig"
      */
-    private static final ThreadLocal<float[]> THREAD_LOCAL_Sig =
-        ThreadLocal.withInitial(() -> new float[9]);        
+    private static final ThreadLocal<double[]> THREAD_LOCAL_Sig =
+        ThreadLocal.withInitial(() -> new double[9]);        
     
     /**
      * A thread-local 3x3 matrix for "R"
      */
-    private static final ThreadLocal<float[]> THREAD_LOCAL_R =
-        ThreadLocal.withInitial(() -> new float[9]);        
+    private static final ThreadLocal<double[]> THREAD_LOCAL_R =
+        ThreadLocal.withInitial(() -> new double[9]);        
     
     /**
      * A thread-local quaternion "q"
      */
-    private static final ThreadLocal<float[]> THREAD_LOCAL_q =
-        ThreadLocal.withInitial(() -> new float[4]);        
+    private static final ThreadLocal<double[]> THREAD_LOCAL_q =
+        ThreadLocal.withInitial(() -> new double[4]);        
     
     /**
      * Thread-local indexed values
@@ -92,7 +92,7 @@ class NanoGsMerge
         /**
          * The value
          */
-        private float value;
+        private double value;
 
         /**
          * The index
@@ -150,65 +150,65 @@ class NanoGsMerge
      */
     private static void merge(Splat splatI, Splat splatJ, MutableSplat result)
     {
-        float scaleIx = (float) Math.exp(splatI.getScaleX());
-        float scaleIy = (float) Math.exp(splatI.getScaleY());
-        float scaleIz = (float) Math.exp(splatI.getScaleZ());
+        double scaleIx = Math.exp(splatI.getScaleX());
+        double scaleIy = Math.exp(splatI.getScaleY());
+        double scaleIz = Math.exp(splatI.getScaleZ());
 
-        float scaleJx = (float) Math.exp(splatJ.getScaleX());
-        float scaleJy = (float) Math.exp(splatJ.getScaleY());
-        float scaleJz = (float) Math.exp(splatJ.getScaleZ());
+        double scaleJx = Math.exp(splatJ.getScaleX());
+        double scaleJy = Math.exp(splatJ.getScaleY());
+        double scaleJz = Math.exp(splatJ.getScaleZ());
 
-        float rotIw = splatI.getRotationW();
-        float rotIx = splatI.getRotationX();
-        float rotIy = splatI.getRotationY();
-        float rotIz = splatI.getRotationZ();
+        double rotIw = splatI.getRotationW();
+        double rotIx = splatI.getRotationX();
+        double rotIy = splatI.getRotationY();
+        double rotIz = splatI.getRotationZ();
 
-        float rotJw = splatJ.getRotationW();
-        float rotJx = splatJ.getRotationX();
-        float rotJy = splatJ.getRotationY();
-        float rotJz = splatJ.getRotationZ();
+        double rotJw = splatJ.getRotationW();
+        double rotJx = splatJ.getRotationX();
+        double rotJy = splatJ.getRotationY();
+        double rotJz = splatJ.getRotationZ();
 
-        float alphaI = Splats.opacityToAlpha(splatI.getOpacity());
-        float alphaJ = Splats.opacityToAlpha(splatJ.getOpacity());
-        float scaleI = scaleIx * scaleIy * scaleIz;
-        float scaleJ = scaleJx * scaleJy * scaleJz;
-        float wi = TWO_PI_POW_1P5 * alphaI * scaleI + 1e-12f;
-        float wj = TWO_PI_POW_1P5 * alphaJ * scaleJ + 1e-12f;
-        float W = wi + wj;
+        double alphaI = Splats.opacityToAlpha(splatI.getOpacity());
+        double alphaJ = Splats.opacityToAlpha(splatJ.getOpacity());
+        double scaleI = scaleIx * scaleIy * scaleIz;
+        double scaleJ = scaleJx * scaleJy * scaleJz;
+        double wi = TWO_PI_POW_1P5 * alphaI * scaleI + 1e-12;
+        double wj = TWO_PI_POW_1P5 * alphaJ * scaleJ + 1e-12;
+        double W = wi + wj;
 
         // Compute the weighted average of the positions
-        float muxi = splatI.getPositionX();
-        float muxj = splatJ.getPositionX();
-        float muyi = splatI.getPositionY();
-        float muyj = splatJ.getPositionY();
-        float muzi = splatI.getPositionZ();
-        float muzj = splatJ.getPositionZ();
-        float mux = (wi * muxi + wj * muxj) / W;
-        float muy = (wi * muyi + wj * muyj) / W;
-        float muz = (wi * muzi + wj * muzj) / W;
+        double muxi = splatI.getPositionX();
+        double muxj = splatJ.getPositionX();
+        double muyi = splatI.getPositionY();
+        double muyj = splatJ.getPositionY();
+        double muzi = splatI.getPositionZ();
+        double muzj = splatJ.getPositionZ();
+        double mux = (wi * muxi + wj * muxj) / W;
+        double muy = (wi * muyi + wj * muyj) / W;
+        double muz = (wi * muzi + wj * muzj) / W;
 
         // Compute the resulting opacity
-        float alphaBase = alphaI + alphaJ - alphaI * alphaJ;
-        float n_alpha = Math.min(1.0f, Math.max(0.0f, alphaBase));
-        float n_opacity = Splats.alphaToOpacity(n_alpha);
+        double alphaBase = alphaI + alphaJ - alphaI * alphaJ;
+        double n_alpha = Math.min(1.0f, Math.max(0.0f, alphaBase));
+        double n_opacity = Splats.alphaToOpacity(n_alpha);
 
         // Compute the resulting covariance matrix
-        float SigI[] = THREAD_LOCAL_SigI.get();
-        float SigJ[] = THREAD_LOCAL_SigJ.get();
+        double SigI[] = THREAD_LOCAL_SigI.get();
+        double SigJ[] = THREAD_LOCAL_SigJ.get();
         NanoGsMath.sigmaFromQuatScaleFlatInto(rotIw, rotIx, rotIy, rotIz,
             scaleIx, scaleIy, scaleIz, SigI);
         NanoGsMath.sigmaFromQuatScaleFlatInto(rotJw, rotJx, rotJy, rotJz,
             scaleJx, scaleIy, scaleJz, SigJ);
 
-        float dix = muxi - mux;
-        float diy = muyi - muy;
-        float diz = muzi - muz;
+        double dix = muxi - mux;
+        double diy = muyi - muy;
+        double diz = muzi - muz;
 
-        float djx = muxj - mux;
-        float djy = muyj - muy;
-        float djz = muzj - muz;
+        double djx = muxj - mux;
+        double djy = muyj - muy;
+        double djz = muzj - muz;
 
-        float Sig[] = THREAD_LOCAL_Sig.get();
+        double Sig[] = THREAD_LOCAL_Sig.get();
         for (int a = 0; a < 9; a++)
         {
             Sig[a] = (wi * SigI[a] + wj * SigJ[a]) / W;
@@ -224,9 +224,9 @@ class NanoGsMerge
         Sig[7] += (wi * diz * diy + wj * djz * djy) / W;
         Sig[8] += (wi * diz * diz + wj * djz * djz) / W;
 
-        float s01 = 0.5f * (Sig[1] + Sig[3]);
-        float s02 = 0.5f * (Sig[2] + Sig[6]);
-        float s12 = 0.5f * (Sig[5] + Sig[7]);
+        double s01 = 0.5 * (Sig[1] + Sig[3]);
+        double s02 = 0.5 * (Sig[2] + Sig[6]);
+        double s12 = 0.5 * (Sig[5] + Sig[7]);
         Sig[1] = Sig[3] = s01;
         Sig[2] = Sig[6] = s02;
         Sig[5] = Sig[7] = s12;
@@ -237,8 +237,8 @@ class NanoGsMerge
         // Extract the scale (eigenvalues) and rotation from the eigenvectors
         Eigendecomposition3x3 ev = THREAD_LOCAL_eigendecomposition.get();
         NanoGsMath.eigenSymmetric3x3Flat(Sig, ev);
-        float[] vals = ev.eigenvalues;
-        float[] vecs = ev.eigenvectors;
+        double[] vals = ev.eigenvalues;
+        double[] vecs = ev.eigenvectors;
 
         IndexedValue[] indexedEigenvalues = THREAD_LOCAL_indexedValues.get();
         indexedEigenvalues[0].index = 0;
@@ -253,7 +253,7 @@ class NanoGsMerge
         vals[1] = indexedEigenvalues[1].value;
         vals[2] = indexedEigenvalues[2].value;
 
-        float R[] = THREAD_LOCAL_R.get();
+        double R[] = THREAD_LOCAL_R.get();
         for (int c = 0; c < 3; c++)
         {
             int src = indexedEigenvalues[c].index;
@@ -269,16 +269,16 @@ class NanoGsMerge
             R[8] = -R[8];
         }
 
-        float q[] = THREAD_LOCAL_q.get();
+        double q[] = THREAD_LOCAL_q.get();
         NanoGsMath.rotmatToQuatFlat(R, q);
 
         // Assign the computed properties to the result splat
         result.setPositionX(mux);
         result.setPositionY(muy);
         result.setPositionZ(muz);
-        result.setScaleX((float) Math.log(Math.sqrt(vals[0])));
-        result.setScaleY((float) Math.log(Math.sqrt(vals[1])));
-        result.setScaleZ((float) Math.log(Math.sqrt(vals[2])));
+        result.setScaleX(Math.log(Math.sqrt(vals[0])));
+        result.setScaleY(Math.log(Math.sqrt(vals[1])));
+        result.setScaleZ(Math.log(Math.sqrt(vals[2])));
         result.setRotationW(q[0]);
         result.setRotationX(q[1]);
         result.setRotationY(q[2]);
@@ -289,15 +289,15 @@ class NanoGsMerge
         int dim = splatI.getShDimensions();
         for (int i = 0; i < dim; i++)
         {
-            float shXi = splatI.getShX(i);
-            float shXj = splatJ.getShX(i);
-            float shYi = splatI.getShY(i);
-            float shYj = splatJ.getShY(i);
-            float shZi = splatI.getShZ(i);
-            float shZj = splatJ.getShZ(i);
-            float shX = (wi * shXi + wj * shXj) / W;
-            float shY = (wi * shYi + wj * shYj) / W;
-            float shZ = (wi * shZi + wj * shZj) / W;
+            double shXi = splatI.getShX(i);
+            double shXj = splatJ.getShX(i);
+            double shYi = splatI.getShY(i);
+            double shYj = splatJ.getShY(i);
+            double shZi = splatI.getShZ(i);
+            double shZj = splatJ.getShZ(i);
+            double shX = (wi * shXi + wj * shXj) / W;
+            double shY = (wi * shYi + wj * shYj) / W;
+            double shZ = (wi * shZi + wj * shZj) / W;
             result.setShX(i, shX);
             result.setShY(i, shY);
             result.setShZ(i, shZ);

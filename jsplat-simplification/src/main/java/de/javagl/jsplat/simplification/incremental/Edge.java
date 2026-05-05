@@ -46,7 +46,7 @@ public class Edge
     /**
      * The weight
      */
-    public float weight;
+    public double weight;
 
     /**
      * Creates a new instance
