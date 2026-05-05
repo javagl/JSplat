@@ -114,7 +114,7 @@ public final class PlySplatReader implements SplatListReader
 
         // PLY uses scalar-first quaternions
         h.withFloat("rot_0", (s, v) -> s.setRotationW(v));
-        h.withFloat("rot_1", (s, v) -> s.setRotationY(v));
+        h.withFloat("rot_1", (s, v) -> s.setRotationX(v));
         h.withFloat("rot_2", (s, v) -> s.setRotationY(v));
         h.withFloat("rot_3", (s, v) -> s.setRotationZ(v));
 

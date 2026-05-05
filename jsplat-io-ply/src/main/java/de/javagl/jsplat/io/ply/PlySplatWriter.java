@@ -226,7 +226,7 @@ public final class PlySplatWriter implements SplatListWriter
 
         // PLY uses scalar-first quaternions
         v.withFloat("rot_0", s -> (float)s.getRotationW());
-        v.withFloat("rot_1", s -> (float)s.getRotationY());
+        v.withFloat("rot_1", s -> (float)s.getRotationX());
         v.withFloat("rot_2", s -> (float)s.getRotationY());
         v.withFloat("rot_3", s -> (float)s.getRotationZ());
 
