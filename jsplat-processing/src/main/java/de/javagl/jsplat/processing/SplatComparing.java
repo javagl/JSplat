@@ -42,21 +42,21 @@ public class SplatComparing
      * @param s1 The second splat
      * @return The result
      */
-    public static float squaredDistanceByPosition(Splat s0, Splat s1)
+    public static double squaredDistanceByPosition(Splat s0, Splat s1)
     {
-        float px0 = s0.getPositionX();
-        float py0 = s0.getPositionY();
-        float pz0 = s0.getPositionZ();
+        double px0 = s0.getPositionX();
+        double py0 = s0.getPositionY();
+        double pz0 = s0.getPositionZ();
 
-        float px1 = s1.getPositionX();
-        float py1 = s1.getPositionY();
-        float pz1 = s1.getPositionZ();
+        double px1 = s1.getPositionX();
+        double py1 = s1.getPositionY();
+        double pz1 = s1.getPositionZ();
 
-        float dpx = px0 - px1;
-        float dpy = py0 - py1;
-        float dpz = pz0 - pz1;
+        double dpx = px0 - px1;
+        double dpy = py0 - py1;
+        double dpz = pz0 - pz1;
         
-        float squaredDistance = dpx * dpx + dpy * dpy + dpz * dpz;
+        double squaredDistance = dpx * dpx + dpy * dpy + dpz * dpz;
         return squaredDistance;
     }
 
@@ -67,10 +67,10 @@ public class SplatComparing
      * @param s1 The second splat
      * @return The result
      */
-    static float distanceByPosition(Splat s0, Splat s1)
+    static double distanceByPosition(Splat s0, Splat s1)
     {
-        float dd = squaredDistanceByPosition(s0, s1);
-        float d = (float) Math.sqrt(dd);
+        double dd = squaredDistanceByPosition(s0, s1);
+        double d = Math.sqrt(dd);
         return d;
     }
 
@@ -85,24 +85,24 @@ public class SplatComparing
      */
     static int compareByImportance(Splat s0, Splat s1)
     {
-        float sx0 = (float) Math.exp(s0.getScaleX());
-        float sy0 = (float) Math.exp(s0.getScaleY());
-        float sz0 = (float) Math.exp(s0.getScaleZ());
+        double sx0 = Math.exp(s0.getScaleX());
+        double sy0 = Math.exp(s0.getScaleY());
+        double sz0 = Math.exp(s0.getScaleZ());
 
-        float sx1 = (float) Math.exp(s1.getScaleX());
-        float sy1 = (float) Math.exp(s1.getScaleY());
-        float sz1 = (float) Math.exp(s1.getScaleZ());
+        double sx1 = Math.exp(s1.getScaleX());
+        double sy1 = Math.exp(s1.getScaleY());
+        double sz1 = Math.exp(s1.getScaleZ());
 
-        float volume0 = sx0 * sy0 * sz0;
-        float volume1 = sx1 * sy1 * sz1;
+        double volume0 = sx0 * sy0 * sz0;
+        double volume1 = sx1 * sy1 * sz1;
 
-        float o0 = s0.getOpacity();
-        float o1 = s1.getOpacity();
+        double o0 = s0.getOpacity();
+        double o1 = s1.getOpacity();
 
-        float importance0 = volume0 * o0;
-        float importance1 = volume1 * o1;
+        double importance0 = volume0 * o0;
+        double importance1 = volume1 * o1;
 
-        return Float.compare(importance0, importance1);
+        return Double.compare(importance0, importance1);
     }
 
     /**
@@ -118,17 +118,17 @@ public class SplatComparing
      */
     static int compareByVolumeLinear(Splat s0, Splat s1)
     {
-        float sx0 = (float) Math.exp(s0.getScaleX());
-        float sy0 = (float) Math.exp(s0.getScaleY());
-        float sz0 = (float) Math.exp(s0.getScaleZ());
+        double sx0 = Math.exp(s0.getScaleX());
+        double sy0 = Math.exp(s0.getScaleY());
+        double sz0 = Math.exp(s0.getScaleZ());
 
-        float sx1 = (float) Math.exp(s1.getScaleX());
-        float sy1 = (float) Math.exp(s1.getScaleY());
-        float sz1 = (float) Math.exp(s1.getScaleZ());
+        double sx1 = Math.exp(s1.getScaleX());
+        double sy1 = Math.exp(s1.getScaleY());
+        double sz1 = Math.exp(s1.getScaleZ());
 
-        float volume0 = sx0 * sy0 * sz0;
-        float volume1 = sx1 * sy1 * sz1;
-        return Float.compare(volume0, volume1);
+        double volume0 = sx0 * sy0 * sz0;
+        double volume1 = sx1 * sy1 * sz1;
+        return Double.compare(volume0, volume1);
     }
 
     /**
@@ -141,17 +141,17 @@ public class SplatComparing
      */
     static int compareByMaxScale(Splat s0, Splat s1)
     {
-        float sx0 = s0.getScaleX();
-        float sy0 = s0.getScaleY();
-        float sz0 = s0.getScaleZ();
+        double sx0 = s0.getScaleX();
+        double sy0 = s0.getScaleY();
+        double sz0 = s0.getScaleZ();
 
-        float sx1 = s1.getScaleX();
-        float sy1 = s1.getScaleY();
-        float sz1 = s1.getScaleZ();
+        double sx1 = s1.getScaleX();
+        double sy1 = s1.getScaleY();
+        double sz1 = s1.getScaleZ();
 
-        float maxScale0 = Math.max(sx0, Math.max(sy0, sz0));
-        float maxScale1 = Math.max(sx1, Math.max(sy1, sz1));
-        return Float.compare(maxScale0, maxScale1);
+        double maxScale0 = Math.max(sx0, Math.max(sy0, sz0));
+        double maxScale1 = Math.max(sx1, Math.max(sy1, sz1));
+        return Double.compare(maxScale0, maxScale1);
     }
 
     /**

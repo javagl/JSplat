@@ -133,24 +133,24 @@ public class GaussianCloudSplats
         {
             Splat splat = splats.get(i);
 
-            positions.put(i * 3 + 0, splat.getPositionX());
-            positions.put(i * 3 + 1, splat.getPositionY());
-            positions.put(i * 3 + 2, splat.getPositionZ());
+            positions.put(i * 3 + 0, (float)splat.getPositionX());
+            positions.put(i * 3 + 1, (float)splat.getPositionY());
+            positions.put(i * 3 + 2, (float)splat.getPositionZ());
 
-            scales.put(i * 3 + 0, splat.getScaleX());
-            scales.put(i * 3 + 1, splat.getScaleY());
-            scales.put(i * 3 + 2, splat.getScaleZ());
+            scales.put(i * 3 + 0, (float)splat.getScaleX());
+            scales.put(i * 3 + 1, (float)splat.getScaleY());
+            scales.put(i * 3 + 2, (float)splat.getScaleZ());
 
-            rotations.put(i * 4 + 0, splat.getRotationX());
-            rotations.put(i * 4 + 1, splat.getRotationY());
-            rotations.put(i * 4 + 2, splat.getRotationZ());
-            rotations.put(i * 4 + 3, splat.getRotationW());
+            rotations.put(i * 4 + 0, (float)splat.getRotationX());
+            rotations.put(i * 4 + 1, (float)splat.getRotationY());
+            rotations.put(i * 4 + 2, (float)splat.getRotationZ());
+            rotations.put(i * 4 + 3, (float)splat.getRotationW());
 
-            alphas.put(i, splat.getOpacity());
+            alphas.put(i, (float)splat.getOpacity());
 
-            colors.put(i * 3 + 0, splat.getShX(0));
-            colors.put(i * 3 + 1, splat.getShY(0));
-            colors.put(i * 3 + 2, splat.getShZ(0));
+            colors.put(i * 3 + 0, (float)splat.getShX(0));
+            colors.put(i * 3 + 1, (float)splat.getShY(0));
+            colors.put(i * 3 + 2, (float)splat.getShZ(0));
 
             if (shDimensions >= 4)
             {
@@ -162,9 +162,9 @@ public class GaussianCloudSplats
                     int iy = (index + d * 3) + 1;
                     int iz = (index + d * 3) + 2;
                     
-                    sh.put(ix, splat.getShX(d + 1));
-                    sh.put(iy, splat.getShY(d + 1));
-                    sh.put(iz, splat.getShZ(d + 1));
+                    sh.put(ix, (float)splat.getShX(d + 1));
+                    sh.put(iy, (float)splat.getShY(d + 1));
+                    sh.put(iz, (float)splat.getShZ(d + 1));
                 }
             }
         }

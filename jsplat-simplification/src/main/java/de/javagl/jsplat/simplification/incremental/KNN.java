@@ -1,7 +1,7 @@
 /*
  * www.javagl.de - JSplat
  *
- * Copyright 2025 Marco Hutter - http://www.javagl.de
+ * Copyright 2026 Marco Hutter - http://www.javagl.de
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,18 +24,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package de.javagl.jsplat.io.sog;
+package de.javagl.jsplat.simplification.incremental;
+
+import java.util.List;
 
 /**
- * Interface for a function that receives an int, and returns a float.
+ * Internal Interface for something that can compute the indices of the k
+ * nearest elements to a given query point
  */
-interface IntFloatFunction
+interface KNN
 {
     /**
-     * Apply this function to the given value
+     * Compute the indices of the elements that are nearest to the given query
+     * point
      * 
-     * @param i The value
+     * @param query The query point
+     * @param k The k
      * @return The result
      */
-    float apply(int i);
+    List<Integer> compute(double query[], int k);
 }

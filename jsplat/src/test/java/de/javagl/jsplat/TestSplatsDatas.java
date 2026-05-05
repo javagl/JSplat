@@ -19,7 +19,7 @@ public class TestSplatsDatas
     @Test
     public void testSplatsDatas() throws IOException
     {
-        float epsilon = 0.0f;
+        double epsilon = 1e-8;
 
         MutableSplat sa0 = Utils.createDummySplat(0.0f);
         MutableSplat sa1 = Utils.createDummySplat(100.0f);

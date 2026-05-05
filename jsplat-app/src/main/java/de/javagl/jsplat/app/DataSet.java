@@ -98,7 +98,7 @@ class DataSet
     void setTransform(Transform transform)
     {
         this.currentTransform = transform;
-        float[] matrix = Transforms.toMatrix(transform);
+        double[] matrix = Transforms.toMatrix(transform);
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         Consumer<MutableSplat> t =
             SplatTransforms.createTransform(matrix, shDimensions);
@@ -111,6 +111,16 @@ class DataSet
             Splats.setAny(initialSplat, currentSplat);
             t.accept(currentSplat);
         });
+    }
+    
+    /**
+     * Returns the name of this data set
+     * 
+     * @return The name
+     */
+    String getName()
+    {
+        return name;
     }
     
     /**

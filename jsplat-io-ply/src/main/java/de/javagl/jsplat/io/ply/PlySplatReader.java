@@ -78,16 +78,16 @@ public final class PlySplatReader implements SplatListReader
         // a quick solution for the time being.
         if (isDouble(descriptor, "x"))
         {
-            h.withDouble("x", (s, x) -> s.setPositionX(x.floatValue()));
+            h.withDouble("x", (s, x) -> s.setPositionX(x));
         }
         else
         {
-            h.withFloat("x", MutableSplat::setPositionX);
+            h.withFloat("x", (s, x) -> s.setPositionX(x));
         }
 
         if (isDouble(descriptor, "y"))
         {
-            h.withDouble("y", (s, y) -> s.setPositionY(y.floatValue()));
+            h.withDouble("y", (s, y) -> s.setPositionY(y));
         }
         else
         {
@@ -95,7 +95,7 @@ public final class PlySplatReader implements SplatListReader
         }
         if (isDouble(descriptor, "z"))
         {
-            h.withDouble("z", (s, z) -> s.setPositionZ(z.floatValue()));
+            h.withDouble("z", (s, z) -> s.setPositionZ(z));
         }
         else
         {
@@ -106,16 +106,17 @@ public final class PlySplatReader implements SplatListReader
         h.withFloat("f_dc_1", (s, v) -> s.setShY(0, v));
         h.withFloat("f_dc_2", (s, v) -> s.setShZ(0, v));
 
-        h.withFloat("opacity", MutableSplat::setOpacity);
-        h.withFloat("scale_0", MutableSplat::setScaleX);
-        h.withFloat("scale_1", MutableSplat::setScaleY);
-        h.withFloat("scale_2", MutableSplat::setScaleZ);
+        h.withFloat("opacity", (s, v) -> s.setOpacity(v));
+        
+        h.withFloat("scale_0", (s, v) -> s.setScaleX(v));
+        h.withFloat("scale_1", (s, v) -> s.setScaleY(v));
+        h.withFloat("scale_2", (s, v) -> s.setScaleZ(v));
 
         // PLY uses scalar-first quaternions
-        h.withFloat("rot_0", MutableSplat::setRotationW);
-        h.withFloat("rot_1", MutableSplat::setRotationX);
-        h.withFloat("rot_2", MutableSplat::setRotationY);
-        h.withFloat("rot_3", MutableSplat::setRotationZ);
+        h.withFloat("rot_0", (s, v) -> s.setRotationW(v));
+        h.withFloat("rot_1", (s, v) -> s.setRotationX(v));
+        h.withFloat("rot_2", (s, v) -> s.setRotationY(v));
+        h.withFloat("rot_3", (s, v) -> s.setRotationZ(v));
 
         for (int d = 0; d < shDimensions - 1; d++)
         {
@@ -134,12 +135,12 @@ public final class PlySplatReader implements SplatListReader
         // Rotate about 180 degrees around x, to convert from
         // right-down-back to right-up-front
         // @formatter:off
-        float rotate180X[] = 
+        double rotate180X[] = 
         { 
-            1.0f,  0.0f,  0.0f, 0.0f, 
-            0.0f, -1.0f,  0.0f, 0.0f, 
-            0.0f,  0.0f, -1.0f, 0.0f, 
-            0.0f,  0.0f,  0.0f, 1.0f 
+            1.0,  0.0,  0.0, 0.0, 
+            0.0, -1.0,  0.0, 0.0, 
+            0.0,  0.0, -1.0, 0.0, 
+            0.0,  0.0,  0.0, 1.0 
         };
         // @formatter:on
         SplatTransforms.transformList(splats, rotate180X);

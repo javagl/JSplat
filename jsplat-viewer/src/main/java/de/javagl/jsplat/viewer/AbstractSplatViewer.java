@@ -108,12 +108,12 @@ public abstract class AbstractSplatViewer implements SplatViewer
             Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY };
         for (Splat s : splats)
         {
-            minMax[0] = Math.min(minMax[0], s.getPositionX());
-            minMax[1] = Math.min(minMax[1], s.getPositionY());
-            minMax[2] = Math.min(minMax[2], s.getPositionZ());
-            minMax[3] = Math.max(minMax[3], s.getPositionX());
-            minMax[4] = Math.max(minMax[4], s.getPositionY());
-            minMax[5] = Math.max(minMax[5], s.getPositionZ());
+            minMax[0] = (float)Math.min(minMax[0], s.getPositionX());
+            minMax[1] = (float)Math.min(minMax[1], s.getPositionY());
+            minMax[2] = (float)Math.min(minMax[2], s.getPositionZ());
+            minMax[3] = (float)Math.max(minMax[3], s.getPositionX());
+            minMax[4] = (float)Math.max(minMax[4], s.getPositionY());
+            minMax[5] = (float)Math.max(minMax[5], s.getPositionZ());
         }
         renderingCamera.fit(minMax);
     }

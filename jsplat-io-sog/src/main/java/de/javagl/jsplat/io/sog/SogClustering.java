@@ -54,7 +54,7 @@ class SogClustering
         /**
          * The centroids
          */
-        float centroids[];
+        double centroids[];
 
         /**
          * The labels
@@ -72,7 +72,7 @@ class SogClustering
      * @param columns The columns of the input data
      * @return The clustering result
      */
-    static ClusteringResult1D cluster1d(int numRows, IntFloatFunction columns[])
+    static ClusteringResult1D cluster1d(int numRows, IntDoubleFunction columns[])
     {
         // Convert the given data into a 1D table
         int numColumns = columns.length;
@@ -87,13 +87,13 @@ class SogClustering
 
         // Compute the ND-clustering
         ClusteringResult clusteringResult = Clustering.compute(data, 256);
-        float[][] centroids = clusteringResult.centroids;
+        double[][] centroids = clusteringResult.centroids;
         int[] labels = clusteringResult.labels;
 
         // Ported from the SOG implementation:
 
         // order centroids smallest to largest
-        List<float[]> centroidsData = Arrays.asList(centroids);
+        List<double[]> centroidsData = Arrays.asList(centroids);
         List<Integer> order = new ArrayList<Integer>();
         for (int i = 0; i < centroidsData.size(); i++)
         {
@@ -101,13 +101,13 @@ class SogClustering
         }
         Collections.sort(order, (i0, i1) ->
         {
-            float[] c0 = centroidsData.get(i0);
-            float[] c1 = centroidsData.get(i1);
-            return Float.compare(c0[0], c1[0]);
+            double[] c0 = centroidsData.get(i0);
+            double[] c1 = centroidsData.get(i1);
+            return Double.compare(c0[0], c1[0]);
         });
 
         // reorder centroids
-        List<float[]> tmp = new ArrayList<float[]>(centroidsData);
+        List<double[]> tmp = new ArrayList<double[]>(centroidsData);
         for (int i = 0; i < order.size(); ++i)
         {
             centroidsData.set(i, tmp.get(order.get(i)));
@@ -138,7 +138,7 @@ class SogClustering
             }
         }
         ClusteringResult1D clusteringResult1D = new ClusteringResult1D();
-        clusteringResult1D.centroids = new float[256];
+        clusteringResult1D.centroids = new double[256];
         for (int i = 0; i < centroids.length; i++)
         {
             clusteringResult1D.centroids[i] = centroids[i][0];

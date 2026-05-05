@@ -99,23 +99,23 @@ public final class GsplatSplatWriter
     {
         // Convert from right-up-front to right-down-front by 
         // negating the y- and z-component
-        buffer.putFloat(0, splat.getPositionX());
-        buffer.putFloat(4, -splat.getPositionY());
-        buffer.putFloat(8, -splat.getPositionZ());
+        buffer.putFloat(0, (float)splat.getPositionX());
+        buffer.putFloat(4, (float)-splat.getPositionY());
+        buffer.putFloat(8, (float)-splat.getPositionZ());
         
         buffer.putFloat(12, (float) Math.exp(splat.getScaleX()));
         buffer.putFloat(16, (float) Math.exp(splat.getScaleY()));
         buffer.putFloat(20, (float) Math.exp(splat.getScaleZ()));
 
-        float sr = splat.getShX(0);
-        float sg = splat.getShY(0);
-        float sb = splat.getShZ(0);
-        float sa = splat.getOpacity();
+        double sr = splat.getShX(0);
+        double sg = splat.getShY(0);
+        double sb = splat.getShZ(0);
+        double sa = splat.getOpacity();
 
-        float fr = Splats.directCurrentToColor(sr);
-        float fg = Splats.directCurrentToColor(sg);
-        float fb = Splats.directCurrentToColor(sb);
-        float fa = Splats.opacityToAlpha(sa);
+        double fr = Splats.directCurrentToColor(sr);
+        double fg = Splats.directCurrentToColor(sg);
+        double fb = Splats.directCurrentToColor(sb);
+        double fa = Splats.opacityToAlpha(sa);
 
         byte r = (byte) (fr * 255.0);
         byte g = (byte) (fg * 255.0);
@@ -129,13 +129,13 @@ public final class GsplatSplatWriter
 
         // Convert from right-up-front to right-down-front by 
         // negating the y- and z-component
-        float srx = splat.getRotationX();
-        float sry = -splat.getRotationY();
-        float srz = -splat.getRotationZ();
-        float srw = splat.getRotationW();
+        double srx = splat.getRotationX();
+        double sry = -splat.getRotationY();
+        double srz = -splat.getRotationZ();
+        double srw = splat.getRotationW();
         
-        float lenSquared = srx * srx + sry * sry + srz * srz + srw * srw;
-        float invLen = (float) (1.0 / Math.sqrt(lenSquared));
+        double lenSquared = srx * srx + sry * sry + srz * srz + srw * srw;
+        double invLen = 1.0 / Math.sqrt(lenSquared);
         
         byte rx = (byte) ((srx * invLen) * 128.0 + 128.0);
         byte ry = (byte) ((sry * invLen) * 128.0 + 128.0);

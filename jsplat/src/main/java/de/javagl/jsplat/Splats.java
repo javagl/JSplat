@@ -94,20 +94,20 @@ public class Splats
     {
         StringBuilder sb = new StringBuilder();
 
-        float px = splat.getPositionX();
-        float py = splat.getPositionY();
-        float pz = splat.getPositionZ();
+        double px = splat.getPositionX();
+        double py = splat.getPositionY();
+        double pz = splat.getPositionZ();
 
-        float sx = splat.getScaleX();
-        float sy = splat.getScaleY();
-        float sz = splat.getScaleZ();
+        double sx = splat.getScaleX();
+        double sy = splat.getScaleY();
+        double sz = splat.getScaleZ();
 
-        float rx = splat.getRotationX();
-        float ry = splat.getRotationY();
-        float rz = splat.getRotationZ();
-        float rw = splat.getRotationW();
+        double rx = splat.getRotationX();
+        double ry = splat.getRotationY();
+        double rz = splat.getRotationZ();
+        double rw = splat.getRotationW();
 
-        float o = splat.getOpacity();
+        double o = splat.getOpacity();
 
         String separator = "\n";
 
@@ -124,9 +124,9 @@ public class Splats
         int dimensions = splat.getShDimensions();
         for (int d = 0; d < dimensions; d++)
         {
-            float shx = splat.getShX(d);
-            float shy = splat.getShY(d);
-            float shz = splat.getShZ(d);
+            double shx = splat.getShX(d);
+            double shy = splat.getShY(d);
+            double shz = splat.getShZ(d);
             String shs = "sh" + d + "=(" + shx + "," + shy + "," + shz + ")";
             sb.append(shs).append(separator);
         }
@@ -214,9 +214,9 @@ public class Splats
      * @param dc The coefficient
      * @return The color value
      */
-    public static float directCurrentToColor(float dc)
+    public static double directCurrentToColor(double dc)
     {
-        float f = (float) (0.5 + SH_C0 * dc);
+        double f = 0.5 + SH_C0 * dc;
         return clamp(f);
     }
 
@@ -228,9 +228,9 @@ public class Splats
      * @param c The color value
      * @return The coefficient
      */
-    public static float colorToDirectCurrent(float c)
+    public static double colorToDirectCurrent(double c)
     {
-        float dc = (float) ((c - 0.5) / SH_C0);
+        double dc = (c - 0.5) / SH_C0;
         return dc;
     }
 
@@ -241,9 +241,9 @@ public class Splats
      * @param v The opacity
      * @return The alpha value
      */
-    public static float opacityToAlpha(float v)
+    public static double opacityToAlpha(double v)
     {
-        float alpha = (float) (1.0 / (1.0 + Math.exp(-v)));
+        double alpha = 1.0 / (1.0 + Math.exp(-v));
         return clamp(alpha);
     }
 
@@ -259,7 +259,7 @@ public class Splats
      * @param a The alpha value
      * @return The opacity value
      */
-    public static float alphaToOpacity(float a)
+    public static double alphaToOpacity(double a)
     {
         // This is to avoid infinity, but pick a value that
         // results in 255 or 0 during the inverse operation
@@ -271,7 +271,7 @@ public class Splats
         {
             return -20.0f;
         }
-        float opacity = (float) -Math.log(1.0f / a - 1.0);
+        double opacity = -Math.log(1.0f / a - 1.0);
         return opacity;
     }
 
@@ -281,7 +281,7 @@ public class Splats
      * @param f The value
      * @return The result
      */
-    private static float clamp(float f)
+    private static double clamp(double f)
     {
         if (f < 0.0f)
         {
@@ -379,7 +379,7 @@ public class Splats
      * @return The result
      */
     public static boolean equalsEpsilon(List<? extends Splat> sas,
-        List<? extends Splat> sbs, float epsilon)
+        List<? extends Splat> sbs, double epsilon)
     {
         if (sas.size() != sbs.size())
         {
@@ -413,7 +413,7 @@ public class Splats
      * @param epsilon The epsilon
      * @return The result
      */
-    public static boolean equalsEpsilon(Splat sa, Splat sb, float epsilon)
+    public static boolean equalsEpsilon(Splat sa, Splat sb, double epsilon)
     {
         int dimensionsA = sa.getShDimensions();
         int dimensionsB = sb.getShDimensions();
@@ -455,30 +455,31 @@ public class Splats
         // their dot product is +1.0 or -1.0. The quaternions should
         // be rotation quaternions (i.e. normalized), but this is not
         // ensured in general, so they are normalized here.
-        float ax = sa.getRotationX();
-        float ay = sa.getRotationY();
-        float az = sa.getRotationZ();
-        float aw = sa.getRotationW();
-        float aLenSquared = ax * ax + ay * ay + az * az + aw * aw;
-        float aInvLen = 1.0f / (float)Math.sqrt(aLenSquared);
-        float anx = ax * aInvLen; 
-        float any = ay * aInvLen; 
-        float anz = az * aInvLen; 
-        float anw = aw * aInvLen; 
+        double ax = sa.getRotationX();
+        double ay = sa.getRotationY();
+        double az = sa.getRotationZ();
+        double aw = sa.getRotationW();
+        double aLenSquared = ax * ax + ay * ay + az * az + aw * aw;
+        double aInvLen = 1.0f / Math.sqrt(aLenSquared);
+        double anx = ax * aInvLen; 
+        double any = ay * aInvLen; 
+        double anz = az * aInvLen; 
+        double anw = aw * aInvLen; 
         
-        float bx = sb.getRotationX();
-        float by = sb.getRotationY();
-        float bz = sb.getRotationZ();
-        float bw = sb.getRotationW();
-        float bLenSquared = bx * bx + by * by + bz * bz + bw * bw;
-        float bInvLen = 1.0f / (float)Math.sqrt(bLenSquared);
-        float bnx = bx * bInvLen; 
-        float bny = by * bInvLen; 
-        float bnz = bz * bInvLen; 
-        float bnw = bw * bInvLen; 
+        double bx = sb.getRotationX();
+        double by = sb.getRotationY();
+        double bz = sb.getRotationZ();
+        double bw = sb.getRotationW();
+        double bLenSquared = bx * bx + by * by + bz * bz + bw * bw;
+        double bInvLen = 1.0f / Math.sqrt(bLenSquared);
+        double bnx = bx * bInvLen; 
+        double bny = by * bInvLen; 
+        double bnz = bz * bInvLen; 
+        double bnw = bw * bInvLen; 
         
-        float dot = anx * bnx + any * bny + anz * bnz + anw * bnw;
-        if (Math.abs(Math.abs(dot) - 1.0f) > epsilon)
+        double dot = anx * bnx + any * bny + anz * bnz + anw * bnw;
+        double absDotError = Math.abs(Math.abs(dot) - 1.0f);
+        if (absDotError > epsilon)
         {
             return false;
         }
@@ -521,7 +522,7 @@ public class Splats
      * @param epsilon The epsilon
      * @return The result
      */
-    public static boolean strictEqualsEpsilon(Splat sa, Splat sb, float epsilon)
+    public static boolean strictEqualsEpsilon(Splat sa, Splat sb, double epsilon)
     {
         int dimensionsA = sa.getShDimensions();
         int dimensionsB = sb.getShDimensions();
@@ -609,15 +610,15 @@ public class Splats
      * @param epsilon The relative epsilon
      * @return Whether they are equal
      */
-    private static boolean equalsEpsilon(float a, float b, float epsilon)
+    private static boolean equalsEpsilon(double a, double b, double epsilon)
     {
-        float d = Math.abs(a - b);
+        double d = Math.abs(a - b);
         if (d < epsilon)
         {
             return true;
         }
-        float aa = Math.abs(a);
-        float ab = Math.abs(b);
+        double aa = Math.abs(a);
+        double ab = Math.abs(b);
         if (aa < ab)
         {
             return d <= ab * epsilon;
