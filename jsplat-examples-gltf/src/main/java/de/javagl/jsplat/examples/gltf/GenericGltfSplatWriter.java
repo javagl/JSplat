@@ -28,6 +28,7 @@ package de.javagl.jsplat.examples.gltf;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.FloatBuffer;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,8 +38,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import de.javagl.jgltf.model.AnimationModel;
+import de.javagl.jgltf.model.AnimationModel.Interpolation;
 import de.javagl.jgltf.model.MeshPrimitiveModel;
+import de.javagl.jgltf.model.NodeModel;
+import de.javagl.jgltf.model.creation.AccessorModels;
 import de.javagl.jgltf.model.creation.GltfModelBuilder;
+import de.javagl.jgltf.model.impl.DefaultAccessorModel;
+import de.javagl.jgltf.model.impl.DefaultAnimationModel;
 import de.javagl.jgltf.model.impl.DefaultExtensionsModel;
 import de.javagl.jgltf.model.impl.DefaultGltfModel;
 import de.javagl.jgltf.model.impl.DefaultMeshModel;
@@ -98,6 +105,11 @@ class GenericGltfSplatWriter
          * The matrix for the node
          */
         private double[] matrix;
+
+        /**
+         * The animation for the node
+         */
+        private SplatAnimation splatAnimation;
     }
 
     /**
@@ -202,6 +214,50 @@ class GenericGltfSplatWriter
     }
 
     /**
+     * Add the given splats to this instance, using an unspecified default color
+     * space.
+     * 
+     * The given splats will be contained in one mesh primitive that is part of
+     * a mesh that is attached to a node that has the given animation.
+     * 
+     * @param splats The splats
+     * @param splatAnimation The animation
+     * @throws IllegalArgumentException If the given matrix is not
+     *         <code>null</code> and has a length that is not 16
+     */
+    public void addAnimatedSplats(List<? extends Splat> splats,
+        SplatAnimation splatAnimation)
+    {
+        addAnimatedSplats(splats, splatAnimation, DEFAULT_COLOR_SPACE);
+    }
+
+    /**
+     * Add the given splats to this instance.
+     * 
+     * The given splats will be contained in one mesh primitive that is part of
+     * a mesh that is attached to a node that has the given animation.
+     * 
+     * @param splats The splats
+     * @param splatAnimation The animation
+     * @param colorSpace The color space for the splat extension
+     * @throws IllegalArgumentException If the given matrix is not
+     *         <code>null</code> and has a length that is not 16
+     */
+    public void addAnimatedSplats(List<? extends Splat> splats,
+        SplatAnimation splatAnimation, String colorSpace)
+    {
+        Objects.requireNonNull(splats, "The splats may not be null");
+
+        Instantiation instantiation = new Instantiation();
+        instantiation.splatAnimation = splatAnimation;
+
+        MeshKey meshKey = new MeshKey(splats, colorSpace);
+        List<Instantiation> list = instantiations.computeIfAbsent(meshKey,
+            (k) -> new ArrayList<Instantiation>());
+        list.add(instantiation);
+    }
+
+    /**
      * Write the glTF asset, as a binary glTF (GLB) file to the given output
      * stream.
      * 
@@ -213,7 +269,7 @@ class GenericGltfSplatWriter
         DefaultSceneModel sceneModel = new DefaultSceneModel();
 
         // Create a mapping from the mesh keys to the respective mesh
-        // models, each containing one mesh primitive with the 
+        // models, each containing one mesh primitive with the
         // splat extension
         Map<MeshKey, DefaultMeshModel> splatMeshModels =
             new LinkedHashMap<MeshKey, DefaultMeshModel>();
@@ -238,7 +294,10 @@ class GenericGltfSplatWriter
         }
 
         // For each "instantiation", create a node with the corresponding
-        // matrix, and attach the corresponding splat mesh to that node
+        // matrix or animation, and attach the corresponding splat mesh
+        // to that node
+        List<DefaultAnimationModel> animationModels =
+            new ArrayList<DefaultAnimationModel>();
         for (Entry<MeshKey, List<Instantiation>> entry : instantiations
             .entrySet())
         {
@@ -248,12 +307,27 @@ class GenericGltfSplatWriter
             List<Instantiation> instantiationsList = entry.getValue();
             for (Instantiation instantiation : instantiationsList)
             {
-                double matrix[] = instantiation.matrix;
-
-                DefaultNodeModel nodeModel = new DefaultNodeModel();
-                nodeModel.setMatrix(toFloat(matrix));
-                nodeModel.addMeshModel(meshModel);
-                sceneModel.addNode(nodeModel);
+                SplatAnimation splatAnimation = instantiation.splatAnimation;
+                if (splatAnimation != null)
+                {
+                    DefaultNodeModel nodeModel = new DefaultNodeModel();
+                    nodeModel.addMeshModel(meshModel);
+                    sceneModel.addNode(nodeModel);
+                    DefaultAnimationModel animationModel =
+                        createAnimationModel(nodeModel, splatAnimation);
+                    if (animationModel != null)
+                    {
+                        animationModels.add(animationModel);
+                    }
+                }
+                else
+                {
+                    double matrix[] = instantiation.matrix;
+                    DefaultNodeModel nodeModel = new DefaultNodeModel();
+                    nodeModel.setMatrix(toFloat(matrix));
+                    nodeModel.addMeshModel(meshModel);
+                    sceneModel.addNode(nodeModel);
+                }
             }
         }
 
@@ -274,6 +348,10 @@ class GenericGltfSplatWriter
 
         GltfModelBuilder b = GltfModelBuilder.create();
         b.addSceneModel(sceneModel);
+        for (AnimationModel animationModel : animationModels)
+        {
+            b.addAnimationModel(animationModel);
+        }
         DefaultGltfModel gltfModel = b.build();
 
         DefaultExtensionsModel extensionsModel = gltfModel.getExtensionsModel();
@@ -281,6 +359,121 @@ class GenericGltfSplatWriter
 
         GltfModelWriter w = new GltfModelWriter();
         w.writeBinary(gltfModel, outputStream);
+    }
+
+    /**
+     * Create an animation model from the given data
+     * @param nodeModel The node model
+     * @param splatAnimation The splat animation
+     * @return The animation
+     */
+    private static DefaultAnimationModel
+        createAnimationModel(NodeModel nodeModel, SplatAnimation splatAnimation)
+    {
+        float times[] = toFloat(splatAnimation.times);
+        if (splatAnimation.translations != null)
+        {
+            float translations[] = toFloat1D(splatAnimation.translations);
+            return createTranslationAnimationModel(nodeModel, times,
+                translations);
+        }
+        if (splatAnimation.rotations != null)
+        {
+            float rotations[] = toFloat1D(splatAnimation.rotations);
+            return createRotationAnimationModel(nodeModel, times,
+                rotations);
+        }
+        if (splatAnimation.scales != null)
+        {
+            float scales[] = toFloat1D(splatAnimation.scales);
+            return createScaleAnimationModel(nodeModel, times,
+                scales);
+        }
+        return null;
+    }
+
+    /**
+     * Create an animation model from the given data
+     * 
+     * @param nodeModel The node
+     * @param times The times
+     * @param translations The translations
+     * @return The animation
+     */
+    private static DefaultAnimationModel createTranslationAnimationModel(
+        NodeModel nodeModel, float times[], float translations[])
+    {
+        DefaultAccessorModel timesAccessorModel =
+            AccessorModels.createFloatScalar(FloatBuffer.wrap(times));
+        DefaultAccessorModel valuesAccessorModel =
+            AccessorModels.createFloat3D(FloatBuffer.wrap(translations));
+
+        DefaultAnimationModel animationModel = new DefaultAnimationModel();
+        DefaultAnimationModel.DefaultSampler sampler =
+            new DefaultAnimationModel.DefaultSampler(timesAccessorModel,
+                Interpolation.LINEAR, valuesAccessorModel);
+        DefaultAnimationModel.DefaultChannel channel =
+            new DefaultAnimationModel.DefaultChannel(sampler, nodeModel,
+                "translation");
+        animationModel.addChannel(channel);
+
+        return animationModel;
+    }
+    
+    /**
+     * Create an animation model from the given data
+     * 
+     * @param nodeModel The node
+     * @param times The times
+     * @param rotations The rotations
+     * @return The animation
+     */
+    private static DefaultAnimationModel createRotationAnimationModel(
+        NodeModel nodeModel, float times[], float rotations[])
+    {
+        DefaultAccessorModel timesAccessorModel =
+            AccessorModels.createFloatScalar(FloatBuffer.wrap(times));
+        DefaultAccessorModel valuesAccessorModel =
+            AccessorModels.createFloat4D(FloatBuffer.wrap(rotations));
+
+        DefaultAnimationModel animationModel = new DefaultAnimationModel();
+        DefaultAnimationModel.DefaultSampler sampler =
+            new DefaultAnimationModel.DefaultSampler(timesAccessorModel,
+                Interpolation.LINEAR, valuesAccessorModel);
+        DefaultAnimationModel.DefaultChannel channel =
+            new DefaultAnimationModel.DefaultChannel(sampler, nodeModel,
+                "rotation");
+        animationModel.addChannel(channel);
+
+        return animationModel;
+    }
+    
+    /**
+     * Create an animation model from the given data
+     * 
+     * @param nodeModel The node
+     * @param times The times
+     * @param scales The scales
+     * @return The animation
+     */
+    private static DefaultAnimationModel createScaleAnimationModel(
+        NodeModel nodeModel, float times[], float scales[])
+    {
+        DefaultAccessorModel timesAccessorModel =
+            AccessorModels.createFloatScalar(FloatBuffer.wrap(times));
+        DefaultAccessorModel valuesAccessorModel =
+            AccessorModels.createFloat3D(FloatBuffer.wrap(scales));
+
+        DefaultAnimationModel animationModel = new DefaultAnimationModel();
+        DefaultAnimationModel.DefaultSampler sampler =
+            new DefaultAnimationModel.DefaultSampler(timesAccessorModel,
+                Interpolation.LINEAR, valuesAccessorModel);
+        DefaultAnimationModel.DefaultChannel channel =
+            new DefaultAnimationModel.DefaultChannel(sampler, nodeModel,
+                "scale");
+        animationModel.addChannel(channel);
+
+        return animationModel;
     }
 
     /**
@@ -299,6 +492,36 @@ class GenericGltfSplatWriter
         for (int i = 0; i < array.length; i++)
         {
             result[i] = (float) array[i];
+        }
+        return result;
+    }
+
+    /**
+     * Convert the given array into a 1D float array
+     * 
+     * @param array The array
+     * @return The result
+     */
+    private static float[] toFloat1D(double array[][])
+    {
+        if (array == null)
+        {
+            return null;
+        }
+        int length = 0;
+        for (int i = 0; i < array.length; i++)
+        {
+            length += array[i].length;
+        }
+        float result[] = new float[length];
+        int index = 0;
+        for (int i = 0; i < array.length; i++)
+        {
+            double e[] = array[i];
+            for (int j = 0; j < e.length; j++)
+            {
+                result[index++] = (float) e[j];
+            }
         }
         return result;
     }

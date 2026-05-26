@@ -35,11 +35,13 @@ import java.util.List;
 import de.javagl.jgltf.model.impl.DefaultMeshPrimitiveModel;
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.SplatListWriter;
+import de.javagl.jsplat.Splats;
 import de.javagl.jsplat.examples.UnitCubeSplats;
 import de.javagl.jsplat.examples.UnitShSplats;
 import de.javagl.jsplat.io.ply.PlySplatWriter;
 import de.javagl.jsplat.io.ply.PlySplatWriter.PlyFormat;
 import de.javagl.jsplat.io.spz.SpzSplatWriter;
+import de.javagl.jsplat.processing.SplatTransforms;
 
 /**
  * Methods to create splat glTF example files
@@ -55,12 +57,12 @@ public class CreateSplatGltfExamples
     public static void main(String[] args) throws IOException
     {
         createGltfs();
-        createCustom();
+        //createCustom();
     }
-    
+
     /**
      * Create the main glTF examples
-     *  
+     * 
      * @throws IOException When an IO error occurs
      */
     private static void createGltfs() throws IOException
@@ -123,10 +125,17 @@ public class CreateSplatGltfExamples
             w.addSplats(SplatBlendingTests.createBlendingTest(), null);
             w.write(new FileOutputStream(baseDir + "Blending.glb"));
         }
+
+        {
+            GenericGltfSplatWriter w = new GenericGltfSplatWriter();
+            createAnimated(w);
+            w.write(new FileOutputStream(baseDir + "Animated.glb"));
+        }
+
     }
 
     /**
-     * Create some highly specific tests 
+     * Create some highly specific tests
      * 
      * @throws IOException When an IO error occurs
      */
@@ -154,22 +163,19 @@ public class CreateSplatGltfExamples
                 new FileOutputStream(baseDir + "RotationsZ.spz"));
         }
         {
-            SplatListWriter w = new PlySplatWriter(
-                PlyFormat.BINARY_LITTLE_ENDIAN);
+            SplatListWriter w =
+                new PlySplatWriter(PlyFormat.BINARY_LITTLE_ENDIAN);
             List<MutableSplat> splats = SplatDepthTests.createDepthTest();
-            w.writeList(splats,
-                new FileOutputStream(baseDir + "Depths.ply"));
+            w.writeList(splats, new FileOutputStream(baseDir + "Depths.ply"));
         }
         {
-            SplatListWriter w = new PlySplatWriter(
-                PlyFormat.BINARY_LITTLE_ENDIAN);
+            SplatListWriter w =
+                new PlySplatWriter(PlyFormat.BINARY_LITTLE_ENDIAN);
             List<MutableSplat> splats = SplatBlendingTests.createBlendingTest();
-            w.writeList(splats,
-                new FileOutputStream(baseDir + "Blending.ply"));
+            w.writeList(splats, new FileOutputStream(baseDir + "Blending.ply"));
         }
         {
-            SplatListWriter w = new PlySplatWriter(
-                PlyFormat.ASCII);
+            SplatListWriter w = new PlySplatWriter(PlyFormat.ASCII);
             List<MutableSplat> splats = SplatBlendingTests.createBlendingTest();
             w.writeList(splats,
                 new FileOutputStream(baseDir + "Blending-ASCII.ply"));
@@ -253,10 +259,10 @@ public class CreateSplatGltfExamples
             w.addSplats(splats, matrix);
         }
     }
-    
+
     /**
-     * Fill the given writer with two splat mesh primitives, the first
-     * one having SH degree 3, and the second one having SH degree 2.
+     * Fill the given writer with two splat mesh primitives, the first one
+     * having SH degree 3, and the second one having SH degree 2.
      * 
      * @param w The writer
      */
@@ -275,7 +281,6 @@ public class CreateSplatGltfExamples
             w.addSplats(splats, matrix);
         }
     }
-    
 
     /**
      * TODO
@@ -301,5 +306,108 @@ public class CreateSplatGltfExamples
         }
     }
 
+    /**
+     * TODO
+     * 
+     * @param w The writer
+     */
+    private static void createAnimated(GenericGltfSplatWriter w)
+    {
+        List<MutableSplat> splats = UnitShSplats.createDeg3();
+        {
+            List<MutableSplat> localSplats = Splats.copyList(splats);
+            SplatTransforms.transformList(localSplats,
+                Matrices.createMatrixTranslation(-225.0, 0.0, 0.0));
+            w.addSplats(localSplats, null);
+        }
+        {
+            List<MutableSplat> localSplats = Splats.copyList(splats);
+            SplatTransforms.transformList(localSplats,
+                Matrices.createMatrixTranslation(-75.0, 0.0, 0.0));
+            double times[] =
+            { 0.0, 1.0, 2.0, 3.0, 4.0 };
+            double translations[][] =
+            {
+                { 0.0, 0.0, 0.0 },
+                { 25.0, 0.0, 0.0 },
+                { 25.0, 75.0, 0.0 },
+                { 0.0, 75.0, 0.0 },
+                { 0.0, 0.0, 0.0 }, };
+            SplatAnimation splatAnimation = new SplatAnimation();
+            splatAnimation.times = times;
+            splatAnimation.translations = translations;
+            w.addAnimatedSplats(localSplats, splatAnimation);
+        }
+        {
+            List<MutableSplat> localSplats = Splats.copyList(splats);
+            SplatTransforms.transformList(localSplats,
+                Matrices.createMatrixTranslation(75.0, 0.0, 0.0));
+            double times[] =
+            { 0.0, 1.0, 2.0, 3.0, 4.0 };
+            double rotations[][] =
+            { rotation(1.0, 0.0, 0.0, Math.toRadians(0.0)),
+                rotation(1.0, 0.0, 0.0, Math.toRadians(90.0)),
+                rotation(1.0, 0.0, 0.0, Math.toRadians(180.0)),
+                rotation(1.0, 0.0, 0.0, Math.toRadians(270.0)),
+                rotation(1.0, 0.0, 0.0, Math.toRadians(0.0)) };
+            SplatAnimation splatAnimation = new SplatAnimation();
+            splatAnimation.times = times;
+            splatAnimation.rotations = rotations;
+            w.addAnimatedSplats(localSplats, splatAnimation);
+        }
+        {
+            List<MutableSplat> localSplats = Splats.copyList(splats);
+            SplatTransforms.transformList(localSplats,
+                Matrices.createMatrixTranslation(225.0, 0.0, 0.0));
+            double times[] =
+            { 0.0, 1.0, 2.0, 3.0, 4.0 };
+            double scales[][] =
+            {
+                { 1.0, 1.0, 1.0 },
+                { 1.0, 2.0, 1.0 },
+                { 1.0, 3.0, 1.0 },
+                { 1.0, 2.0, 1.0 },
+                { 1.0, 1.0, 1.0 }, };
+            SplatAnimation splatAnimation = new SplatAnimation();
+            splatAnimation.times = times;
+            splatAnimation.scales = scales;
+            w.addAnimatedSplats(localSplats, splatAnimation);
+        }
+
+    }
+
+    /**
+     * Create the components of a quaternion that describes a rotation around
+     * the given axis, about the given angle
+     * 
+     * @param x The x-component of the axis
+     * @param y The y-component of the axis
+     * @param z The z-component of the axis
+     * @param angleRad The angle, in radians
+     * @return The quaternion, in scalar-last representation
+     */
+    private static double[] rotation(double x, double y, double z,
+        double angleRad)
+    {
+        double halfAngleRad = angleRad * 0.5f;
+        double s = Math.sin(halfAngleRad);
+
+        double lenSquared = x * x + y * y + z * z;
+        if (lenSquared < 1e-6)
+        {
+            return new double[]
+            { 0.0, 0.0, 0.0, 1.0 };
+        }
+
+        double invLen = 1.0 / Math.sqrt(lenSquared);
+        double qx = x * invLen * s;
+        double qy = y * invLen * s;
+        double qz = z * invLen * s;
+        double qw = Math.cos(halfAngleRad);
+
+        double q[] = new double[]
+        { qx, qy, qz, qw };
+        return q;
+    }
 
 }
