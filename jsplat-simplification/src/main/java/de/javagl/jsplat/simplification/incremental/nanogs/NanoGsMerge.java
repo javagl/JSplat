@@ -198,7 +198,7 @@ class NanoGsMerge
         NanoGsMath.sigmaFromQuatScaleFlatInto(rotIw, rotIx, rotIy, rotIz,
             scaleIx, scaleIy, scaleIz, SigI);
         NanoGsMath.sigmaFromQuatScaleFlatInto(rotJw, rotJx, rotJy, rotJz,
-            scaleJx, scaleIy, scaleJz, SigJ);
+            scaleJx, scaleJy, scaleJz, SigJ);
 
         double dix = muxi - mux;
         double diy = muyi - muy;
