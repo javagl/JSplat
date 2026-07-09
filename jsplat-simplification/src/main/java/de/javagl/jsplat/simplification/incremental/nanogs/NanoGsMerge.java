@@ -35,55 +35,30 @@ class NanoGsMerge
     /**
      * Constant for (2*PI)^1.5
      */
-    private static final double TWO_PI_POW_1P5 =
-        Math.pow(2.0 * Math.PI, 1.5);
+    private static final double TWO_PI_POW_1P5 = Math.pow(2.0 * Math.PI, 1.5);
 
     /**
-     * A thread-local 3x3 matrix for "SigI"
+     * A collection of the (thread-local) variables used in the "merge" function
      */
-    private static final ThreadLocal<double[]> THREAD_LOCAL_SigI =
-        ThreadLocal.withInitial(() -> new double[9]);        
-    
-    /**
-     * A thread-local 3x3 matrix for "SigJ"
-     */
-    private static final ThreadLocal<double[]> THREAD_LOCAL_SigJ =
-        ThreadLocal.withInitial(() -> new double[9]);        
-    
-    /**
-     * A thread-local 3x3 matrix for "Sig"
-     */
-    private static final ThreadLocal<double[]> THREAD_LOCAL_Sig =
-        ThreadLocal.withInitial(() -> new double[9]);        
-    
-    /**
-     * A thread-local 3x3 matrix for "R"
-     */
-    private static final ThreadLocal<double[]> THREAD_LOCAL_R =
-        ThreadLocal.withInitial(() -> new double[9]);        
-    
-    /**
-     * A thread-local quaternion "q"
-     */
-    private static final ThreadLocal<double[]> THREAD_LOCAL_q =
-        ThreadLocal.withInitial(() -> new double[4]);        
-    
-    /**
-     * Thread-local indexed values
-     */
-    private static final ThreadLocal<IndexedValue[]> THREAD_LOCAL_indexedValues =
-        ThreadLocal.withInitial(() -> new IndexedValue[] {
-            new IndexedValue(),
-            new IndexedValue(),
-            new IndexedValue(),
-        });        
+    @SuppressWarnings("javadoc")
+    private static class MergeData
+    {
+        double SigI[] = new double[9];
+        double SigJ[] = new double[9];
+        double Sig[] = new double[9];
+        double R[] = new double[9];
+        double q[] = new double[4];
+        IndexedValue[] indexedValues = new IndexedValue[]
+        { new IndexedValue(), new IndexedValue(), new IndexedValue(), };
+        Eigendecomposition3x3 eigendecomposition = new Eigendecomposition3x3();
+    }
 
     /**
-     * Thread-local eigendecomposition
+     * Thread-local variables for the "merge" function
      */
-    private static final ThreadLocal<Eigendecomposition3x3> THREAD_LOCAL_eigendecomposition =
-        ThreadLocal.withInitial(() -> new Eigendecomposition3x3());        
-    
+    private static final ThreadLocal<MergeData> THREAD_LOCAL_mergeData =
+        ThreadLocal.withInitial(() -> new MergeData());
+
     /**
      * Helper class for sorting eigenvalues
      */
@@ -150,6 +125,8 @@ class NanoGsMerge
      */
     private static void merge(Splat splatI, Splat splatJ, MutableSplat result)
     {
+        MergeData d = THREAD_LOCAL_mergeData.get();
+
         double scaleIx = Math.exp(splatI.getScaleX());
         double scaleIy = Math.exp(splatI.getScaleY());
         double scaleIz = Math.exp(splatI.getScaleZ());
@@ -193,8 +170,8 @@ class NanoGsMerge
         double n_opacity = Splats.alphaToOpacity(n_alpha);
 
         // Compute the resulting covariance matrix
-        double SigI[] = THREAD_LOCAL_SigI.get();
-        double SigJ[] = THREAD_LOCAL_SigJ.get();
+        double SigI[] = d.SigI;
+        double SigJ[] = d.SigJ;
         NanoGsMath.sigmaFromQuatScaleFlatInto(rotIw, rotIx, rotIy, rotIz,
             scaleIx, scaleIy, scaleIz, SigI);
         NanoGsMath.sigmaFromQuatScaleFlatInto(rotJw, rotJx, rotJy, rotJz,
@@ -208,7 +185,7 @@ class NanoGsMerge
         double djy = muyj - muy;
         double djz = muzj - muz;
 
-        double Sig[] = THREAD_LOCAL_Sig.get();
+        double Sig[] = d.Sig;
         for (int a = 0; a < 9; a++)
         {
             Sig[a] = (wi * SigI[a] + wj * SigJ[a]) / W;
@@ -235,12 +212,12 @@ class NanoGsMerge
         Sig[8] += 1e-8;
 
         // Extract the scale (eigenvalues) and rotation from the eigenvectors
-        Eigendecomposition3x3 ev = THREAD_LOCAL_eigendecomposition.get();
+        Eigendecomposition3x3 ev = d.eigendecomposition;
         NanoGsMath.eigenSymmetric3x3Flat(Sig, ev);
         double[] vals = ev.eigenvalues;
         double[] vecs = ev.eigenvectors;
 
-        IndexedValue[] indexedEigenvalues = THREAD_LOCAL_indexedValues.get();
+        IndexedValue[] indexedEigenvalues = d.indexedValues;
         indexedEigenvalues[0].index = 0;
         indexedEigenvalues[0].value = vals[0];
         indexedEigenvalues[1].index = 1;
@@ -253,7 +230,7 @@ class NanoGsMerge
         vals[1] = indexedEigenvalues[1].value;
         vals[2] = indexedEigenvalues[2].value;
 
-        double R[] = THREAD_LOCAL_R.get();
+        double R[] = d.R;
         for (int c = 0; c < 3; c++)
         {
             int src = indexedEigenvalues[c].index;
@@ -269,7 +246,7 @@ class NanoGsMerge
             R[8] = -R[8];
         }
 
-        double q[] = THREAD_LOCAL_q.get();
+        double q[] = d.q;
         NanoGsMath.rotmatToQuatFlat(R, q);
 
         // Assign the computed properties to the result splat
@@ -284,7 +261,7 @@ class NanoGsMerge
         result.setRotationY(q[2]);
         result.setRotationZ(q[3]);
         result.setOpacity(n_opacity);
-        
+
         // Compute the weighted average of the spherical harmonics coefficients
         int dim = splatI.getShDimensions();
         for (int i = 0; i < dim; i++)
