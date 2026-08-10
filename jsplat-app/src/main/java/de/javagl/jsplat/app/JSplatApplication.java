@@ -30,6 +30,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,7 +42,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -57,6 +61,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import de.javagl.jgltf.model.NodeModel;
 import de.javagl.jsplat.MutableSplat;
 import de.javagl.jsplat.Splat;
 import de.javagl.jsplat.SplatListReader;
@@ -64,7 +69,10 @@ import de.javagl.jsplat.SplatListWriter;
 import de.javagl.jsplat.app.common.UriLoading;
 import de.javagl.jsplat.app.common.UriTransferHandler;
 import de.javagl.jsplat.app.common.UriUtils;
+import de.javagl.jsplat.io.gltf.GltfSplatReader;
+import de.javagl.jsplat.io.gltf.GltfSplatReader.Result;
 import de.javagl.jsplat.io.gltf.GltfSplatWriter;
+import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatReader;
 import de.javagl.jsplat.io.gltf.spz.GltfSpzSplatWriter;
 import de.javagl.jsplat.io.gsplat.GsplatSplatReader;
 import de.javagl.jsplat.io.gsplat.GsplatSplatWriter;
@@ -361,7 +369,15 @@ class JSplatApplication
             try
             {
                 long beforeNs = System.nanoTime();
-                List<MutableSplat> result = reader.readList(inputStream);
+                List<MutableSplat> result;
+                if (reader instanceof GlbSplatListReader)
+                {
+                    result = processGltfSplats(inputStream);
+                }
+                else
+                {
+                    result = reader.readList(inputStream);
+                }
                 long afterNs = System.nanoTime();
                 double ms = (afterNs - beforeNs) / 1e6;
                 logger.info(
@@ -378,6 +394,68 @@ class JSplatApplication
             {
                 processLoadedSplats(resultUris, resultSplatLists);
             });
+    }
+
+    /**
+     * Quirky, proof-of-concept function for splats that are contained in
+     * glTF with node animations
+     * 
+     * @param inputStream The input stream
+     * @return An empty list. I said it's quirky...
+     * @throws IOException If an IO error occurs
+     */
+    private List<MutableSplat> processGltfSplats(InputStream inputStream)
+        throws IOException
+    {
+        byte data[] = GlbSplatListReader.readFully(inputStream);
+        boolean usesSpz = GlbSplatListReader.usesSpz(data);
+        if (usesSpz)
+        {
+            GltfSpzSplatReader sr = new GltfSpzSplatReader();
+            return sr.readList(new ByteArrayInputStream(data));
+        }
+        GltfSplatReader sr = new GltfSplatReader();
+        Result result = sr.read(new ByteArrayInputStream(data));
+        Map<NodeModel, List<MutableSplat>> nodeSplatLists = result.splatLists;
+
+        // The result here contains mappings from nodes to splat lists.
+        // Assign consecutive names to the nodes, and add the splat
+        // lists to the application panel
+        int counterA = 0;
+        List<String> names = new ArrayList<String>();
+        List<List<MutableSplat>> splatLists =
+            new ArrayList<List<MutableSplat>>();
+        for (Entry<NodeModel, List<MutableSplat>> entry : nodeSplatLists
+            .entrySet())
+        {
+            String name = "node-" + counterA;
+            List<MutableSplat> splatList = entry.getValue();
+            names.add(name);
+            splatLists.add(splatList);
+            counterA++;
+        }
+        
+        // Returns a mapping from names to data sets
+        Map<String, DataSet> dataSets =
+            applicationPanel.addSplatLists(names, splatLists);
+        
+        // Convert the mapping from "names to data sets" into a mapping
+        // of "nodes to data sets", and pass that to the animation handler
+        Map<NodeModel, DataSet> nodeDataSets =
+            new LinkedHashMap<NodeModel, DataSet>();
+        int counterB = 0;
+        for (Entry<NodeModel, List<MutableSplat>> entry : nodeSplatLists
+            .entrySet())
+        {
+            String name = "node-" + counterB;
+            DataSet dataSet = dataSets.get(name);
+            NodeModel key = entry.getKey();
+            nodeDataSets.put(key, dataSet);
+            counterB++;
+        }
+        SplatAnimationHandler.handleAnimation(result.gltfModel, nodeDataSets,
+            () -> applicationPanel.updateSplats());
+        return Collections.emptyList();
     }
 
     /**

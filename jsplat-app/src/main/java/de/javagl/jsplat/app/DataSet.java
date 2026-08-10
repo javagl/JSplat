@@ -99,6 +99,16 @@ class DataSet
     {
         this.currentTransform = transform;
         double[] matrix = Transforms.toMatrix(transform);
+        setTransformMatrixInternal(matrix);
+    }
+    
+    /**
+     * Highly preliminary, internal method to set the transform matrix.
+     * 
+     * @param matrix The matrix
+     */
+    void setTransformMatrixInternal(double matrix[])
+    {
         int shDimensions = Splats.dimensionsForDegree(shDegree);
         Consumer<MutableSplat> t =
             SplatTransforms.createTransform(matrix, shDimensions);

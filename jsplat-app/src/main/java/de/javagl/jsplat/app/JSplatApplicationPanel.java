@@ -35,8 +35,10 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -464,20 +466,31 @@ class JSplatApplicationPanel extends JPanel
         transformPanel.addChangeListener(listener);
         return transformPanel;
     }
+    
+    /**
+     * Update the splats in the viewer for the case that the properties
+     * of the splat lists changed
+     */
+    void updateSplats()
+    {
+        splatViewer.updateSplats();
+    }
 
     /**
      * Add the splats that should be displayed
      * 
      * @param names The name
      * @param splatLists The splat lists
+     * @return A mapping from names to data sets
      */
-    void addSplatLists(List<String> names,
+    Map<String, DataSet> addSplatLists(List<String> names,
         List<? extends List<? extends Splat>> splatLists)
     {
+        Map<String, DataSet> dataSets = new LinkedHashMap<String, DataSet>();
         if (splatViewer == null)
         {
             logger.warning("No SplatViewer was created");
-            return;
+            return dataSets;
         }
 
         List<List<? extends Splat>> currentSplatLists =
@@ -492,6 +505,8 @@ class JSplatApplicationPanel extends JPanel
 
             List<MutableSplat> currentSplats = dataSet.getCurrentSplats();
             currentSplatLists.add(currentSplats);
+            
+            dataSets.put(name, dataSet);
         }
         splatViewer.addSplatLists(currentSplatLists);
 
@@ -501,6 +516,7 @@ class JSplatApplicationPanel extends JPanel
             doFit = false;
         }
         updateStatus();
+        return dataSets;
     }
 
     /**

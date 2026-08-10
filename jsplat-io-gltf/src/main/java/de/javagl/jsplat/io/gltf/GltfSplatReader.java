@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -67,6 +68,24 @@ public final class GltfSplatReader implements SplatListReader
      * The extension name (and attribute prefix)
      */
     private static final String NAME = "KHR_gaussian_splatting";
+
+    /**
+     * Internal, preliminary structure for reading splats from glTF.
+     * 
+     * Not supposed to be used by clients.
+     */
+    public static class Result
+    {
+        /**
+         * The glTF model
+         */
+        public GltfModel gltfModel;
+
+        /**
+         * The mapping from nodes to splat lists
+         */
+        public Map<NodeModel, List<MutableSplat>> splatLists;
+    }
 
     /**
      * Whether all splats from all mesh primitives should be read, transformed
@@ -111,6 +130,73 @@ public final class GltfSplatReader implements SplatListReader
     }
 
     /**
+     * Preliminary method to read splats from glTF
+     * 
+     * @param inputStream The input stream
+     * @return The result
+     * @throws IOException If an IO error occurs
+     */
+    public Result read(InputStream inputStream) throws IOException
+    {
+        GltfModelReader r = new GltfModelReader();
+        GltfModel gltfModel = r.readWithoutReferences(inputStream);
+
+        Result result = new Result();
+        result.gltfModel = gltfModel;
+        result.splatLists = new LinkedHashMap<NodeModel, List<MutableSplat>>();
+
+        List<SceneModel> sceneModels = gltfModel.getSceneModels();
+        for (SceneModel sceneModel : sceneModels)
+        {
+            List<NodeModel> nodeModels = sceneModel.getNodeModels();
+            for (NodeModel nodeModel : nodeModels)
+            {
+                float[] globalTransformF =
+                    nodeModel.computeGlobalTransform(null);
+                double globalTransform[] = new double[16];
+                for (int i = 0; i < 16; i++)
+                {
+                    globalTransform[i] = globalTransformF[i];
+                }
+                List<MeshModel> meshModels = nodeModel.getMeshModels();
+                for (MeshModel meshModel : meshModels)
+                {
+                    List<MeshPrimitiveModel> meshPrimitiveModels =
+                        meshModel.getMeshPrimitiveModels();
+                    for (MeshPrimitiveModel meshPrimitiveModel : meshPrimitiveModels)
+                    {
+                        Map<String, Object> extensions =
+                            meshPrimitiveModel.getExtensions();
+                        if (extensions != null)
+                        {
+                            Object extension = extensions.get(NAME);
+                            if (extension != null)
+                            {
+                                List<MutableSplat> splats =
+                                    readListFrom(meshPrimitiveModel);
+                                if (splats != null && !splats.isEmpty())
+                                {
+                                    SplatTransforms.transformList(splats,
+                                        globalTransform);
+
+                                    List<MutableSplat> mergedSplats =
+                                        result.splatLists.computeIfAbsent(
+                                            nodeModel,
+                                            n -> new ArrayList<MutableSplat>());
+                                    mergedSplats = merge(mergedSplats, splats);
+                                    result.splatLists.put(nodeModel,
+                                        mergedSplats);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * Read all splats that are contained in the glTF that is read from the
      * given input stream, transforming them according to the global transform
      * of the node that they are attached to, and return them all in a single
@@ -137,7 +223,7 @@ public final class GltfSplatReader implements SplatListReader
                 float[] globalTransformF =
                     nodeModel.computeGlobalTransform(null);
                 double globalTransform[] = new double[16];
-                for (int i=0; i<16; i++)
+                for (int i = 0; i < 16; i++)
                 {
                     globalTransform[i] = globalTransformF[i];
                 }

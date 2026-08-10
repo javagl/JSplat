@@ -71,7 +71,7 @@ public class GlbSplatListReader implements SplatListReader
      * @param glbData The GLB data
      * @return The result
      */
-    private static boolean usesSpz(byte glbData[])
+    static boolean usesSpz(byte glbData[])
     {
         GltfAssetReader ar = new GltfAssetReader();
         try (ByteArrayInputStream bais = new ByteArrayInputStream(glbData))
@@ -103,7 +103,7 @@ public class GlbSplatListReader implements SplatListReader
      * @return The byte array
      * @throws IOException If an IO error occurs
      */
-    private static byte[] readFully(InputStream inputStream) throws IOException
+    static byte[] readFully(InputStream inputStream) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] data = new byte[16384];
